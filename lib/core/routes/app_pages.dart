@@ -2,6 +2,8 @@ import 'package:get/get.dart';
 
 import '../../features/content_manager/presentation/bindings/download_binding.dart';
 import '../../features/content_manager/presentation/pages/download_page.dart';
+import '../../features/curriculum_tutor/presentation/bindings/tutor_binding.dart';
+import '../../features/curriculum_tutor/presentation/pages/saved_page.dart';
 import '../../features/lesson/presentation/bindings/lesson_binding.dart';
 import '../../features/lesson/presentation/pages/key_terms_page.dart';
 import '../../features/lesson/presentation/pages/lesson_page.dart';
@@ -27,5 +29,6 @@ abstract final class AppPages {
     GetPage(name: AppRoutes.lesson, page: LessonPage.new, binding: LessonBinding()),
     GetPage(name: AppRoutes.viewer, page: ViewerPage.new, binding: LessonBinding()),
     GetPage(name: AppRoutes.keyTerms, page: KeyTermsPage.new, binding: LessonBinding()),
+    GetPage(name: AppRoutes.saved, page: SavedPage.new, binding: TutorBinding()),
   ];
 }

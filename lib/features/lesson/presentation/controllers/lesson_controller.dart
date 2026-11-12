@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/routes/app_routes.dart';
 import '../../../../core/services/connectivity_service.dart';
+import '../../../curriculum_tutor/presentation/controllers/tutor_controller.dart';
 import '../../../shell/presentation/controllers/shell_controller.dart';
 import '../../domain/entities/lesson.dart';
 import '../../domain/usecases/get_last_section_usecase.dart';
@@ -55,5 +56,15 @@ class LessonController extends GetxController {
 
   /// Hands over to the tutor tab; disabled in the UI when the lesson's
   /// subject has `tutorEnabled == false`.
-  void askTutor() => Get.find<ShellController>().openTutor();
+  void askTutor() {
+    final l = lesson.value;
+    if (l == null) return;
+    Get.find<TutorController>().selectLesson(
+      subject: l.subjectId,
+      lesson: l.id,
+      title: l.title,
+      tutorEnabled: l.tutorEnabled,
+    );
+    Get.find<ShellController>().openTutor();
+  }
 }

@@ -19,6 +19,7 @@ class InitialBinding extends Bindings {
     this._connectivity,
     this._databases,
     this._engine,
+    this._runtime,
   );
 
   final AppPathsService _paths;
@@ -27,6 +28,7 @@ class InitialBinding extends Bindings {
   final ConnectivityService _connectivity;
   final DatabaseService _databases;
   final TutorEngineService _engine;
+  final ModelRuntime? _runtime;
 
   SettingsService get settings => _settings;
 
@@ -42,7 +44,7 @@ class InitialBinding extends Bindings {
       device: device,
       runtime: runtime,
     ).init();
-    return InitialBinding._(paths, settings, device, connectivity, databases, engine);
+    return InitialBinding._(paths, settings, device, connectivity, databases, engine, runtime);
   }
 
   @override
@@ -53,5 +55,7 @@ class InitialBinding extends Bindings {
     Get.put(_connectivity, permanent: true);
     Get.put(_databases, permanent: true);
     Get.put(_engine, permanent: true);
+    final runtime = _runtime;
+    if (runtime != null) Get.put<ModelRuntime>(runtime, permanent: true);
   }
 }

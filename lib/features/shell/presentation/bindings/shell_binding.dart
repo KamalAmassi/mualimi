@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 
 import '../../../../core/services/tutor_engine_service.dart';
 import '../../../content_manager/presentation/bindings/content_manager_shell_binding.dart';
+import '../../../curriculum_tutor/presentation/bindings/tutor_binding.dart';
 import '../../../profile/presentation/bindings/profile_binding.dart';
 import '../../../subjects/presentation/bindings/subjects_binding.dart';
 import '../controllers/shell_controller.dart';
@@ -13,6 +14,7 @@ class ShellBinding extends Bindings {
     SubjectsBinding().dependencies();
     ContentManagerShellBinding().dependencies();
     ProfileBinding().dependencies();
+    TutorBinding().dependencies();
     Get.lazyPut(() => ShellController(Get.find<TutorEngineService>()), fenix: true);
   }
 }

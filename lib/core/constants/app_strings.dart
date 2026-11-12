@@ -61,4 +61,28 @@ abstract final class AppStrings {
   static const toggleTheme = 'تبديل المظهر';
   static const deleteModelTitle = 'حذف المعلّم الذكي';
   static const deleteModelMessage = 'سيُحذف ملف النموذج فقط، وتبقى محفوظاتك كما هي.';
+
+  // Tutor
+  static const askHint = 'اكتب سؤالك';
+  static const send = 'إرسال';
+  static const stop = 'إيقاف';
+  static const newChat = 'محادثة جديدة';
+  static const chooseLesson = 'اختر الدرس';
+  static const saveAnswer = 'حفظ الجواب';
+  static const reportAnswer = 'الإبلاغ عن جواب';
+  static const savedEmpty = 'لا توجد محفوظات بعد';
+  static const questionHistory = 'سجل الأسئلة';
+  static const tutorLoading = 'جارٍ تحميل المعلّم… سيُرسل سؤالك تلقائياً';
+  static const tutorNeedsSetup = 'نزّل المعلّم الذكي أولاً';
+  static const outOfScope = 'هذا السؤال خارج محتوى الدرس.';
+  static const mathSoon = 'المعلّم لا يدعم الرياضيات بعد.';
+  static const answerFailed = 'تعذّر إنشاء الجواب. حاول مرة أخرى.';
+  static const sourceLabel = 'المصدر';
+  static const explainAction = 'اشرح الدرس';
+  static const summaryAction = 'لخّص الدرس';
+  static const termsAction = 'المصطلحات';
+  static const reportReasonWrong = 'الجواب خاطئ';
+  static const reportReasonOffTopic = 'خارج المنهاج';
+  static const reportReasonUnclear = 'غير واضح';
+  static const reportNoteHint = 'ملاحظة (اختياري)';
 }

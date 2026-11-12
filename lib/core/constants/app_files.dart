@@ -10,4 +10,7 @@ abstract final class AppFiles {
   static const manifestCacheFile = 'manifest.json';
   static const tempContentDb = 'content.db.new';
   static const settingsFile = 'settings.json';
+
+  /// SentencePiece tokenizer the embedding model needs next to it.
+  static const embeddingTokenizerFile = 'sentencepiece.model';
 }

@@ -4,7 +4,16 @@ abstract final class Limits {
   static const int retrievalMinChunks = 3;
   static const int retrievalMaxChunks = 4;
   static const double outOfScopeThreshold = 0.35;
-  static const int maxTokens = 512;
+  /// Cap on the generated reply (session `maxOutputTokens`). Saves battery.
+  static const int maxOutputTokens = 512;
+
+  /// Model context window (flutter_gemma `maxTokens`): prompt + reply.
+  static const int contextTokens = 2048;
+  static const int generationTopK = 40;
+  static const double generationTemperature = 0.4;
+
+  /// |bm25| at or above this counts as a full keyword match (score 1.0).
+  static const double bm25Saturation = 10;
   static const int streamFlushMs = 50;
   static const double ftsWeight = 0.4;
   static const double vectorWeight = 0.6;

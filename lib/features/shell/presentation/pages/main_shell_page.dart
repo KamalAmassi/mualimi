@@ -4,7 +4,7 @@ import 'package:lucide_icons/lucide_icons.dart';
 
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/widgets/app_bottom_nav.dart';
-import '../../../../core/widgets/placeholder_page.dart';
+import '../../../curriculum_tutor/presentation/pages/tutor_page.dart';
 import '../../../profile/presentation/pages/profile_page.dart';
 import '../../../subjects/presentation/pages/home_page.dart';
 import '../controllers/shell_controller.dart';
@@ -25,7 +25,7 @@ class MainShellPage extends GetView<ShellController> {
     return Scaffold(
       body: Obx(() => IndexedStack(index: controller.index.value, children: const [
             HomePage(),
-            PlaceholderPage(title: AppStrings.smartTutor),
+            TutorPage(),
             ProfilePage(),
           ])),
       bottomNavigationBar: Obx(() => AppBottomNav(
