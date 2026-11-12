@@ -28,4 +28,21 @@ abstract final class AppStrings {
   static const continueOnMobile = 'المتابعة على بيانات الجوال';
   static const askTutor = 'اسأل المعلّم';
   static const importFromFile = 'استيراد من ملف';
+
+  // Downloads
+  static const downloadPaused = 'التنزيل متوقف';
+  static const downloadNoSpace = 'المساحة غير كافية';
+  static const downloadFailed = 'فشل التنزيل';
+  static const startDownload = 'ابدأ التنزيل';
+  static const waitingForWifi = 'بانتظار شبكة Wi‑Fi';
+  static const mobileDataTitle = 'أنت على بيانات الجوال';
+  static const verifying = 'جارٍ التحقق من الملف';
+  static const assembling = 'جارٍ تجهيز الملف';
+  static const downloadDone = 'اكتمل التنزيل';
+  static const packUpdate = 'تحديث الرزمة';
+  static const updateNow = 'حدّث الآن';
+  static const later = 'لاحقاً';
+  static const downloadTutor = 'نزّل المعلّم الذكي';
+  static const tutorReady = 'المعلّم الذكي جاهز';
+  static const deviceTooWeak = 'جهازك يدعم وضع البحث فقط';
 }

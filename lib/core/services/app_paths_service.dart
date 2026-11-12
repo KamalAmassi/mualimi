@@ -31,8 +31,8 @@ class AppPathsService extends GetxService {
   File get manifestCacheFile => File(p.join(root.path, AppFiles.manifestCacheFile));
 
   File modelFile(String fileName) => File(p.join(modelsDir.path, fileName));
-  File pdfFile(String fileName) =>
-      File(p.join(packsDir.path, AppFiles.pdfDir, fileName));
+  Directory get pdfDir => Directory(p.join(packsDir.path, AppFiles.pdfDir));
+  File pdfFile(String fileName) => File(p.join(pdfDir.path, fileName));
 
   /// Folder holding the in-progress parts of one artifact (model, embedding, pack).
   Directory partsDirOf(String artifactId) =>

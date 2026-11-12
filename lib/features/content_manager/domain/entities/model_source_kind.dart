@@ -1,0 +1,1 @@
+enum ModelSourceKind { network, localFile }
