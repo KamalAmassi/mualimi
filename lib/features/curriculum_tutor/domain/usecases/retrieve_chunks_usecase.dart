@@ -32,6 +32,10 @@ class RetrieveChunksUseCase implements UseCase<List<RetrievedChunk>, AskTutorPar
     final wS = semantic.isEmpty ? 0.0 : Limits.vectorWeight;
     final total = wK + wS;
     if (total == 0) return const [];
+    // One signal only: keep its scores exactly (blending would just add
+    // floating-point drift right at the out-of-scope threshold).
+    if (wS == 0) return _top(keyword);
+    if (wK == 0) return _top(semantic);
 
     final k = {for (final c in keyword) c.id: c};
     final s = {for (final c in semantic) c.id: c};
@@ -40,7 +44,12 @@ class RetrieveChunksUseCase implements UseCase<List<RetrievedChunk>, AskTutorPar
         (k[id] ?? s[id]!).withScore(
           (wK * (k[id]?.score ?? 0) + wS * (s[id]?.score ?? 0)) / total,
         ),
-    ]..sort((a, b) => b.score.compareTo(a.score));
-    return merged.take(Limits.retrievalMaxChunks).toList();
+    ];
+    return _top(merged);
+  }
+
+  static List<RetrievedChunk> _top(List<RetrievedChunk> chunks) {
+    final sorted = [...chunks]..sort((a, b) => b.score.compareTo(a.score));
+    return sorted.take(Limits.retrievalMaxChunks).toList();
   }
 }

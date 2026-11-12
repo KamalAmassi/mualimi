@@ -1,9 +1,13 @@
+import 'dart:io';
+
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:get/get.dart';
 
 import '../services/app_paths_service.dart';
 import '../services/connectivity_service.dart';
 import '../services/database_service.dart';
 import '../services/device_capability_service.dart';
+import '../services/device_info_source.dart';
 import '../services/model_runtime.dart';
 import '../services/settings_service.dart';
 import '../services/tutor_engine_service.dart';
@@ -32,11 +36,17 @@ class InitialBinding extends Bindings {
 
   SettingsService get settings => _settings;
 
-  static Future<InitialBinding> create({ModelRuntime? runtime}) async {
-    final paths = await AppPathsService().init();
+  /// The optional parameters are test seams; production passes only [runtime].
+  static Future<InitialBinding> create({
+    ModelRuntime? runtime,
+    Directory? rootOverride,
+    Connectivity? connectivityPlugin,
+    DeviceInfoSource? deviceInfo,
+  }) async {
+    final paths = await AppPathsService(rootOverride: rootOverride).init();
     final settings = await SettingsService(paths.settingsFile).init();
-    final device = await DeviceCapabilityService().init();
-    final connectivity = await ConnectivityService().init();
+    final device = await DeviceCapabilityService(source: deviceInfo).init();
+    final connectivity = await ConnectivityService(connectivity: connectivityPlugin).init();
     final databases = await DatabaseService(paths).init();
     final engine = await TutorEngineService(
       paths: paths,

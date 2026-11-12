@@ -25,7 +25,6 @@ class AppPathsService extends GetxService {
   Directory get modelsDir => Directory(p.join(root.path, AppFiles.modelsDir));
 
   File get contentDbFile => File(p.join(packsDir.path, AppFiles.contentDb));
-  File get tempContentDbFile => File(p.join(packsDir.path, AppFiles.tempContentDb));
   File get userDbFile => File(p.join(root.path, AppFiles.userDb));
   File get settingsFile => File(p.join(root.path, AppFiles.settingsFile));
   File get manifestCacheFile => File(p.join(root.path, AppFiles.manifestCacheFile));

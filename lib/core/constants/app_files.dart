@@ -8,7 +8,6 @@ abstract final class AppFiles {
   static const pdfDir = 'pdf';
   static const partSuffix = '.part';
   static const manifestCacheFile = 'manifest.json';
-  static const tempContentDb = 'content.db.new';
   static const settingsFile = 'settings.json';
 
   /// SentencePiece tokenizer the embedding model needs next to it.

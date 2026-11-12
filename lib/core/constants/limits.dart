@@ -25,7 +25,6 @@ abstract final class Limits {
   static const int downloadMarginBytes = 100 * 1024 * 1024;
   static const int maxUrlAttemptsPerPart = 3;
   static const int maxPartRedownloads = 3;
-  static const int hashChunkBytes = 1024 * 1024;
   static const int copyBufferBytes = 4 * 1024 * 1024;
 
   // Misc

@@ -9,6 +9,7 @@ import '../../features/lesson/presentation/pages/key_terms_page.dart';
 import '../../features/lesson/presentation/pages/lesson_page.dart';
 import '../../features/lesson/presentation/pages/viewer_page.dart';
 import '../../features/onboarding/presentation/bindings/onboarding_binding.dart';
+import '../../features/onboarding/presentation/bindings/splash_binding.dart';
 import '../../features/onboarding/presentation/pages/grade_page.dart';
 import '../../features/onboarding/presentation/pages/splash_page.dart';
 import '../../features/onboarding/presentation/pages/welcome_page.dart';
@@ -20,7 +21,7 @@ import 'app_routes.dart';
 
 abstract final class AppPages {
   static final pages = <GetPage<dynamic>>[
-    GetPage(name: AppRoutes.splash, page: SplashPage.new, binding: OnboardingBinding()),
+    GetPage(name: AppRoutes.splash, page: SplashPage.new, binding: SplashBinding()),
     GetPage(name: AppRoutes.welcome, page: WelcomePage.new, binding: OnboardingBinding()),
     GetPage(name: AppRoutes.grade, page: GradePage.new, binding: OnboardingBinding()),
     GetPage(name: AppRoutes.download, page: DownloadPage.new, binding: DownloadBinding()),

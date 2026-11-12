@@ -3,11 +3,9 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
-import '../../../../core/constants/app_strings.dart';
 import '../../../../core/services/connectivity_service.dart';
 import '../../../../core/services/tutor_engine_service.dart';
 import '../../../../core/services/tutor_engine_state.dart';
-import '../../../../core/utils/token_batcher.dart';
 import '../../domain/entities/chat_message.dart';
 import '../../domain/entities/question_history_item.dart';
 import '../../domain/entities/quick_action.dart';
@@ -21,9 +19,9 @@ import '../../domain/usecases/quick_action_usecase.dart';
 import '../../domain/usecases/save_answer_usecase.dart';
 import '../../domain/usecases/stop_generation_usecase.dart';
 import '../widgets/lesson_picker_sheet.dart';
+import 'chat_transcript.dart';
 
-/// The chat tab. Tokens are batched (see [TokenBatcher]) so the UI updates
-/// about every 50 ms rather than on every token.
+/// The chat tab. Streaming and token batching live in [ChatTranscript].
 class TutorController extends GetxController {
   TutorController({
     required AskTutorUseCase ask,
@@ -53,7 +51,7 @@ class TutorController extends GetxController {
   final ConnectivityService _connectivity;
 
   final input = TextEditingController();
-  final messages = <ChatMessage>[].obs;
+  final _transcript = ChatTranscript();
   final isGenerating = false.obs;
   final savedIds = <int>{}.obs;
 
@@ -64,9 +62,9 @@ class TutorController extends GetxController {
   /// False for subjects/lessons the tutor can't handle yet (math).
   final tutorSupported = true.obs;
 
-  int _nextId = 0;
   StreamSubscription<TutorEvent>? _subscription;
-  TokenBatcher? _batcher;
+
+  RxList<ChatMessage> get messages => _transcript.messages;
 
   Rx<TutorEngineState> get engineState => _engine.state;
 
@@ -105,7 +103,7 @@ class TutorController extends GetxController {
 
   void newChat() {
     stop();
-    messages.clear();
+    _transcript.clear();
   }
 
   Future<void> send() async {
@@ -156,46 +154,20 @@ class TutorController extends GetxController {
   }
 
   void _begin(String question, Stream<TutorEvent> events) {
-    messages.add(ChatMessage(id: _nextId++, text: question, isUser: true));
-    final answerId = _nextId++;
-    messages.add(ChatMessage(id: answerId, text: '', isUser: false, question: question));
+    final answerId = _transcript.startExchange(question, question: question);
     isGenerating.value = true;
-    _batcher = TokenBatcher((batch) => _update(answerId, (m) => m.copyWith(text: m.text + batch)));
     _subscription = events.listen(
-      (e) => _handle(answerId, e),
-      onError: (Object _) => _update(answerId, (m) => m.copyWith(text: AppStrings.answerFailed)),
+      (e) {
+        if (e is TutorSubjectUnsupported) tutorSupported.value = false;
+        _transcript.apply(answerId, e);
+      },
+      onError: (Object _) => _transcript.fail(answerId),
       onDone: _finish,
     );
   }
 
-  void _handle(int id, TutorEvent event) {
-    switch (event) {
-      case TutorToken(:final text):
-        _batcher?.add(text);
-      case TutorPassages(:final chunks):
-        _update(id, (m) => m.copyWith(passages: chunks));
-      case TutorOutOfScope():
-        _update(id, (m) => m.copyWith(text: AppStrings.outOfScope));
-      case TutorSubjectUnsupported():
-        tutorSupported.value = false;
-        _update(id, (m) => m.copyWith(text: AppStrings.mathSoon));
-      case TutorDone(:final source):
-        _batcher?.flush();
-        _update(id, (m) => m.copyWith(source: source));
-      case TutorError():
-        _update(id, (m) => m.copyWith(text: AppStrings.answerFailed));
-    }
-  }
-
-  void _update(int id, ChatMessage Function(ChatMessage) change) {
-    final i = messages.indexWhere((m) => m.id == id);
-    if (i != -1) messages[i] = change(messages[i]);
-  }
-
   void _finish() {
-    _batcher?.flush();
-    _batcher?.dispose();
-    _batcher = null;
+    _transcript.finish();
     _subscription = null;
     isGenerating.value = false;
   }
@@ -203,7 +175,7 @@ class TutorController extends GetxController {
   @override
   void onClose() {
     _subscription?.cancel();
-    _batcher?.dispose();
+    _transcript.dispose();
     input.dispose();
     super.onClose();
   }

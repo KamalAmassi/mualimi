@@ -18,7 +18,6 @@ class SettingsService extends GetxService {
   final themeMode = ThemeMode.system.obs;
   final fontScale = 1.0.obs;
   final onboardingDone = false.obs;
-  final allowMobileData = false.obs;
   final installedPackVersion = RxnInt();
   final installedModelFile = RxnString();
   final installedEmbeddingFile = RxnString();
@@ -39,7 +38,6 @@ class SettingsService extends GetxService {
     );
     fontScale.value = (_data[StorageKeys.fontScale] as num?)?.toDouble() ?? 1.0;
     onboardingDone.value = _data[StorageKeys.onboardingDone] as bool? ?? false;
-    allowMobileData.value = _data[StorageKeys.allowMobileData] as bool? ?? false;
     installedPackVersion.value = _data[StorageKeys.installedPackVersion] as int?;
     installedModelFile.value = _data[StorageKeys.installedModelFile] as String?;
     installedEmbeddingFile.value = _data[StorageKeys.installedEmbeddingFile] as String?;
@@ -51,8 +49,6 @@ class SettingsService extends GetxService {
   Future<void> setFontScale(double v) => _set(StorageKeys.fontScale, v, fontScale);
   Future<void> setOnboardingDone(bool v) =>
       _set(StorageKeys.onboardingDone, v, onboardingDone);
-  Future<void> setAllowMobileData(bool v) =>
-      _set(StorageKeys.allowMobileData, v, allowMobileData);
   Future<void> setInstalledPackVersion(int? v) =>
       _set(StorageKeys.installedPackVersion, v, installedPackVersion);
   Future<void> setInstalledModelFile(String? v) =>

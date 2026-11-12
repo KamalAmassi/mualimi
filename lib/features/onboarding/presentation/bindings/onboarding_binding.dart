@@ -8,10 +8,9 @@ import '../../domain/usecases/get_start_route_usecase.dart';
 import '../../domain/usecases/save_grade_usecase.dart';
 import '../../domain/usecases/save_student_name_usecase.dart';
 import '../controllers/grade_controller.dart';
-import '../controllers/splash_controller.dart';
 import '../controllers/welcome_controller.dart';
 
-/// Shared by /splash, /welcome and /grade.
+/// Shared by /welcome and /grade (see [SplashBinding] for /splash).
 class OnboardingBinding extends Bindings {
   @override
   void dependencies() {
@@ -22,7 +21,6 @@ class OnboardingBinding extends Bindings {
     Get.lazyPut(() => GetStartRouteUseCase(Get.find<OnboardingRepository>()));
     Get.lazyPut(() => SaveStudentNameUseCase(Get.find<OnboardingRepository>()));
     Get.lazyPut(() => SaveGradeUseCase(Get.find<OnboardingRepository>()));
-    Get.lazyPut(() => SplashController(Get.find<GetStartRouteUseCase>()));
     Get.lazyPut(() => WelcomeController(Get.find<SaveStudentNameUseCase>()));
     Get.lazyPut(() => GradeController(Get.find<SaveGradeUseCase>()));
   }
