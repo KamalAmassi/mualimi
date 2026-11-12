@@ -28,6 +28,8 @@ class InitialBinding extends Bindings {
   final DatabaseService _databases;
   final TutorEngineService _engine;
 
+  SettingsService get settings => _settings;
+
   static Future<InitialBinding> create({ModelRuntime? runtime}) async {
     final paths = await AppPathsService().init();
     final settings = await SettingsService(paths.settingsFile).init();

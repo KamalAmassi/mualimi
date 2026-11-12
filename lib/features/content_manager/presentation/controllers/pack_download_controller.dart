@@ -81,7 +81,8 @@ class PackDownloadController extends DownloadControllerBase {
     offeredPack.value = null;
     if (Get.isBottomSheetOpen ?? false) {
       Get.back<void>();
-    } else if (!_settings.onboardingDone.value) {
+    } else if (Get.currentRoute == AppRoutes.download) {
+      // First run or a grade change: either way the app is ready to use.
       await _settings.setOnboardingDone(true);
       Get.offAllNamed<void>(AppRoutes.shell);
     }

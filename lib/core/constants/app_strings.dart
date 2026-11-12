@@ -45,4 +45,20 @@ abstract final class AppStrings {
   static const downloadTutor = 'نزّل المعلّم الذكي';
   static const tutorReady = 'المعلّم الذكي جاهز';
   static const deviceTooWeak = 'جهازك يدعم وضع البحث فقط';
+
+  // Onboarding
+  static const studentNameHint = 'اكتب اسمك';
+  static const studentNameInvalid = 'الاسم مطلوب';
+  static const gradePrefix = 'الصف';
+
+  // Lesson
+  static const videoNeedsInternet = 'الفيديو يحتاج إنترنت';
+  static const videoMissing = 'لا يوجد فيديو لهذا الدرس';
+
+  // Profile
+  static const editName = 'تعديل الاسم';
+  static const changeGrade = 'تغيير الصف';
+  static const toggleTheme = 'تبديل المظهر';
+  static const deleteModelTitle = 'حذف المعلّم الذكي';
+  static const deleteModelMessage = 'سيُحذف ملف النموذج فقط، وتبقى محفوظاتك كما هي.';
 }
