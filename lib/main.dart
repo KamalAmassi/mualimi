@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 
 import 'app.dart';
+import 'core/bindings/initial_binding.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const MualimiApp());
+  final binding = await InitialBinding.create();
+  runApp(MualimiApp(initialBinding: binding));
 }

@@ -10,4 +10,6 @@ abstract final class StorageKeys {
   static const installedPackVersion = 'installed_pack_version';
   static const installedModelVersion = 'installed_model_version';
   static const allowMobileData = 'allow_mobile_data';
+  static const installedModelFile = 'installed_model_file';
+  static const installedEmbeddingFile = 'installed_embedding_file';
 }

@@ -6,12 +6,15 @@ import 'core/constants/app_strings.dart';
 import 'core/theme/app_theme.dart';
 
 class MualimiApp extends StatelessWidget {
-  const MualimiApp({super.key});
+  const MualimiApp({super.key, required this.initialBinding});
+
+  final Bindings initialBinding;
 
   @override
   Widget build(BuildContext context) {
     return GetMaterialApp(
       title: AppStrings.appName,
+      initialBinding: initialBinding,
       debugShowCheckedModeBanner: false,
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
