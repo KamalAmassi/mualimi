@@ -4,7 +4,6 @@ import '../../../../core/routes/app_routes.dart';
 import '../../domain/entities/app_theme_mode.dart';
 import '../../domain/entities/profile.dart';
 import '../../domain/usecases/change_grade_usecase.dart';
-import '../../domain/usecases/delete_model_usecase.dart';
 import '../../domain/usecases/get_profile_usecase.dart';
 import '../../domain/usecases/set_theme_mode_usecase.dart';
 import '../../domain/usecases/update_student_name_usecase.dart';
@@ -15,18 +14,15 @@ class ProfileController extends GetxController {
     this._updateName,
     this._changeGrade,
     this._setThemeMode,
-    this._deleteModel,
   );
 
   final GetProfileUseCase _getProfile;
   final UpdateStudentNameUseCase _updateName;
   final ChangeGradeUseCase _changeGrade;
   final SetThemeModeUseCase _setThemeMode;
-  final DeleteModelUseCase _deleteModel;
 
   late final profile = _getProfile().obs;
   final nameInvalid = false.obs;
-  final deleteFailed = false.obs;
 
   void _refresh() => profile.value = _getProfile();
 
@@ -48,12 +44,6 @@ class ProfileController extends GetxController {
   Future<void> setTheme(AppThemeMode mode) async {
     await _setThemeMode(mode);
     _refresh();
-  }
-
-  Future<bool> deleteModel() async {
-    final deleted = await _deleteModel();
-    deleteFailed.value = !deleted;
-    return deleted;
   }
 
   Profile get current => profile.value;

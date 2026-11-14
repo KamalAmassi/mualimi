@@ -27,6 +27,6 @@ class ManifestException extends AppException {
   const ManifestException([super.message = 'invalid manifest']);
 }
 
-class ModelException extends AppException {
-  const ModelException([super.message = 'model error']);
+class LlmException extends AppException {
+  const LlmException([super.message = 'llm error']);
 }

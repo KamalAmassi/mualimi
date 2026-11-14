@@ -3,12 +3,12 @@ import 'dart:io';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:get/get.dart';
 
+import '../db/content/seed/dev_seed_loader.dart';
 import '../services/app_paths_service.dart';
 import '../services/connectivity_service.dart';
 import '../services/database_service.dart';
 import '../services/device_capability_service.dart';
 import '../services/device_info_source.dart';
-import '../services/model_runtime.dart';
 import '../services/settings_service.dart';
 import '../services/tutor_engine_service.dart';
 
@@ -23,7 +23,6 @@ class InitialBinding extends Bindings {
     this._connectivity,
     this._databases,
     this._engine,
-    this._runtime,
   );
 
   final AppPathsService _paths;
@@ -32,29 +31,28 @@ class InitialBinding extends Bindings {
   final ConnectivityService _connectivity;
   final DatabaseService _databases;
   final TutorEngineService _engine;
-  final ModelRuntime? _runtime;
 
   SettingsService get settings => _settings;
 
-  /// The optional parameters are test seams; production passes only [runtime].
+  /// The optional parameters are test seams; [installDevSeed] is for debug builds.
   static Future<InitialBinding> create({
-    ModelRuntime? runtime,
     Directory? rootOverride,
     Connectivity? connectivityPlugin,
     DeviceInfoSource? deviceInfo,
+    bool installDevSeed = false,
   }) async {
     final paths = await AppPathsService(rootOverride: rootOverride).init();
     final settings = await SettingsService(paths.settingsFile).init();
     final device = await DeviceCapabilityService(source: deviceInfo).init();
-    final connectivity = await ConnectivityService(connectivity: connectivityPlugin).init();
+    final connectivity =
+        await ConnectivityService(connectivity: connectivityPlugin).init();
     final databases = await DatabaseService(paths).init();
-    final engine = await TutorEngineService(
-      paths: paths,
-      settings: settings,
-      device: device,
-      runtime: runtime,
-    ).init();
-    return InitialBinding._(paths, settings, device, connectivity, databases, engine, runtime);
+    if (installDevSeed) {
+      await DevSeedLoader.installIfMissing(paths, settings, databases);
+    }
+    final engine = TutorEngineService(connectivity);
+    return InitialBinding._(
+        paths, settings, device, connectivity, databases, engine);
   }
 
   @override
@@ -65,7 +63,5 @@ class InitialBinding extends Bindings {
     Get.put(_connectivity, permanent: true);
     Get.put(_databases, permanent: true);
     Get.put(_engine, permanent: true);
-    final runtime = _runtime;
-    if (runtime != null) Get.put<ModelRuntime>(runtime, permanent: true);
   }
 }
