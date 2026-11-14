@@ -12,8 +12,9 @@ class ReportController extends GetxController {
 
   static const reasons = [
     AppStrings.reportReasonWrong,
-    AppStrings.reportReasonOffTopic,
+    AppStrings.reportReasonMismatch,
     AppStrings.reportReasonUnclear,
+    AppStrings.reportReasonSource,
   ];
 
   final reason = RxnString();
@@ -26,10 +27,11 @@ class ReportController extends GetxController {
 
   Future<void> submit(ChatMessage message, {String? lessonId}) async {
     final selected = reason.value;
-    if (selected == null || message.question == null) return;
+    final question = message.question;
+    if (selected == null || question == null) return;
     await _submit(PendingReport(
       lessonId: lessonId,
-      question: message.question!,
+      question: question,
       answer: message.text,
       reason: selected,
       note: note.text.trim().isEmpty ? null : note.text.trim(),
