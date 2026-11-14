@@ -5,12 +5,12 @@ import 'package:drift/native.dart';
 import 'package:sqlite3/sqlite3.dart' as sqlite;
 
 import 'tables/book_solutions.dart';
-import 'tables/chunk_vectors.dart';
 import 'tables/chunks.dart';
 import 'tables/key_terms.dart';
 import 'tables/lessons.dart';
 import 'tables/pack_meta.dart';
 import 'tables/prebuilt_answers.dart';
+import 'tables/question_bank.dart';
 import 'tables/questions.dart';
 import 'tables/sections.dart';
 import 'tables/subjects.dart';
@@ -30,8 +30,8 @@ part 'content_database.g.dart';
   Questions,
   BookSolutions,
   Chunks,
-  ChunkVectors,
   PrebuiltAnswers,
+  QuestionBank,
   PackMeta,
 ])
 class ContentDatabase extends _$ContentDatabase {
@@ -43,25 +43,61 @@ class ContentDatabase extends _$ContentDatabase {
             sqlite.sqlite3.open(file.path, mode: sqlite.OpenMode.readOnly)));
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
         onCreate: (m) async {
           await m.createAll();
-          await _createSearchIndex();
+          await _createChunkSearchIndex();
+          await _createQuestionBankSearchIndex();
+        },
+        onUpgrade: (m, from, to) async {
+          if (from < 2) {
+            await m.alterTable(TableMigration(
+              chunks,
+              newColumns: [chunks.printedPage, chunks.pdfPage],
+              columnTransformer: {
+                chunks.printedPage:
+                    const CustomExpression('CAST(page AS TEXT)'),
+                chunks.pdfPage: const CustomExpression('page'),
+              },
+            ));
+            await customStatement('DROP TABLE IF EXISTS chunks_fts');
+            await _createChunkSearchIndex();
+            await customStatement(
+                "INSERT INTO chunks_fts(chunks_fts) VALUES('rebuild')");
+            await customStatement('DROP TABLE IF EXISTS chunk_vectors');
+            await m.createTable(questionBank);
+            await _createQuestionBankSearchIndex();
+          }
         },
       );
 
   // External-content FTS5 index over chunks.text_normalized, kept in sync by triggers.
-  Future<void> _createSearchIndex() async {
+  Future<void> _createChunkSearchIndex() async {
     await customStatement('CREATE VIRTUAL TABLE chunks_fts USING fts5('
         'text_normalized, content="chunks", content_rowid="id")');
-    await customStatement('CREATE TRIGGER chunks_ai AFTER INSERT ON chunks BEGIN '
+    await customStatement(
+        'CREATE TRIGGER chunks_ai AFTER INSERT ON chunks BEGIN '
         'INSERT INTO chunks_fts(rowid, text_normalized) '
         'VALUES (new.id, new.text_normalized); END');
-    await customStatement('CREATE TRIGGER chunks_ad AFTER DELETE ON chunks BEGIN '
+    await customStatement(
+        'CREATE TRIGGER chunks_ad AFTER DELETE ON chunks BEGIN '
         'INSERT INTO chunks_fts(chunks_fts, rowid, text_normalized) '
         'VALUES ("delete", old.id, old.text_normalized); END');
+  }
+
+  Future<void> _createQuestionBankSearchIndex() async {
+    await customStatement('CREATE VIRTUAL TABLE question_bank_fts USING fts5('
+        'question_normalized, content="question_bank", content_rowid="id")');
+    await customStatement(
+        'CREATE TRIGGER question_bank_ai AFTER INSERT ON question_bank BEGIN '
+        'INSERT INTO question_bank_fts(rowid, question_normalized) '
+        'VALUES (new.id, new.question_normalized); END');
+    await customStatement(
+        'CREATE TRIGGER question_bank_ad AFTER DELETE ON question_bank BEGIN '
+        'INSERT INTO question_bank_fts(question_bank_fts, rowid, question_normalized) '
+        'VALUES ("delete", old.id, old.question_normalized); END');
   }
 }

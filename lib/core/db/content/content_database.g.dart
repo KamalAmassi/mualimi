@@ -2323,10 +2323,17 @@ class $ChunksTable extends Chunks with TableInfo<$ChunksTable, ChunkRow> {
   late final GeneratedColumn<String> lessonId = GeneratedColumn<String>(
       'lesson_id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _pageMeta = const VerificationMeta('page');
+  static const VerificationMeta _printedPageMeta =
+      const VerificationMeta('printedPage');
   @override
-  late final GeneratedColumn<int> page = GeneratedColumn<int>(
-      'page', aliasedName, false,
+  late final GeneratedColumn<String> printedPage = GeneratedColumn<String>(
+      'printed_page', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _pdfPageMeta =
+      const VerificationMeta('pdfPage');
+  @override
+  late final GeneratedColumn<int> pdfPage = GeneratedColumn<int>(
+      'pdf_page', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
   static const VerificationMeta _contentMeta =
       const VerificationMeta('content');
@@ -2342,7 +2349,7 @@ class $ChunksTable extends Chunks with TableInfo<$ChunksTable, ChunkRow> {
       type: DriftSqlType.string, requiredDuringInsert: true);
   @override
   List<GeneratedColumn> get $columns =>
-      [id, lessonId, page, content, textNormalized];
+      [id, lessonId, printedPage, pdfPage, content, textNormalized];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -2362,11 +2369,19 @@ class $ChunksTable extends Chunks with TableInfo<$ChunksTable, ChunkRow> {
     } else if (isInserting) {
       context.missing(_lessonIdMeta);
     }
-    if (data.containsKey('page')) {
+    if (data.containsKey('printed_page')) {
       context.handle(
-          _pageMeta, page.isAcceptableOrUnknown(data['page']!, _pageMeta));
+          _printedPageMeta,
+          printedPage.isAcceptableOrUnknown(
+              data['printed_page']!, _printedPageMeta));
     } else if (isInserting) {
-      context.missing(_pageMeta);
+      context.missing(_printedPageMeta);
+    }
+    if (data.containsKey('pdf_page')) {
+      context.handle(_pdfPageMeta,
+          pdfPage.isAcceptableOrUnknown(data['pdf_page']!, _pdfPageMeta));
+    } else if (isInserting) {
+      context.missing(_pdfPageMeta);
     }
     if (data.containsKey('text')) {
       context.handle(_contentMeta,
@@ -2395,8 +2410,10 @@ class $ChunksTable extends Chunks with TableInfo<$ChunksTable, ChunkRow> {
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       lessonId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}lesson_id'])!,
-      page: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}page'])!,
+      printedPage: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}printed_page'])!,
+      pdfPage: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}pdf_page'])!,
       content: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}text'])!,
       textNormalized: attachedDatabase.typeMapping.read(
@@ -2413,13 +2430,15 @@ class $ChunksTable extends Chunks with TableInfo<$ChunksTable, ChunkRow> {
 class ChunkRow extends DataClass implements Insertable<ChunkRow> {
   final int id;
   final String lessonId;
-  final int page;
+  final String printedPage;
+  final int pdfPage;
   final String content;
   final String textNormalized;
   const ChunkRow(
       {required this.id,
       required this.lessonId,
-      required this.page,
+      required this.printedPage,
+      required this.pdfPage,
       required this.content,
       required this.textNormalized});
   @override
@@ -2427,7 +2446,8 @@ class ChunkRow extends DataClass implements Insertable<ChunkRow> {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['lesson_id'] = Variable<String>(lessonId);
-    map['page'] = Variable<int>(page);
+    map['printed_page'] = Variable<String>(printedPage);
+    map['pdf_page'] = Variable<int>(pdfPage);
     map['text'] = Variable<String>(content);
     map['text_normalized'] = Variable<String>(textNormalized);
     return map;
@@ -2437,7 +2457,8 @@ class ChunkRow extends DataClass implements Insertable<ChunkRow> {
     return ChunksCompanion(
       id: Value(id),
       lessonId: Value(lessonId),
-      page: Value(page),
+      printedPage: Value(printedPage),
+      pdfPage: Value(pdfPage),
       content: Value(content),
       textNormalized: Value(textNormalized),
     );
@@ -2449,7 +2470,8 @@ class ChunkRow extends DataClass implements Insertable<ChunkRow> {
     return ChunkRow(
       id: serializer.fromJson<int>(json['id']),
       lessonId: serializer.fromJson<String>(json['lessonId']),
-      page: serializer.fromJson<int>(json['page']),
+      printedPage: serializer.fromJson<String>(json['printedPage']),
+      pdfPage: serializer.fromJson<int>(json['pdfPage']),
       content: serializer.fromJson<String>(json['content']),
       textNormalized: serializer.fromJson<String>(json['textNormalized']),
     );
@@ -2460,7 +2482,8 @@ class ChunkRow extends DataClass implements Insertable<ChunkRow> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'lessonId': serializer.toJson<String>(lessonId),
-      'page': serializer.toJson<int>(page),
+      'printedPage': serializer.toJson<String>(printedPage),
+      'pdfPage': serializer.toJson<int>(pdfPage),
       'content': serializer.toJson<String>(content),
       'textNormalized': serializer.toJson<String>(textNormalized),
     };
@@ -2469,13 +2492,15 @@ class ChunkRow extends DataClass implements Insertable<ChunkRow> {
   ChunkRow copyWith(
           {int? id,
           String? lessonId,
-          int? page,
+          String? printedPage,
+          int? pdfPage,
           String? content,
           String? textNormalized}) =>
       ChunkRow(
         id: id ?? this.id,
         lessonId: lessonId ?? this.lessonId,
-        page: page ?? this.page,
+        printedPage: printedPage ?? this.printedPage,
+        pdfPage: pdfPage ?? this.pdfPage,
         content: content ?? this.content,
         textNormalized: textNormalized ?? this.textNormalized,
       );
@@ -2483,7 +2508,9 @@ class ChunkRow extends DataClass implements Insertable<ChunkRow> {
     return ChunkRow(
       id: data.id.present ? data.id.value : this.id,
       lessonId: data.lessonId.present ? data.lessonId.value : this.lessonId,
-      page: data.page.present ? data.page.value : this.page,
+      printedPage:
+          data.printedPage.present ? data.printedPage.value : this.printedPage,
+      pdfPage: data.pdfPage.present ? data.pdfPage.value : this.pdfPage,
       content: data.content.present ? data.content.value : this.content,
       textNormalized: data.textNormalized.present
           ? data.textNormalized.value
@@ -2496,7 +2523,8 @@ class ChunkRow extends DataClass implements Insertable<ChunkRow> {
     return (StringBuffer('ChunkRow(')
           ..write('id: $id, ')
           ..write('lessonId: $lessonId, ')
-          ..write('page: $page, ')
+          ..write('printedPage: $printedPage, ')
+          ..write('pdfPage: $pdfPage, ')
           ..write('content: $content, ')
           ..write('textNormalized: $textNormalized')
           ..write(')'))
@@ -2504,14 +2532,16 @@ class ChunkRow extends DataClass implements Insertable<ChunkRow> {
   }
 
   @override
-  int get hashCode => Object.hash(id, lessonId, page, content, textNormalized);
+  int get hashCode =>
+      Object.hash(id, lessonId, printedPage, pdfPage, content, textNormalized);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is ChunkRow &&
           other.id == this.id &&
           other.lessonId == this.lessonId &&
-          other.page == this.page &&
+          other.printedPage == this.printedPage &&
+          other.pdfPage == this.pdfPage &&
           other.content == this.content &&
           other.textNormalized == this.textNormalized);
 }
@@ -2519,37 +2549,43 @@ class ChunkRow extends DataClass implements Insertable<ChunkRow> {
 class ChunksCompanion extends UpdateCompanion<ChunkRow> {
   final Value<int> id;
   final Value<String> lessonId;
-  final Value<int> page;
+  final Value<String> printedPage;
+  final Value<int> pdfPage;
   final Value<String> content;
   final Value<String> textNormalized;
   const ChunksCompanion({
     this.id = const Value.absent(),
     this.lessonId = const Value.absent(),
-    this.page = const Value.absent(),
+    this.printedPage = const Value.absent(),
+    this.pdfPage = const Value.absent(),
     this.content = const Value.absent(),
     this.textNormalized = const Value.absent(),
   });
   ChunksCompanion.insert({
     this.id = const Value.absent(),
     required String lessonId,
-    required int page,
+    required String printedPage,
+    required int pdfPage,
     required String content,
     required String textNormalized,
   })  : lessonId = Value(lessonId),
-        page = Value(page),
+        printedPage = Value(printedPage),
+        pdfPage = Value(pdfPage),
         content = Value(content),
         textNormalized = Value(textNormalized);
   static Insertable<ChunkRow> custom({
     Expression<int>? id,
     Expression<String>? lessonId,
-    Expression<int>? page,
+    Expression<String>? printedPage,
+    Expression<int>? pdfPage,
     Expression<String>? content,
     Expression<String>? textNormalized,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (lessonId != null) 'lesson_id': lessonId,
-      if (page != null) 'page': page,
+      if (printedPage != null) 'printed_page': printedPage,
+      if (pdfPage != null) 'pdf_page': pdfPage,
       if (content != null) 'text': content,
       if (textNormalized != null) 'text_normalized': textNormalized,
     });
@@ -2558,13 +2594,15 @@ class ChunksCompanion extends UpdateCompanion<ChunkRow> {
   ChunksCompanion copyWith(
       {Value<int>? id,
       Value<String>? lessonId,
-      Value<int>? page,
+      Value<String>? printedPage,
+      Value<int>? pdfPage,
       Value<String>? content,
       Value<String>? textNormalized}) {
     return ChunksCompanion(
       id: id ?? this.id,
       lessonId: lessonId ?? this.lessonId,
-      page: page ?? this.page,
+      printedPage: printedPage ?? this.printedPage,
+      pdfPage: pdfPage ?? this.pdfPage,
       content: content ?? this.content,
       textNormalized: textNormalized ?? this.textNormalized,
     );
@@ -2579,8 +2617,11 @@ class ChunksCompanion extends UpdateCompanion<ChunkRow> {
     if (lessonId.present) {
       map['lesson_id'] = Variable<String>(lessonId.value);
     }
-    if (page.present) {
-      map['page'] = Variable<int>(page.value);
+    if (printedPage.present) {
+      map['printed_page'] = Variable<String>(printedPage.value);
+    }
+    if (pdfPage.present) {
+      map['pdf_page'] = Variable<int>(pdfPage.value);
     }
     if (content.present) {
       map['text'] = Variable<String>(content.value);
@@ -2596,187 +2637,10 @@ class ChunksCompanion extends UpdateCompanion<ChunkRow> {
     return (StringBuffer('ChunksCompanion(')
           ..write('id: $id, ')
           ..write('lessonId: $lessonId, ')
-          ..write('page: $page, ')
+          ..write('printedPage: $printedPage, ')
+          ..write('pdfPage: $pdfPage, ')
           ..write('content: $content, ')
           ..write('textNormalized: $textNormalized')
-          ..write(')'))
-        .toString();
-  }
-}
-
-class $ChunkVectorsTable extends ChunkVectors
-    with TableInfo<$ChunkVectorsTable, ChunkVectorRow> {
-  @override
-  final GeneratedDatabase attachedDatabase;
-  final String? _alias;
-  $ChunkVectorsTable(this.attachedDatabase, [this._alias]);
-  static const VerificationMeta _chunkIdMeta =
-      const VerificationMeta('chunkId');
-  @override
-  late final GeneratedColumn<int> chunkId = GeneratedColumn<int>(
-      'chunk_id', aliasedName, false,
-      type: DriftSqlType.int, requiredDuringInsert: false);
-  static const VerificationMeta _vectorMeta = const VerificationMeta('vector');
-  @override
-  late final GeneratedColumn<Uint8List> vector = GeneratedColumn<Uint8List>(
-      'vector', aliasedName, false,
-      type: DriftSqlType.blob, requiredDuringInsert: true);
-  @override
-  List<GeneratedColumn> get $columns => [chunkId, vector];
-  @override
-  String get aliasedName => _alias ?? actualTableName;
-  @override
-  String get actualTableName => $name;
-  static const String $name = 'chunk_vectors';
-  @override
-  VerificationContext validateIntegrity(Insertable<ChunkVectorRow> instance,
-      {bool isInserting = false}) {
-    final context = VerificationContext();
-    final data = instance.toColumns(true);
-    if (data.containsKey('chunk_id')) {
-      context.handle(_chunkIdMeta,
-          chunkId.isAcceptableOrUnknown(data['chunk_id']!, _chunkIdMeta));
-    }
-    if (data.containsKey('vector')) {
-      context.handle(_vectorMeta,
-          vector.isAcceptableOrUnknown(data['vector']!, _vectorMeta));
-    } else if (isInserting) {
-      context.missing(_vectorMeta);
-    }
-    return context;
-  }
-
-  @override
-  Set<GeneratedColumn> get $primaryKey => {chunkId};
-  @override
-  ChunkVectorRow map(Map<String, dynamic> data, {String? tablePrefix}) {
-    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
-    return ChunkVectorRow(
-      chunkId: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}chunk_id'])!,
-      vector: attachedDatabase.typeMapping
-          .read(DriftSqlType.blob, data['${effectivePrefix}vector'])!,
-    );
-  }
-
-  @override
-  $ChunkVectorsTable createAlias(String alias) {
-    return $ChunkVectorsTable(attachedDatabase, alias);
-  }
-}
-
-class ChunkVectorRow extends DataClass implements Insertable<ChunkVectorRow> {
-  final int chunkId;
-  final Uint8List vector;
-  const ChunkVectorRow({required this.chunkId, required this.vector});
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    map['chunk_id'] = Variable<int>(chunkId);
-    map['vector'] = Variable<Uint8List>(vector);
-    return map;
-  }
-
-  ChunkVectorsCompanion toCompanion(bool nullToAbsent) {
-    return ChunkVectorsCompanion(
-      chunkId: Value(chunkId),
-      vector: Value(vector),
-    );
-  }
-
-  factory ChunkVectorRow.fromJson(Map<String, dynamic> json,
-      {ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return ChunkVectorRow(
-      chunkId: serializer.fromJson<int>(json['chunkId']),
-      vector: serializer.fromJson<Uint8List>(json['vector']),
-    );
-  }
-  @override
-  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
-    serializer ??= driftRuntimeOptions.defaultSerializer;
-    return <String, dynamic>{
-      'chunkId': serializer.toJson<int>(chunkId),
-      'vector': serializer.toJson<Uint8List>(vector),
-    };
-  }
-
-  ChunkVectorRow copyWith({int? chunkId, Uint8List? vector}) => ChunkVectorRow(
-        chunkId: chunkId ?? this.chunkId,
-        vector: vector ?? this.vector,
-      );
-  ChunkVectorRow copyWithCompanion(ChunkVectorsCompanion data) {
-    return ChunkVectorRow(
-      chunkId: data.chunkId.present ? data.chunkId.value : this.chunkId,
-      vector: data.vector.present ? data.vector.value : this.vector,
-    );
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('ChunkVectorRow(')
-          ..write('chunkId: $chunkId, ')
-          ..write('vector: $vector')
-          ..write(')'))
-        .toString();
-  }
-
-  @override
-  int get hashCode => Object.hash(chunkId, $driftBlobEquality.hash(vector));
-  @override
-  bool operator ==(Object other) =>
-      identical(this, other) ||
-      (other is ChunkVectorRow &&
-          other.chunkId == this.chunkId &&
-          $driftBlobEquality.equals(other.vector, this.vector));
-}
-
-class ChunkVectorsCompanion extends UpdateCompanion<ChunkVectorRow> {
-  final Value<int> chunkId;
-  final Value<Uint8List> vector;
-  const ChunkVectorsCompanion({
-    this.chunkId = const Value.absent(),
-    this.vector = const Value.absent(),
-  });
-  ChunkVectorsCompanion.insert({
-    this.chunkId = const Value.absent(),
-    required Uint8List vector,
-  }) : vector = Value(vector);
-  static Insertable<ChunkVectorRow> custom({
-    Expression<int>? chunkId,
-    Expression<Uint8List>? vector,
-  }) {
-    return RawValuesInsertable({
-      if (chunkId != null) 'chunk_id': chunkId,
-      if (vector != null) 'vector': vector,
-    });
-  }
-
-  ChunkVectorsCompanion copyWith(
-      {Value<int>? chunkId, Value<Uint8List>? vector}) {
-    return ChunkVectorsCompanion(
-      chunkId: chunkId ?? this.chunkId,
-      vector: vector ?? this.vector,
-    );
-  }
-
-  @override
-  Map<String, Expression> toColumns(bool nullToAbsent) {
-    final map = <String, Expression>{};
-    if (chunkId.present) {
-      map['chunk_id'] = Variable<int>(chunkId.value);
-    }
-    if (vector.present) {
-      map['vector'] = Variable<Uint8List>(vector.value);
-    }
-    return map;
-  }
-
-  @override
-  String toString() {
-    return (StringBuffer('ChunkVectorsCompanion(')
-          ..write('chunkId: $chunkId, ')
-          ..write('vector: $vector')
           ..write(')'))
         .toString();
   }
@@ -3040,6 +2904,394 @@ class PrebuiltAnswersCompanion extends UpdateCompanion<PrebuiltAnswerRow> {
   }
 }
 
+class $QuestionBankTable extends QuestionBank
+    with TableInfo<$QuestionBankTable, QuestionBankRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $QuestionBankTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _subjectIdMeta =
+      const VerificationMeta('subjectId');
+  @override
+  late final GeneratedColumn<String> subjectId = GeneratedColumn<String>(
+      'subject_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _lessonIdMeta =
+      const VerificationMeta('lessonId');
+  @override
+  late final GeneratedColumn<String> lessonId = GeneratedColumn<String>(
+      'lesson_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _questionMeta =
+      const VerificationMeta('question');
+  @override
+  late final GeneratedColumn<String> question = GeneratedColumn<String>(
+      'question', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _questionNormalizedMeta =
+      const VerificationMeta('questionNormalized');
+  @override
+  late final GeneratedColumn<String> questionNormalized =
+      GeneratedColumn<String>('question_normalized', aliasedName, false,
+          type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _answerMeta = const VerificationMeta('answer');
+  @override
+  late final GeneratedColumn<String> answer = GeneratedColumn<String>(
+      'answer', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _printedPageMeta =
+      const VerificationMeta('printedPage');
+  @override
+  late final GeneratedColumn<String> printedPage = GeneratedColumn<String>(
+      'printed_page', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        subjectId,
+        lessonId,
+        question,
+        questionNormalized,
+        answer,
+        printedPage
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'question_bank';
+  @override
+  VerificationContext validateIntegrity(Insertable<QuestionBankRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('subject_id')) {
+      context.handle(_subjectIdMeta,
+          subjectId.isAcceptableOrUnknown(data['subject_id']!, _subjectIdMeta));
+    } else if (isInserting) {
+      context.missing(_subjectIdMeta);
+    }
+    if (data.containsKey('lesson_id')) {
+      context.handle(_lessonIdMeta,
+          lessonId.isAcceptableOrUnknown(data['lesson_id']!, _lessonIdMeta));
+    } else if (isInserting) {
+      context.missing(_lessonIdMeta);
+    }
+    if (data.containsKey('question')) {
+      context.handle(_questionMeta,
+          question.isAcceptableOrUnknown(data['question']!, _questionMeta));
+    } else if (isInserting) {
+      context.missing(_questionMeta);
+    }
+    if (data.containsKey('question_normalized')) {
+      context.handle(
+          _questionNormalizedMeta,
+          questionNormalized.isAcceptableOrUnknown(
+              data['question_normalized']!, _questionNormalizedMeta));
+    } else if (isInserting) {
+      context.missing(_questionNormalizedMeta);
+    }
+    if (data.containsKey('answer')) {
+      context.handle(_answerMeta,
+          answer.isAcceptableOrUnknown(data['answer']!, _answerMeta));
+    } else if (isInserting) {
+      context.missing(_answerMeta);
+    }
+    if (data.containsKey('printed_page')) {
+      context.handle(
+          _printedPageMeta,
+          printedPage.isAcceptableOrUnknown(
+              data['printed_page']!, _printedPageMeta));
+    } else if (isInserting) {
+      context.missing(_printedPageMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  QuestionBankRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return QuestionBankRow(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      subjectId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}subject_id'])!,
+      lessonId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}lesson_id'])!,
+      question: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}question'])!,
+      questionNormalized: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}question_normalized'])!,
+      answer: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}answer'])!,
+      printedPage: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}printed_page'])!,
+    );
+  }
+
+  @override
+  $QuestionBankTable createAlias(String alias) {
+    return $QuestionBankTable(attachedDatabase, alias);
+  }
+}
+
+class QuestionBankRow extends DataClass implements Insertable<QuestionBankRow> {
+  final int id;
+  final String subjectId;
+  final String lessonId;
+  final String question;
+  final String questionNormalized;
+  final String answer;
+  final String printedPage;
+  const QuestionBankRow(
+      {required this.id,
+      required this.subjectId,
+      required this.lessonId,
+      required this.question,
+      required this.questionNormalized,
+      required this.answer,
+      required this.printedPage});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['subject_id'] = Variable<String>(subjectId);
+    map['lesson_id'] = Variable<String>(lessonId);
+    map['question'] = Variable<String>(question);
+    map['question_normalized'] = Variable<String>(questionNormalized);
+    map['answer'] = Variable<String>(answer);
+    map['printed_page'] = Variable<String>(printedPage);
+    return map;
+  }
+
+  QuestionBankCompanion toCompanion(bool nullToAbsent) {
+    return QuestionBankCompanion(
+      id: Value(id),
+      subjectId: Value(subjectId),
+      lessonId: Value(lessonId),
+      question: Value(question),
+      questionNormalized: Value(questionNormalized),
+      answer: Value(answer),
+      printedPage: Value(printedPage),
+    );
+  }
+
+  factory QuestionBankRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return QuestionBankRow(
+      id: serializer.fromJson<int>(json['id']),
+      subjectId: serializer.fromJson<String>(json['subjectId']),
+      lessonId: serializer.fromJson<String>(json['lessonId']),
+      question: serializer.fromJson<String>(json['question']),
+      questionNormalized:
+          serializer.fromJson<String>(json['questionNormalized']),
+      answer: serializer.fromJson<String>(json['answer']),
+      printedPage: serializer.fromJson<String>(json['printedPage']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'subjectId': serializer.toJson<String>(subjectId),
+      'lessonId': serializer.toJson<String>(lessonId),
+      'question': serializer.toJson<String>(question),
+      'questionNormalized': serializer.toJson<String>(questionNormalized),
+      'answer': serializer.toJson<String>(answer),
+      'printedPage': serializer.toJson<String>(printedPage),
+    };
+  }
+
+  QuestionBankRow copyWith(
+          {int? id,
+          String? subjectId,
+          String? lessonId,
+          String? question,
+          String? questionNormalized,
+          String? answer,
+          String? printedPage}) =>
+      QuestionBankRow(
+        id: id ?? this.id,
+        subjectId: subjectId ?? this.subjectId,
+        lessonId: lessonId ?? this.lessonId,
+        question: question ?? this.question,
+        questionNormalized: questionNormalized ?? this.questionNormalized,
+        answer: answer ?? this.answer,
+        printedPage: printedPage ?? this.printedPage,
+      );
+  QuestionBankRow copyWithCompanion(QuestionBankCompanion data) {
+    return QuestionBankRow(
+      id: data.id.present ? data.id.value : this.id,
+      subjectId: data.subjectId.present ? data.subjectId.value : this.subjectId,
+      lessonId: data.lessonId.present ? data.lessonId.value : this.lessonId,
+      question: data.question.present ? data.question.value : this.question,
+      questionNormalized: data.questionNormalized.present
+          ? data.questionNormalized.value
+          : this.questionNormalized,
+      answer: data.answer.present ? data.answer.value : this.answer,
+      printedPage:
+          data.printedPage.present ? data.printedPage.value : this.printedPage,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('QuestionBankRow(')
+          ..write('id: $id, ')
+          ..write('subjectId: $subjectId, ')
+          ..write('lessonId: $lessonId, ')
+          ..write('question: $question, ')
+          ..write('questionNormalized: $questionNormalized, ')
+          ..write('answer: $answer, ')
+          ..write('printedPage: $printedPage')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, subjectId, lessonId, question,
+      questionNormalized, answer, printedPage);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is QuestionBankRow &&
+          other.id == this.id &&
+          other.subjectId == this.subjectId &&
+          other.lessonId == this.lessonId &&
+          other.question == this.question &&
+          other.questionNormalized == this.questionNormalized &&
+          other.answer == this.answer &&
+          other.printedPage == this.printedPage);
+}
+
+class QuestionBankCompanion extends UpdateCompanion<QuestionBankRow> {
+  final Value<int> id;
+  final Value<String> subjectId;
+  final Value<String> lessonId;
+  final Value<String> question;
+  final Value<String> questionNormalized;
+  final Value<String> answer;
+  final Value<String> printedPage;
+  const QuestionBankCompanion({
+    this.id = const Value.absent(),
+    this.subjectId = const Value.absent(),
+    this.lessonId = const Value.absent(),
+    this.question = const Value.absent(),
+    this.questionNormalized = const Value.absent(),
+    this.answer = const Value.absent(),
+    this.printedPage = const Value.absent(),
+  });
+  QuestionBankCompanion.insert({
+    this.id = const Value.absent(),
+    required String subjectId,
+    required String lessonId,
+    required String question,
+    required String questionNormalized,
+    required String answer,
+    required String printedPage,
+  })  : subjectId = Value(subjectId),
+        lessonId = Value(lessonId),
+        question = Value(question),
+        questionNormalized = Value(questionNormalized),
+        answer = Value(answer),
+        printedPage = Value(printedPage);
+  static Insertable<QuestionBankRow> custom({
+    Expression<int>? id,
+    Expression<String>? subjectId,
+    Expression<String>? lessonId,
+    Expression<String>? question,
+    Expression<String>? questionNormalized,
+    Expression<String>? answer,
+    Expression<String>? printedPage,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (subjectId != null) 'subject_id': subjectId,
+      if (lessonId != null) 'lesson_id': lessonId,
+      if (question != null) 'question': question,
+      if (questionNormalized != null) 'question_normalized': questionNormalized,
+      if (answer != null) 'answer': answer,
+      if (printedPage != null) 'printed_page': printedPage,
+    });
+  }
+
+  QuestionBankCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? subjectId,
+      Value<String>? lessonId,
+      Value<String>? question,
+      Value<String>? questionNormalized,
+      Value<String>? answer,
+      Value<String>? printedPage}) {
+    return QuestionBankCompanion(
+      id: id ?? this.id,
+      subjectId: subjectId ?? this.subjectId,
+      lessonId: lessonId ?? this.lessonId,
+      question: question ?? this.question,
+      questionNormalized: questionNormalized ?? this.questionNormalized,
+      answer: answer ?? this.answer,
+      printedPage: printedPage ?? this.printedPage,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (subjectId.present) {
+      map['subject_id'] = Variable<String>(subjectId.value);
+    }
+    if (lessonId.present) {
+      map['lesson_id'] = Variable<String>(lessonId.value);
+    }
+    if (question.present) {
+      map['question'] = Variable<String>(question.value);
+    }
+    if (questionNormalized.present) {
+      map['question_normalized'] = Variable<String>(questionNormalized.value);
+    }
+    if (answer.present) {
+      map['answer'] = Variable<String>(answer.value);
+    }
+    if (printedPage.present) {
+      map['printed_page'] = Variable<String>(printedPage.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('QuestionBankCompanion(')
+          ..write('id: $id, ')
+          ..write('subjectId: $subjectId, ')
+          ..write('lessonId: $lessonId, ')
+          ..write('question: $question, ')
+          ..write('questionNormalized: $questionNormalized, ')
+          ..write('answer: $answer, ')
+          ..write('printedPage: $printedPage')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $PackMetaTable extends PackMeta
     with TableInfo<$PackMetaTable, PackMetaRow> {
   @override
@@ -3241,9 +3493,9 @@ abstract class _$ContentDatabase extends GeneratedDatabase {
   late final $QuestionsTable questions = $QuestionsTable(this);
   late final $BookSolutionsTable bookSolutions = $BookSolutionsTable(this);
   late final $ChunksTable chunks = $ChunksTable(this);
-  late final $ChunkVectorsTable chunkVectors = $ChunkVectorsTable(this);
   late final $PrebuiltAnswersTable prebuiltAnswers =
       $PrebuiltAnswersTable(this);
+  late final $QuestionBankTable questionBank = $QuestionBankTable(this);
   late final $PackMetaTable packMeta = $PackMetaTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
@@ -3258,8 +3510,8 @@ abstract class _$ContentDatabase extends GeneratedDatabase {
         questions,
         bookSolutions,
         chunks,
-        chunkVectors,
         prebuiltAnswers,
+        questionBank,
         packMeta
       ];
 }
@@ -4506,14 +4758,16 @@ typedef $$BookSolutionsTableProcessedTableManager = ProcessedTableManager<
 typedef $$ChunksTableCreateCompanionBuilder = ChunksCompanion Function({
   Value<int> id,
   required String lessonId,
-  required int page,
+  required String printedPage,
+  required int pdfPage,
   required String content,
   required String textNormalized,
 });
 typedef $$ChunksTableUpdateCompanionBuilder = ChunksCompanion Function({
   Value<int> id,
   Value<String> lessonId,
-  Value<int> page,
+  Value<String> printedPage,
+  Value<int> pdfPage,
   Value<String> content,
   Value<String> textNormalized,
 });
@@ -4533,8 +4787,11 @@ class $$ChunksTableFilterComposer
   ColumnFilters<String> get lessonId => $composableBuilder(
       column: $table.lessonId, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<int> get page => $composableBuilder(
-      column: $table.page, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get printedPage => $composableBuilder(
+      column: $table.printedPage, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get pdfPage => $composableBuilder(
+      column: $table.pdfPage, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get content => $composableBuilder(
       column: $table.content, builder: (column) => ColumnFilters(column));
@@ -4559,8 +4816,11 @@ class $$ChunksTableOrderingComposer
   ColumnOrderings<String> get lessonId => $composableBuilder(
       column: $table.lessonId, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<int> get page => $composableBuilder(
-      column: $table.page, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get printedPage => $composableBuilder(
+      column: $table.printedPage, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get pdfPage => $composableBuilder(
+      column: $table.pdfPage, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get content => $composableBuilder(
       column: $table.content, builder: (column) => ColumnOrderings(column));
@@ -4585,8 +4845,11 @@ class $$ChunksTableAnnotationComposer
   GeneratedColumn<String> get lessonId =>
       $composableBuilder(column: $table.lessonId, builder: (column) => column);
 
-  GeneratedColumn<int> get page =>
-      $composableBuilder(column: $table.page, builder: (column) => column);
+  GeneratedColumn<String> get printedPage => $composableBuilder(
+      column: $table.printedPage, builder: (column) => column);
+
+  GeneratedColumn<int> get pdfPage =>
+      $composableBuilder(column: $table.pdfPage, builder: (column) => column);
 
   GeneratedColumn<String> get content =>
       $composableBuilder(column: $table.content, builder: (column) => column);
@@ -4620,28 +4883,32 @@ class $$ChunksTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<int> id = const Value.absent(),
             Value<String> lessonId = const Value.absent(),
-            Value<int> page = const Value.absent(),
+            Value<String> printedPage = const Value.absent(),
+            Value<int> pdfPage = const Value.absent(),
             Value<String> content = const Value.absent(),
             Value<String> textNormalized = const Value.absent(),
           }) =>
               ChunksCompanion(
             id: id,
             lessonId: lessonId,
-            page: page,
+            printedPage: printedPage,
+            pdfPage: pdfPage,
             content: content,
             textNormalized: textNormalized,
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
             required String lessonId,
-            required int page,
+            required String printedPage,
+            required int pdfPage,
             required String content,
             required String textNormalized,
           }) =>
               ChunksCompanion.insert(
             id: id,
             lessonId: lessonId,
-            page: page,
+            printedPage: printedPage,
+            pdfPage: pdfPage,
             content: content,
             textNormalized: textNormalized,
           ),
@@ -4667,133 +4934,6 @@ typedef $$ChunksTableProcessedTableManager = ProcessedTableManager<
     $$ChunksTableUpdateCompanionBuilder,
     (ChunkRow, BaseReferences<_$ContentDatabase, $ChunksTable, ChunkRow>),
     ChunkRow,
-    PrefetchHooks Function()>;
-typedef $$ChunkVectorsTableCreateCompanionBuilder = ChunkVectorsCompanion
-    Function({
-  Value<int> chunkId,
-  required Uint8List vector,
-});
-typedef $$ChunkVectorsTableUpdateCompanionBuilder = ChunkVectorsCompanion
-    Function({
-  Value<int> chunkId,
-  Value<Uint8List> vector,
-});
-
-class $$ChunkVectorsTableFilterComposer
-    extends Composer<_$ContentDatabase, $ChunkVectorsTable> {
-  $$ChunkVectorsTableFilterComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnFilters<int> get chunkId => $composableBuilder(
-      column: $table.chunkId, builder: (column) => ColumnFilters(column));
-
-  ColumnFilters<Uint8List> get vector => $composableBuilder(
-      column: $table.vector, builder: (column) => ColumnFilters(column));
-}
-
-class $$ChunkVectorsTableOrderingComposer
-    extends Composer<_$ContentDatabase, $ChunkVectorsTable> {
-  $$ChunkVectorsTableOrderingComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  ColumnOrderings<int> get chunkId => $composableBuilder(
-      column: $table.chunkId, builder: (column) => ColumnOrderings(column));
-
-  ColumnOrderings<Uint8List> get vector => $composableBuilder(
-      column: $table.vector, builder: (column) => ColumnOrderings(column));
-}
-
-class $$ChunkVectorsTableAnnotationComposer
-    extends Composer<_$ContentDatabase, $ChunkVectorsTable> {
-  $$ChunkVectorsTableAnnotationComposer({
-    required super.$db,
-    required super.$table,
-    super.joinBuilder,
-    super.$addJoinBuilderToRootComposer,
-    super.$removeJoinBuilderFromRootComposer,
-  });
-  GeneratedColumn<int> get chunkId =>
-      $composableBuilder(column: $table.chunkId, builder: (column) => column);
-
-  GeneratedColumn<Uint8List> get vector =>
-      $composableBuilder(column: $table.vector, builder: (column) => column);
-}
-
-class $$ChunkVectorsTableTableManager extends RootTableManager<
-    _$ContentDatabase,
-    $ChunkVectorsTable,
-    ChunkVectorRow,
-    $$ChunkVectorsTableFilterComposer,
-    $$ChunkVectorsTableOrderingComposer,
-    $$ChunkVectorsTableAnnotationComposer,
-    $$ChunkVectorsTableCreateCompanionBuilder,
-    $$ChunkVectorsTableUpdateCompanionBuilder,
-    (
-      ChunkVectorRow,
-      BaseReferences<_$ContentDatabase, $ChunkVectorsTable, ChunkVectorRow>
-    ),
-    ChunkVectorRow,
-    PrefetchHooks Function()> {
-  $$ChunkVectorsTableTableManager(
-      _$ContentDatabase db, $ChunkVectorsTable table)
-      : super(TableManagerState(
-          db: db,
-          table: table,
-          createFilteringComposer: () =>
-              $$ChunkVectorsTableFilterComposer($db: db, $table: table),
-          createOrderingComposer: () =>
-              $$ChunkVectorsTableOrderingComposer($db: db, $table: table),
-          createComputedFieldComposer: () =>
-              $$ChunkVectorsTableAnnotationComposer($db: db, $table: table),
-          updateCompanionCallback: ({
-            Value<int> chunkId = const Value.absent(),
-            Value<Uint8List> vector = const Value.absent(),
-          }) =>
-              ChunkVectorsCompanion(
-            chunkId: chunkId,
-            vector: vector,
-          ),
-          createCompanionCallback: ({
-            Value<int> chunkId = const Value.absent(),
-            required Uint8List vector,
-          }) =>
-              ChunkVectorsCompanion.insert(
-            chunkId: chunkId,
-            vector: vector,
-          ),
-          withReferenceMapper: (p0) => p0
-              .map((e) => (
-                    e.readTable<$ChunkVectorsTable, ChunkVectorRow>(table),
-                    BaseReferences<_$ContentDatabase, $ChunkVectorsTable,
-                        ChunkVectorRow>(db, table, e)
-                  ))
-              .toList(),
-          prefetchHooksCallback: null,
-        ));
-}
-
-typedef $$ChunkVectorsTableProcessedTableManager = ProcessedTableManager<
-    _$ContentDatabase,
-    $ChunkVectorsTable,
-    ChunkVectorRow,
-    $$ChunkVectorsTableFilterComposer,
-    $$ChunkVectorsTableOrderingComposer,
-    $$ChunkVectorsTableAnnotationComposer,
-    $$ChunkVectorsTableCreateCompanionBuilder,
-    $$ChunkVectorsTableUpdateCompanionBuilder,
-    (
-      ChunkVectorRow,
-      BaseReferences<_$ContentDatabase, $ChunkVectorsTable, ChunkVectorRow>
-    ),
-    ChunkVectorRow,
     PrefetchHooks Function()>;
 typedef $$PrebuiltAnswersTableCreateCompanionBuilder = PrebuiltAnswersCompanion
     Function({
@@ -4955,6 +5095,210 @@ typedef $$PrebuiltAnswersTableProcessedTableManager = ProcessedTableManager<
     ),
     PrebuiltAnswerRow,
     PrefetchHooks Function()>;
+typedef $$QuestionBankTableCreateCompanionBuilder = QuestionBankCompanion
+    Function({
+  Value<int> id,
+  required String subjectId,
+  required String lessonId,
+  required String question,
+  required String questionNormalized,
+  required String answer,
+  required String printedPage,
+});
+typedef $$QuestionBankTableUpdateCompanionBuilder = QuestionBankCompanion
+    Function({
+  Value<int> id,
+  Value<String> subjectId,
+  Value<String> lessonId,
+  Value<String> question,
+  Value<String> questionNormalized,
+  Value<String> answer,
+  Value<String> printedPage,
+});
+
+class $$QuestionBankTableFilterComposer
+    extends Composer<_$ContentDatabase, $QuestionBankTable> {
+  $$QuestionBankTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get subjectId => $composableBuilder(
+      column: $table.subjectId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get lessonId => $composableBuilder(
+      column: $table.lessonId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get question => $composableBuilder(
+      column: $table.question, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get questionNormalized => $composableBuilder(
+      column: $table.questionNormalized,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get answer => $composableBuilder(
+      column: $table.answer, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get printedPage => $composableBuilder(
+      column: $table.printedPage, builder: (column) => ColumnFilters(column));
+}
+
+class $$QuestionBankTableOrderingComposer
+    extends Composer<_$ContentDatabase, $QuestionBankTable> {
+  $$QuestionBankTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get subjectId => $composableBuilder(
+      column: $table.subjectId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get lessonId => $composableBuilder(
+      column: $table.lessonId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get question => $composableBuilder(
+      column: $table.question, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get questionNormalized => $composableBuilder(
+      column: $table.questionNormalized,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get answer => $composableBuilder(
+      column: $table.answer, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get printedPage => $composableBuilder(
+      column: $table.printedPage, builder: (column) => ColumnOrderings(column));
+}
+
+class $$QuestionBankTableAnnotationComposer
+    extends Composer<_$ContentDatabase, $QuestionBankTable> {
+  $$QuestionBankTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get subjectId =>
+      $composableBuilder(column: $table.subjectId, builder: (column) => column);
+
+  GeneratedColumn<String> get lessonId =>
+      $composableBuilder(column: $table.lessonId, builder: (column) => column);
+
+  GeneratedColumn<String> get question =>
+      $composableBuilder(column: $table.question, builder: (column) => column);
+
+  GeneratedColumn<String> get questionNormalized => $composableBuilder(
+      column: $table.questionNormalized, builder: (column) => column);
+
+  GeneratedColumn<String> get answer =>
+      $composableBuilder(column: $table.answer, builder: (column) => column);
+
+  GeneratedColumn<String> get printedPage => $composableBuilder(
+      column: $table.printedPage, builder: (column) => column);
+}
+
+class $$QuestionBankTableTableManager extends RootTableManager<
+    _$ContentDatabase,
+    $QuestionBankTable,
+    QuestionBankRow,
+    $$QuestionBankTableFilterComposer,
+    $$QuestionBankTableOrderingComposer,
+    $$QuestionBankTableAnnotationComposer,
+    $$QuestionBankTableCreateCompanionBuilder,
+    $$QuestionBankTableUpdateCompanionBuilder,
+    (
+      QuestionBankRow,
+      BaseReferences<_$ContentDatabase, $QuestionBankTable, QuestionBankRow>
+    ),
+    QuestionBankRow,
+    PrefetchHooks Function()> {
+  $$QuestionBankTableTableManager(
+      _$ContentDatabase db, $QuestionBankTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$QuestionBankTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$QuestionBankTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$QuestionBankTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> subjectId = const Value.absent(),
+            Value<String> lessonId = const Value.absent(),
+            Value<String> question = const Value.absent(),
+            Value<String> questionNormalized = const Value.absent(),
+            Value<String> answer = const Value.absent(),
+            Value<String> printedPage = const Value.absent(),
+          }) =>
+              QuestionBankCompanion(
+            id: id,
+            subjectId: subjectId,
+            lessonId: lessonId,
+            question: question,
+            questionNormalized: questionNormalized,
+            answer: answer,
+            printedPage: printedPage,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String subjectId,
+            required String lessonId,
+            required String question,
+            required String questionNormalized,
+            required String answer,
+            required String printedPage,
+          }) =>
+              QuestionBankCompanion.insert(
+            id: id,
+            subjectId: subjectId,
+            lessonId: lessonId,
+            question: question,
+            questionNormalized: questionNormalized,
+            answer: answer,
+            printedPage: printedPage,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable<$QuestionBankTable, QuestionBankRow>(table),
+                    BaseReferences<_$ContentDatabase, $QuestionBankTable,
+                        QuestionBankRow>(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$QuestionBankTableProcessedTableManager = ProcessedTableManager<
+    _$ContentDatabase,
+    $QuestionBankTable,
+    QuestionBankRow,
+    $$QuestionBankTableFilterComposer,
+    $$QuestionBankTableOrderingComposer,
+    $$QuestionBankTableAnnotationComposer,
+    $$QuestionBankTableCreateCompanionBuilder,
+    $$QuestionBankTableUpdateCompanionBuilder,
+    (
+      QuestionBankRow,
+      BaseReferences<_$ContentDatabase, $QuestionBankTable, QuestionBankRow>
+    ),
+    QuestionBankRow,
+    PrefetchHooks Function()>;
 typedef $$PackMetaTableCreateCompanionBuilder = PackMetaCompanion Function({
   required String key,
   required String value,
@@ -5105,10 +5449,10 @@ class $ContentDatabaseManager {
       $$BookSolutionsTableTableManager(_db, _db.bookSolutions);
   $$ChunksTableTableManager get chunks =>
       $$ChunksTableTableManager(_db, _db.chunks);
-  $$ChunkVectorsTableTableManager get chunkVectors =>
-      $$ChunkVectorsTableTableManager(_db, _db.chunkVectors);
   $$PrebuiltAnswersTableTableManager get prebuiltAnswers =>
       $$PrebuiltAnswersTableTableManager(_db, _db.prebuiltAnswers);
+  $$QuestionBankTableTableManager get questionBank =>
+      $$QuestionBankTableTableManager(_db, _db.questionBank);
   $$PackMetaTableTableManager get packMeta =>
       $$PackMetaTableTableManager(_db, _db.packMeta);
 }
