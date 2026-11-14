@@ -36,12 +36,13 @@ There is no on-device model in this app. Do not add one.
 |---|---|
 | `curriculum_tutor` (tutor chat, LLM client, question bank, offline queue, saved answers, history, report) | `onboarding` (splash, welcome, grade) |
 | `gap_filling` (diagnostic, skill mastery, learning path, prerequisites card, mini-reviews) | `content_manager` (pack download, update, import from file, sharing) |
-| Pack builder tool (`tools/pack_builder/`, Python, outside the app) | `subjects`, `lesson`, `profile` |
+| Pack builder tool (`tools/pack_builder/`, Python, outside the app) | `subjects`, `lesson`, `profile`, `shell` |
 
 Work ONLY inside the features of your track. If a task needs a change in the other track, stop and ask.
 
 ## Contracts between the two tracks (change only when both agree)
-- **Lesson → tutor:** "Ask the tutor" opens the tutor route with `lessonId` and `subjectId`.
+- **Opening the tutor:** the tutor is opened from other features only through `Routes.tutor` with `TutorArgs(subjectId, lessonId)`. It opens as a full screen on top of the current page, with a back button. The tutor tab in the shell stays as is.
+- **Pack schema:** `pack_meta` contains `schema_version`. Packs ship already at the schema the app expects; the app never migrates `content.db`. If a pack's schema is older than expected, the app treats it as needing an update and downloads it again.
 - **Tutor → pack viewer:** "Open in pack" opens the lesson viewer route with `lessonId` and `pdfPage`.
 - **Prerequisites card:** `gap_filling` exposes `LessonPrerequisitesCard(lessonId)`. The lesson page only places it.
 - **Learning path on Home:** `gap_filling` exposes the "مسارك" widget. Home only places it.
@@ -98,6 +99,7 @@ A task prompt from the human may explicitly authorize some of these. Then follow
 - Work only on a branch named `feat/<feature-name>`. Never commit to `main`.
 - Local commits are fine. Never push, never force-push, never rebase shared history, never add or modify a remote, never touch the other developer's branch. The human reviews and pushes.
 - Commit messages: short, imperative, plain English. No trailers or attribution lines.
+- This file is shared and committed. Personal instructions go in your user-level `~/.claude/CLAUDE.md`, never in this file. Changes to this file go through a PR that the other developer reviews.
 
 ## When you finish a task, report
 1. Files added, changed and removed, and why.
