@@ -34,8 +34,16 @@ Future<void> _pumpSplash(WidgetTester tester, ThemeData theme, {double textScale
 void main() {
   final html = File('design/screens/light/Splash.html').readAsStringSync();
 
-  test('splash strings equal the design HTML text exactly', () {
-    expect(SplashStrings.tagline, _htmlText(html, 'font-size: 16px'));
+  test('tagline equals the agreed copy (intentionally not the design HTML)', () {
+    // رزمتك التعليمية في جيبك · تعمل بدون إنترنت — separator is U+00B7.
+    const agreed = 'رزمتك التعلي'
+        'مية في جيبك · تعم'
+        'ل بدون إنترنت';
+    expect(SplashStrings.tagline, agreed);
+    expect(SplashStrings.tagline, contains(' · '));
+  });
+
+  test('footer, app name and dot equal the design HTML text exactly', () {
     expect(SplashStrings.footer, _htmlText(html, 'font-size: 12px'));
     expect(_htmlText(html, 'font-size: 56px'), AppStrings.appName);
     expect(html, contains('<span style="color: #DCD6FF">${SplashStrings.nameDot}</span>'));
@@ -50,7 +58,9 @@ void main() {
         await _pumpSplash(tester, theme);
         expect(find.text('${AppStrings.appName}${SplashStrings.nameDot}', findRichText: true),
             findsOneWidget);
-        expect(find.text(SplashStrings.tagline), findsOneWidget);
+        final tagline = find.text(SplashStrings.tagline);
+        expect(tagline, findsOneWidget);
+        expect(tester.widget<Text>(tagline).data, SplashStrings.tagline);
         expect(find.text(SplashStrings.footer), findsOneWidget);
         expect(tester.takeException(), isNull);
       });
