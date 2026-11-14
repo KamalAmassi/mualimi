@@ -7,11 +7,18 @@ import '../../../../core/constants/app_strings.dart';
 import 'tutor_sizes.dart';
 
 class TutorHeader extends StatelessWidget {
-  const TutorHeader(
-      {super.key, required this.online, required this.onOpenSaved});
+  const TutorHeader({
+    super.key,
+    required this.online,
+    required this.onOpenSaved,
+    this.onBack,
+  });
 
   final bool online;
   final VoidCallback onOpenSaved;
+
+  /// Shows a back button when the tutor is a full screen, not a tab.
+  final VoidCallback? onBack;
 
   @override
   Widget build(BuildContext context) {
@@ -22,6 +29,14 @@ class TutorHeader extends StatelessWidget {
       padding:
           const EdgeInsets.fromLTRB(AppSizes.lg, 14, AppSizes.lg, AppSizes.md),
       child: Row(children: [
+        if (onBack != null) ...[
+          IconButton(
+            tooltip: MaterialLocalizations.of(context).backButtonTooltip,
+            onPressed: onBack,
+            icon: Icon(LucideIcons.arrowRight, color: c.textPrimary),
+          ),
+          const SizedBox(width: AppSizes.xs),
+        ],
         Container(
           width: TutorSizes.headerIcon,
           height: TutorSizes.headerIcon,

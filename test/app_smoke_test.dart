@@ -7,14 +7,17 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:mualimi/app.dart';
 import 'package:mualimi/core/bindings/initial_binding.dart';
 import 'package:mualimi/core/constants/app_files.dart';
 import 'package:mualimi/core/constants/app_strings.dart';
+import 'package:mualimi/core/routes/app_routes.dart';
 import 'package:mualimi/core/db/content/content_database.dart';
 import 'package:mualimi/core/db/content/seed/dev_seed_science_g9.dart';
 import 'package:mualimi/core/services/device_info_source.dart';
 import 'package:mualimi/core/services/device_snapshot.dart';
+import 'package:mualimi/features/curriculum_tutor/presentation/routes/tutor_args.dart';
 
 class _WifiConnectivity extends Fake implements Connectivity {
   @override
@@ -197,5 +200,35 @@ void main() {
     await settle(tester);
 
     expect(find.text(AppStrings.outOfScopeTitle), findsOneWidget);
+  });
+
+  testWidgets('the tutor route opens full screen with the subject and lesson pre-selected', (tester) async {
+    await bootReturningStudent(tester);
+
+    Get.toNamed<void>(
+      AppRoutes.tutor,
+      arguments: const TutorArgs(
+          subjectId: DevSeedScienceG9.subjectId, lessonId: DevSeedScienceG9.lessonId),
+    );
+    await settle(tester);
+
+    expect(find.text(AppStrings.askHint), findsOneWidget);
+    expect(find.text(DevSeedScienceG9.lessonTitle), findsWidgets);
+    expect(find.byIcon(LucideIcons.arrowRight), findsOneWidget, reason: 'back button');
+
+    await tester.tap(find.byIcon(LucideIcons.arrowRight));
+    await settle(tester);
+    expect(find.byType(NavigationBar), findsOneWidget);
+    expect(find.byIcon(LucideIcons.arrowRight), findsNothing);
+  });
+
+  testWidgets('the tutor route with invalid arguments still opens', (tester) async {
+    await bootReturningStudent(tester);
+
+    Get.toNamed<void>(AppRoutes.tutor, arguments: 'not tutor args');
+    await settle(tester);
+
+    expect(find.text(AppStrings.askHint), findsOneWidget);
+    expect(find.byIcon(LucideIcons.arrowRight), findsOneWidget);
   });
 }

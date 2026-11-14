@@ -16,8 +16,8 @@ import '../../domain/usecases/ask_tutor_params.dart';
 import '../../domain/usecases/follow_up_usecase.dart';
 import '../../domain/usecases/get_quick_answer_usecase.dart';
 import '../formatting/example_questions.dart';
+import '../routes/tutor_args.dart';
 import '../widgets/lesson_picker_sheet.dart';
-import 'chat_scroller.dart';
 import 'chat_transcript.dart';
 import 'pending_conversation.dart';
 import 'tutor_selection.dart';
@@ -40,7 +40,6 @@ class TutorController extends GetxController {
   final TutorUseCases _use;
   final TutorEngineService _engine;
   final _transcript = ChatTranscript();
-  final _scroller = ChatScroller();
   late final PendingConversation _pending;
 
   final input = TextEditingController();
@@ -53,7 +52,6 @@ class TutorController extends GetxController {
 
   RxList<ChatMessage> get messages => _transcript.messages;
   Rx<TutorEngineState> get engineState => _engine.state;
-  ScrollController get scroll => _scroller.controller;
 
   @override
   void onReady() {
@@ -66,7 +64,6 @@ class TutorController extends GetxController {
     await _refreshExamples();
     ever(selection.subjectId, (_) => _refreshExamples());
     ever(selection.lessonId, (_) => _refreshExamples());
-    ever(messages, (_) => _scroller.jumpToEnd());
     _engineWatcher = ever(_engine.state, (s) {
       if (s == TutorEngineState.ready) _use.flushReports();
     });
@@ -74,6 +71,12 @@ class TutorController extends GetxController {
     await _pending.start();
   }
 
+  /// Opens the tutor for the route arguments; invalid arguments change nothing.
+  Future<void> openWith(TutorArgs? args) async {
+    if (args != null) await selection.applyArgs(args);
+  }
+
+  /// Direct selection, kept for callers that already know the lesson.
   /// Contract with the lesson page: "Ask the tutor" pre-selects subject and lesson.
   void selectLesson({
     required String subject,
@@ -220,7 +223,6 @@ class TutorController extends GetxController {
     _engineWatcher?.dispose();
     _pending.dispose();
     _transcript.dispose();
-    _scroller.dispose();
     input.dispose();
     super.onClose();
   }

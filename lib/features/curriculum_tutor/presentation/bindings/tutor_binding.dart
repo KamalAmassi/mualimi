@@ -45,8 +45,13 @@ class TutorBinding extends Bindings {
       ),
       fenix: true,
     );
-    Get.lazyPut(() => TutorSelection(Get.find<GetSubjectsUseCase>()),
-        fenix: true);
+    Get.lazyPut(
+      () => TutorSelection(
+        Get.find<GetSubjectsUseCase>(),
+        Get.find<GetSubjectDetailUseCase>(),
+      ),
+      fenix: true,
+    );
     Get.lazyPut(
       () => TutorController(
         selection: Get.find<TutorSelection>(),

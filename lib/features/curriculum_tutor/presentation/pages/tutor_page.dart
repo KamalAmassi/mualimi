@@ -19,7 +19,10 @@ import '../widgets/tutor_header.dart';
 
 /// Shell tab 2: the chat with the tutor.
 class TutorPage extends GetView<TutorController> {
-  const TutorPage({super.key});
+  const TutorPage({super.key, this.onBack});
+
+  /// Set when the page is the full-screen tutor route; adds a back button.
+  final VoidCallback? onBack;
 
   @override
   Widget build(BuildContext context) {
@@ -31,6 +34,7 @@ class TutorPage extends GetView<TutorController> {
           Obx(() => TutorHeader(
                 online: controller.engineState.value == TutorEngineState.ready,
                 onOpenSaved: () => Get.toNamed<void>(AppRoutes.saved),
+                onBack: onBack,
               )),
           Obx(() => ScopeBar(
                 subjectName: selection.subjectName,
