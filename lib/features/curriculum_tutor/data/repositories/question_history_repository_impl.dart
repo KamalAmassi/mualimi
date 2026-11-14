@@ -7,10 +7,14 @@ class QuestionHistoryRepositoryImpl implements QuestionHistoryRepository {
   final QuestionHistoryLocalDataSource _local;
 
   @override
-  Future<void> add(QuestionHistoryItem item) => _local.add(item);
+  Future<int> add(QuestionHistoryItem item) => _local.add(item);
 
   @override
-  Future<List<QuestionHistoryItem>> recent({required int limit}) => _local.recent(limit: limit);
+  Future<QuestionHistoryItem?> byId(int id) => _local.byId(id);
+
+  @override
+  Future<List<QuestionHistoryItem>> recent({required int limit}) =>
+      _local.recent(limit: limit);
 
   @override
   Future<void> clear() => _local.clear();
