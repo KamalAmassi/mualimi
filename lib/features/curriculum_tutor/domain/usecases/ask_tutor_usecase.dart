@@ -1,78 +1,92 @@
 import '../../../../core/constants/limits.dart';
-import '../../../../core/error/exceptions.dart';
 import '../../../../core/error/failures.dart';
-import '../../../../core/services/device_tier.dart';
 import '../../../../core/usecase/usecase.dart';
 import '../../../../core/utils/arabic_normalizer.dart';
-import '../entities/answer_source.dart';
+import '../entities/passage.dart';
+import '../entities/question_history_item.dart';
+import '../entities/tutor_answer.dart';
 import '../entities/tutor_event.dart';
-import '../repositories/llm_repository.dart';
+import '../repositories/passage_repository.dart';
+import '../repositories/question_bank_repository.dart';
+import '../repositories/question_history_repository.dart';
 import '../repositories/tutor_scope_repository.dart';
 import 'ask_tutor_params.dart';
-import 'build_prompt_usecase.dart';
-import 'retrieve_chunks_usecase.dart';
+import 'generate_answer_params.dart';
+import 'generate_answer_usecase.dart';
 
-typedef DeviceTierReader = DeviceTier Function();
-
-/// The tutor pipeline: gate by subject, normalize, retrieve, gate by score
-/// and device, build the prompt, stream the answer.
+/// The tutor pipeline for a typed question: subject check, question bank,
+/// pack search, scope check, then the cloud tutor.
 class AskTutorUseCase implements StreamUseCase<TutorEvent, AskTutorParams> {
   AskTutorUseCase({
     required TutorScopeRepository scope,
-    required RetrieveChunksUseCase retrieve,
-    required BuildPromptUseCase buildPrompt,
-    required LlmRepository llm,
-    required DeviceTierReader deviceTier,
+    required QuestionBankRepository bank,
+    required PassageRepository passages,
+    required QuestionHistoryRepository history,
+    required GenerateAnswerUseCase generate,
   })  : _scope = scope,
-        _retrieve = retrieve,
-        _buildPrompt = buildPrompt,
-        _llm = llm,
-        _deviceTier = deviceTier;
+        _bank = bank,
+        _passages = passages,
+        _history = history,
+        _generate = generate;
 
   final TutorScopeRepository _scope;
-  final RetrieveChunksUseCase _retrieve;
-  final BuildPromptUseCase _buildPrompt;
-  final LlmRepository _llm;
-  final DeviceTierReader _deviceTier;
+  final QuestionBankRepository _bank;
+  final PassageRepository _passages;
+  final QuestionHistoryRepository _history;
+  final GenerateAnswerUseCase _generate;
 
   @override
   Stream<TutorEvent> call(AskTutorParams params) async* {
-    if (!await _scope.isTutorEnabled(params.subjectId, lessonId: params.lessonId)) {
+    if (!await _scope.isTutorEnabled(params.subjectId,
+        lessonId: params.lessonId)) {
       yield const TutorSubjectUnsupported();
       return;
     }
 
-    final normalized = AskTutorParams(
-      question: ArabicNormalizer.normalize(params.question),
-      subjectId: params.subjectId,
-      lessonId: params.lessonId,
-    );
-    final retrieved = await _retrieve(normalized);
-    final failure = retrieved.fold<Failure?>((f) => f, (_) => null);
-    if (failure != null) {
-      yield TutorError(failure);
+    final normalized = ArabicNormalizer.normalize(params.question);
+    final bankResult =
+        await _bank.findMatch(normalized, subjectId: params.subjectId);
+    final bankFailure = bankResult.fold<Failure?>((f) => f, (_) => null);
+    if (bankFailure != null) {
+      yield TutorError(bankFailure);
       return;
     }
-    final chunks = retrieved.getOrElse(() => const []);
+    final match = bankResult.getOrElse(() => null);
+    if (match != null) {
+      final answer = TutorAnswer(
+        text: match.entry.answer,
+        source: match.entry.source,
+        fromBank: true,
+      );
+      final id = await _history.add(QuestionHistoryItem(
+        question: params.question,
+        answer: answer.text,
+        source: answer.source,
+        fromBank: true,
+      ));
+      yield TutorBankAnswer(answer, historyId: id);
+      return;
+    }
 
-    if (chunks.isEmpty || chunks.first.score < Limits.outOfScopeThreshold) {
+    final found = await _passages.search(normalized,
+        subjectId: params.subjectId, lessonId: params.lessonId);
+    final searchFailure = found.fold<Failure?>((f) => f, (_) => null);
+    if (searchFailure != null) {
+      yield TutorError(searchFailure);
+      return;
+    }
+    final passages = found.getOrElse(() => const <Passage>[]);
+    if (passages.isEmpty ||
+        passages.first.score < Limits.passageScoreThreshold) {
       yield const TutorOutOfScope();
       return;
     }
-    if (_deviceTier() == DeviceTier.searchOnly) {
-      yield TutorPassages(chunks);
-      return;
-    }
 
-    final prompt = _buildPrompt(params.question, chunks);
-    try {
-      await for (final token in _llm.generate(prompt, maxOutputTokens: Limits.maxOutputTokens)) {
-        yield TutorToken(token);
-      }
-    } on ModelException catch (e) {
-      yield TutorError(ModelFailure(e.message));
-      return;
-    }
-    yield TutorDone(AnswerSource(lessonId: chunks.first.lessonId, page: chunks.first.page));
+    yield* _generate(GenerateAnswerParams(
+      question: params.question,
+      subjectId: params.subjectId,
+      lessonId: params.lessonId,
+      passages: passages,
+    ));
   }
 }

@@ -2,11 +2,14 @@ import '../../../../core/constants/prompt_strings.dart';
 
 /// One-tap lesson actions. `kind` matches `prebuilt_answers.kind`.
 enum QuickAction {
-  explain('explain', PromptStrings.explainQuestion),
-  summary('summary', PromptStrings.summaryQuestion),
-  terms('terms', PromptStrings.termsQuestion);
+  explain(
+      'explain', PromptStrings.explainChip, PromptStrings.explainInstruction),
+  summary(
+      'summary', PromptStrings.summaryChip, PromptStrings.summaryInstruction),
+  terms('terms', PromptStrings.termsChip, PromptStrings.termsInstruction);
 
-  const QuickAction(this.kind, this.question);
+  const QuickAction(this.kind, this.label, this.instruction);
   final String kind;
-  final String question;
+  final String label;
+  final String instruction;
 }
