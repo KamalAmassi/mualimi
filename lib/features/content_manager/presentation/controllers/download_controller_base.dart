@@ -11,6 +11,7 @@ import '../../domain/usecases/download_artifacts_usecase.dart';
 import '../../domain/usecases/download_params.dart';
 import '../../domain/usecases/pause_download_usecase.dart';
 import '../../domain/usecases/resume_download_usecase.dart';
+import 'download_phase_ui.dart';
 import 'download_ui_state.dart';
 
 /// The flow shared by pack and model downloads: mobile-data prompt, start,
@@ -51,45 +52,63 @@ abstract class DownloadControllerBase extends GetxController {
 
   Future<void> onCompleted();
 
+  bool _starting = false;
+
+  /// True while a job is being prepared, running, paused, or waiting on a
+  /// network decision. [start] is a no-op then, so a job never runs twice.
+  bool get isBusy => _starting || ui.value.isBusy;
+
   Future<void> start() async {
+    if (isBusy) return;
+    await _launch();
+  }
+
+  /// Local-file imports don't need a network, so they skip the checks in [start].
+  Future<void> startOffline() async {
+    if (isBusy) return;
+    await _begin();
+  }
+
+  Future<void> _launch() async {
     if (connectivity.isOnMobile && !_mobileApproved) {
       ui.value = DownloadUiState.awaitingNetworkChoice;
       return;
     }
-    if (!connectivity.isOnline) {
-      _fail(const NetworkFailure('offline'));
-      return;
-    }
+    if (!connectivity.isOnline) return _fail(const NetworkFailure('offline'));
     await _begin();
   }
 
-  /// Local-file imports don't need a network, so they skip the checks in [start].
-  Future<void> startOffline() => _begin();
-
   Future<void> _begin() async {
-    final params = await buildParams();
-    if (params == null) {
-      ui.value = DownloadUiState.failed;
-      return;
+    if (_starting) return;
+    _starting = true;
+    try {
+      final params = await buildParams();
+      if (params == null) {
+        ui.value = DownloadUiState.failed;
+        return;
+      }
+      failure.value = null;
+      ui.value = DownloadUiState.downloading;
+      await _subscription?.cancel();
+      _subscription = _download(params).listen(_apply);
+    } finally {
+      _starting = false;
     }
-    failure.value = null;
-    ui.value = DownloadUiState.downloading;
-    await _subscription?.cancel();
-    _subscription = _download(params).listen(_apply);
   }
 
   void continueOnMobile() {
+    if (ui.value != DownloadUiState.awaitingNetworkChoice) return;
     _mobileApproved = true;
-    start();
+    _launch();
   }
 
   void waitForWifi() {
     ui.value = DownloadUiState.waitingForWifi;
     _wifiWatcher?.dispose();
     _wifiWatcher = ever(connectivity.network, (_) {
-      if (connectivity.isOnWifi) {
+      if (connectivity.isOnWifi && ui.value == DownloadUiState.waitingForWifi) {
         _wifiWatcher?.dispose();
-        start();
+        _launch();
       }
     });
   }
@@ -113,23 +132,9 @@ abstract class DownloadControllerBase extends GetxController {
     bytesDone.value = p.bytesDone;
     totalBytes.value = p.totalBytes;
     progress.value = p.fraction;
-    switch (p.phase) {
-      case DownloadPhase.downloading:
-        ui.value = DownloadUiState.downloading;
-      case DownloadPhase.paused:
-        ui.value = DownloadUiState.paused;
-      case DownloadPhase.verifying:
-        ui.value = DownloadUiState.verifying;
-      case DownloadPhase.assembling:
-        ui.value = DownloadUiState.assembling;
-      case DownloadPhase.canceled:
-        ui.value = DownloadUiState.idle;
-      case DownloadPhase.failed:
-        _fail(p.failure ?? const NetworkFailure());
-      case DownloadPhase.completed:
-        ui.value = DownloadUiState.completed;
-        onCompleted();
-    }
+    if (p.phase == DownloadPhase.failed) return _fail(p.failure ?? const NetworkFailure());
+    ui.value = p.phase.uiState;
+    if (p.phase == DownloadPhase.completed) onCompleted();
   }
 
   void _fail(Failure f) {
