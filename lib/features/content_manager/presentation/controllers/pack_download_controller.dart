@@ -18,6 +18,7 @@ class PackDownloadController extends DownloadControllerBase {
     required super.resume,
     required super.cancel,
     required super.connectivity,
+    super.networkDebounce,
     required GetManifestUseCase getManifest,
     required CheckPackUpdateUseCase checkUpdate,
     required SettingsService settings,

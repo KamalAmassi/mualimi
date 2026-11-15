@@ -19,6 +19,7 @@ import 'package:mualimi/features/content_manager/domain/usecases/download_params
 import 'package:mualimi/features/content_manager/domain/usecases/get_manifest_usecase.dart';
 import 'package:mualimi/features/content_manager/domain/usecases/pause_download_usecase.dart';
 import 'package:mualimi/features/content_manager/domain/usecases/resume_download_usecase.dart';
+import 'package:mualimi/features/content_manager/presentation/controllers/download_timings.dart';
 import 'package:mualimi/features/content_manager/presentation/controllers/pack_download_controller.dart';
 
 PackInfo pack(int grade, {int version = 1}) => PackInfo(
@@ -48,6 +49,9 @@ class FakeDownload extends Fake implements DownloadArtifactsUseCase {
     return c.stream;
   }
 
+  /// Sends [p] on the latest job's stream.
+  void emit(DownloadProgress p) => _controllers.last.add(p);
+
   /// Not awaited: a canceled job's stream never delivers its done event.
   void closeAll() {
     for (final c in _controllers) {
@@ -62,9 +66,23 @@ class FakeCancel extends Fake implements CancelDownloadUseCase {
   Future<void> call() async => calls++;
 }
 
-class _FakePause extends Fake implements PauseDownloadUseCase {}
+class FakePause extends Fake implements PauseDownloadUseCase {
+  int calls = 0;
+  @override
+  Future<bool> call() async {
+    calls++;
+    return true;
+  }
+}
 
-class _FakeResume extends Fake implements ResumeDownloadUseCase {}
+class FakeResume extends Fake implements ResumeDownloadUseCase {
+  int calls = 0;
+  @override
+  Future<bool> call() async {
+    calls++;
+    return true;
+  }
+}
 
 class _FakeManifest extends Fake implements GetManifestUseCase {
   @override
@@ -89,18 +107,21 @@ class PackDownloadHarness {
 
   final download = FakeDownload();
   final cancel = FakeCancel();
+  final pause = FakePause();
+  final resume = FakeResume();
   final settings = SettingsService(File('unused-settings.json'));
   final connectivity = ConnectivityService(connectivity: _FakeConnectivity());
   int created = 0;
 
-  PackDownloadController build({required bool autoStart}) {
+  PackDownloadController build({required bool autoStart, Duration? networkDebounce}) {
     created++;
     return PackDownloadController(
       download: download,
-      pause: _FakePause(),
-      resume: _FakeResume(),
+      pause: pause,
+      resume: resume,
       cancel: cancel,
       connectivity: connectivity,
+      networkDebounce: networkDebounce ?? DownloadTimings.networkDebounce,
       getManifest: _FakeManifest(),
       checkUpdate: _FakeCheckUpdate(),
       settings: settings,
