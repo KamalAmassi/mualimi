@@ -22,14 +22,20 @@ class _FakePartDownloader implements PartDownloader {
   final corruptOnce = <String>{};
   final corruptAlways = <String>{};
   final requests = <String>[];
+  final taskIds = <String>[];
+  final forgotten = <String>[];
+  final existedAtStart = <bool>[];
 
   @override
   Future<PartResult> download({
+    required String taskId,
     required String url,
     required File dest,
     required void Function(double fraction) onProgress,
   }) async {
     requests.add(url);
+    taskIds.add(taskId);
+    existedAtStart.add(dest.existsSync());
     if (failUrls.contains(url)) return PartResult.failed;
     var bytes = content[url]!;
     if (corruptAlways.contains(url) || corruptOnce.remove(url)) {
@@ -40,6 +46,10 @@ class _FakePartDownloader implements PartDownloader {
     return PartResult.complete;
   }
 
+  @override
+  Future<bool> canResume(String taskId) async => false;
+  @override
+  Future<void> forget(String taskId) async => forgotten.add(taskId);
   @override
   Future<bool> pause() async => false;
   @override
@@ -132,6 +142,32 @@ void main() {
     expect(fake.requests.where((u) => u.endsWith('/0')), hasLength(1));
     expect(fake.requests.where((u) => u.endsWith('/1')), hasLength(2));
     expect(fake.requests.where((u) => u.endsWith('/2')), hasLength(1));
+  });
+
+  test('a corrupt part is deleted after the hash mismatch and its tasks forgotten', () async {
+    fake.corruptOnce.add('https://a/1');
+    final events = await run();
+    expect(events.last.phase, DownloadPhase.completed);
+    expect(fake.forgotten, containsAll(['model-v1-p1-m0', 'model-v1-p1-m1']));
+    // The retry runs after the corrupt file was removed.
+    expect(fake.existedAtStart, everyElement(isFalse));
+  });
+
+  test('a corrupt part left by an earlier run is deleted, then re-downloaded', () async {
+    await partsDir.create();
+    await File('${partsDir.path}/m.bin.part0').writeAsBytes([9, 9, 9]);
+    final events = await run();
+    expect(events.last.phase, DownloadPhase.completed);
+    expect(fake.existedAtStart.first, isFalse);
+    expect(await target.readAsBytes(), full);
+  });
+
+  test('uses one deterministic task id per part and mirror', () async {
+    fake.failUrls.add('https://a/1');
+    await run();
+    expect(fake.taskIds.where((id) => id.contains('-p1-')).take(2),
+        ['model-v1-p1-m0', 'model-v1-p1-m1']);
+    expect(fake.taskIds.first, 'model-v1-p0-m0');
   });
 
   test('a verified part left by an earlier run is not downloaded again', () async {

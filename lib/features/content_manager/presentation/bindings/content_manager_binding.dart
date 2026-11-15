@@ -54,12 +54,13 @@ class ContentManagerBinding extends Bindings {
     );
     Get.lazyPut<ArtifactRepository>(
       () {
-        final downloader = ArtifactDownloader(BackgroundPartDownloader());
+        final states = DownloadStateLocalDataSource(databases.user);
+        final downloader = ArtifactDownloader(BackgroundPartDownloader(), store: states);
         return ArtifactRepositoryImpl(
           paths: paths,
           settings: settings,
           installer: PackInstaller(paths, databases, settings),
-          states: DownloadStateLocalDataSource(databases.user),
+          states: states,
           sourceFor: (kind, localPath) => kind == ModelSourceKind.localFile
               ? LocalFileModelSource(localPath!)
               : NetworkModelSource(downloader),
