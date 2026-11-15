@@ -6,21 +6,23 @@ import 'package:path/path.dart' as p;
 import '../../../../core/constants/app_files.dart';
 import '../../../../core/constants/limits.dart';
 import '../../../../core/error/failures.dart';
-import '../../../../core/utils/file_parts_util.dart';
-import '../../../../core/utils/sha256_util.dart';
 import '../../domain/entities/artifact_info.dart';
 import '../../domain/entities/artifact_part.dart';
 import '../../domain/entities/download_phase.dart';
 import '../../domain/entities/download_progress.dart';
+import 'isolate_hash_verifier.dart';
 import 'part_downloader.dart';
+import 'parts_assembler.dart';
 
-/// Downloads an artifact part by part: resume, per-part SHA-256, mirror
-/// fallback, re-download of only a corrupt part, isolate assembly, and a
-/// final whole-file check.
+/// Downloads an artifact part by part: resume, per-part SHA-256 (off the UI
+/// isolate), mirror fallback, re-download of only a corrupt part, assembly,
+/// and a final whole-file check.
 class ArtifactDownloader {
-  ArtifactDownloader(this._parts);
+  ArtifactDownloader(this._parts, {FileHashVerifier verify = IsolateHashVerifier.verify})
+      : _verify = verify;
 
   final PartDownloader _parts;
+  final FileHashVerifier _verify;
   StreamController<DownloadProgress>? _out;
   bool _canceled = false;
   int _totalBytes = 0;
@@ -66,9 +68,9 @@ class ArtifactDownloader {
       await partsDir.create(recursive: true);
       var done = 0;
       for (final part in a.parts) {
-        final file = File(p.join(partsDir.path, '${a.fileName}${AppFiles.partSuffix}${part.index}'));
+        final file = File(_partPath(a, part, partsDir));
         // A verified part from an earlier run is kept: this is cross-restart resume.
-        if (await Sha256Util.verifyFile(file, part.sha256)) {
+        if (await _verify(file.path, part.sha256)) {
           done += part.size;
           _emit(DownloadPhase.downloading, done);
           continue;
@@ -97,7 +99,7 @@ class ArtifactDownloader {
         return false;
       }
       _emit(DownloadPhase.verifying, doneBefore + part.size);
-      if (await Sha256Util.verifyFile(file, part.sha256)) return true;
+      if (await _verify(file.path, part.sha256)) return true;
       if (await file.exists()) await file.delete(); // only this part is retried
     }
     _fail(IntegrityFailure('part ${part.index} is corrupt'));
@@ -120,13 +122,13 @@ class ArtifactDownloader {
 
   Future<void> _assemble(ArtifactInfo a, File target, Directory partsDir) async {
     _emit(DownloadPhase.assembling, _totalBytes);
-    final paths = [
-      for (final part in a.parts)
-        p.join(partsDir.path, '${a.fileName}${AppFiles.partSuffix}${part.index}'),
-    ];
-    await FilePartsUtil.assemble(paths, target.path);
+    final paths = [for (final part in a.parts) _partPath(a, part, partsDir)];
+    await PartsAssembler.assemble(paths, target.path);
     _emit(DownloadPhase.verifying, _totalBytes);
-    if (!await Sha256Util.verifyFile(target, a.sha256)) {
+    // A lone part already verified against the whole-file hash is not hashed again.
+    final alreadyVerified = a.parts.length == 1 &&
+        a.parts.single.sha256.toLowerCase() == a.sha256.toLowerCase();
+    if (!alreadyVerified && !await _verify(target.path, a.sha256)) {
       await target.delete();
       _fail(const IntegrityFailure('assembled file failed its checksum'));
       return;
@@ -134,6 +136,9 @@ class ArtifactDownloader {
     if (await partsDir.exists()) await partsDir.delete(recursive: true);
     _emit(DownloadPhase.completed, _totalBytes);
   }
+
+  String _partPath(ArtifactInfo a, ArtifactPart part, Directory partsDir) =>
+      p.join(partsDir.path, '${a.fileName}${AppFiles.partSuffix}${part.index}');
 
   void _emit(DownloadPhase phase, int bytes) {
     _lastBytes = bytes;
