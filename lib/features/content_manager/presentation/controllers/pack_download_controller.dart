@@ -36,10 +36,38 @@ class PackDownloadController extends DownloadControllerBase {
   /// Set when a newer pack is offered for the installed grade.
   final offeredPack = Rxn<PackInfo>();
 
+  /// The grade the current (or last) job was started for.
+  int? _jobGrade;
+  Worker? _gradeWatcher;
+
+  @override
+  void onInit() {
+    super.onInit();
+    // An offer belongs to the grade it was checked for.
+    _gradeWatcher = ever(_settings.grade, (_) => offeredPack.value = null);
+  }
+
   @override
   void onReady() {
     super.onReady();
-    if (autoStart) start();
+    if (autoStart) startForCurrentGrade();
+  }
+
+  /// What `/download` calls on entry, whether this controller is new or was
+  /// registered earlier by the shell: download the pack of the grade selected
+  /// now. A job already running for that grade is kept; one for another grade
+  /// is canceled first.
+  Future<void> startForCurrentGrade() async {
+    final grade = _settings.grade.value;
+    if (offeredPack.value?.grade != grade) offeredPack.value = null;
+    if (isBusy && _jobGrade != grade) await cancel();
+    await start();
+  }
+
+  @override
+  Future<void> start() {
+    if (!isBusy) _jobGrade = _settings.grade.value;
+    return super.start();
   }
 
   Future<void> checkForUpdate() async {
@@ -51,10 +79,10 @@ class PackDownloadController extends DownloadControllerBase {
 
   @override
   Future<DownloadParams?> buildParams() async {
-    final offered = offeredPack.value;
-    if (offered != null) return DownloadParams.pack(offered);
-
     final grade = _settings.grade.value;
+    final offered = offeredPack.value;
+    if (offered != null && offered.grade == grade) return DownloadParams.pack(offered);
+
     if (grade == null) {
       failWith(const NotFoundFailure('no grade selected'));
       return null;
@@ -86,5 +114,11 @@ class PackDownloadController extends DownloadControllerBase {
       await _settings.setOnboardingDone(true);
       Get.offAllNamed<void>(AppRoutes.shell);
     }
+  }
+
+  @override
+  void onClose() {
+    _gradeWatcher?.dispose();
+    super.onClose();
   }
 }
