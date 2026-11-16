@@ -21,7 +21,8 @@ class StorageFailure extends Failure {
 }
 
 class NotEnoughSpaceFailure extends Failure {
-  const NotEnoughSpaceFailure({required this.requiredBytes, required this.freeBytes})
+  const NotEnoughSpaceFailure(
+      {required this.requiredBytes, required this.freeBytes})
       : super('not enough space');
   final int requiredBytes;
   final int freeBytes;
@@ -38,8 +39,8 @@ class ManifestFailure extends Failure {
   const ManifestFailure([super.message = 'invalid manifest']);
 }
 
-class ModelFailure extends Failure {
-  const ModelFailure([super.message = 'model error']);
+class LlmFailure extends Failure {
+  const LlmFailure([super.message = 'llm error']);
 }
 
 class NotFoundFailure extends Failure {

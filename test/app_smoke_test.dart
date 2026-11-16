@@ -7,23 +7,26 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
+import 'package:lucide_icons_flutter/lucide_icons.dart';
 import 'package:mualimi/app.dart';
 import 'package:mualimi/core/bindings/initial_binding.dart';
 import 'package:mualimi/core/constants/app_files.dart';
 import 'package:mualimi/core/constants/app_strings.dart';
+import 'package:mualimi/core/routes/app_routes.dart';
 import 'package:mualimi/core/db/content/content_database.dart';
-import 'package:mualimi/core/db/content/content_seed.dart';
+import 'package:mualimi/core/db/content/seed/dev_seed_science_g9.dart';
 import 'package:mualimi/core/services/device_info_source.dart';
 import 'package:mualimi/core/services/device_snapshot.dart';
-import 'package:mualimi/features/curriculum_tutor/data/datasources/gemma_bootstrap.dart';
-import 'package:mualimi/features/curriculum_tutor/data/datasources/gemma_runtime.dart';
+import 'package:mualimi/features/curriculum_tutor/presentation/routes/tutor_args.dart';
 
 class _WifiConnectivity extends Fake implements Connectivity {
   @override
-  Future<List<ConnectivityResult>> checkConnectivity() async => [ConnectivityResult.wifi];
+  Future<List<ConnectivityResult>> checkConnectivity() async =>
+      [ConnectivityResult.wifi];
 
   @override
-  Stream<List<ConnectivityResult>> get onConnectivityChanged => const Stream.empty();
+  Stream<List<ConnectivityResult>> get onConnectivityChanged =>
+      const Stream.empty();
 }
 
 class _RoomyDevice implements DeviceInfoSource {
@@ -36,14 +39,14 @@ class _RoomyDevice implements DeviceInfoSource {
 /// async, so each step alternates real waiting with pumping.
 Future<void> settle(WidgetTester tester, {int rounds = 12}) async {
   for (var i = 0; i < rounds; i++) {
-    await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 40)));
+    await tester
+        .runAsync(() => Future<void>.delayed(const Duration(milliseconds: 40)));
     await tester.pump(const Duration(milliseconds: 40));
   }
 }
 
 Future<void> boot(WidgetTester tester, Directory root) async {
   final binding = await tester.runAsync(() => InitialBinding.create(
-        runtime: GemmaRuntime(GemmaBootstrap()),
         rootOverride: root,
         connectivityPlugin: _WifiConnectivity(),
         deviceInfo: _RoomyDevice(),
@@ -68,9 +71,11 @@ void main() {
     }
   });
 
-  testWidgets('first run walks splash -> welcome -> grade -> download', (tester) async {
+  testWidgets('first run walks splash -> welcome -> grade -> download',
+      (tester) async {
     await boot(tester, root);
-    expect(find.byType(TextField), findsOneWidget, reason: 'splash should go to welcome');
+    expect(find.byType(TextField), findsOneWidget,
+        reason: 'splash should go to welcome');
 
     await tester.enterText(find.byType(TextField), 'سلمى');
     await tester.tap(find.text(AppStrings.next));
@@ -89,19 +94,21 @@ void main() {
     expect(find.text(AppStrings.retry), findsOneWidget);
   });
 
-  testWidgets('an empty name is rejected on the welcome screen', (tester) async {
+  testWidgets('an empty name is rejected on the welcome screen',
+      (tester) async {
     await boot(tester, root);
     await tester.tap(find.text(AppStrings.next));
     await settle(tester, rounds: 3);
     expect(find.text(AppStrings.studentNameInvalid), findsOneWidget);
   });
 
-  testWidgets('returning student: splash -> shell -> subject -> lesson -> tutor tab', (tester) async {
-    // An installed pack plus finished onboarding.
-    final packs = Directory('${root.path}/${AppFiles.packsDir}')..createSync(recursive: true);
-    final seed = ContentDatabase(NativeDatabase(File('${packs.path}/${AppFiles.contentDb}')));
+  Future<void> bootReturningStudent(WidgetTester tester) async {
+    final packs = Directory('${root.path}/${AppFiles.packsDir}')
+      ..createSync(recursive: true);
+    final seed = ContentDatabase(
+        NativeDatabase(File('${packs.path}/${AppFiles.contentDb}')));
     await tester.runAsync(() async {
-      await ContentSeed.insert(seed);
+      await DevSeedScienceG9.insert(seed);
       await seed.close();
     });
     File('${root.path}/${AppFiles.settingsFile}').writeAsStringSync(jsonEncode({
@@ -110,14 +117,30 @@ void main() {
       'grade': 9,
       'student_name': 'سلمى',
     }));
-
     await boot(tester, root);
-    expect(find.text('العلوم والحياة'), findsOneWidget, reason: 'splash should go to the shell');
+  }
+
+  Future<void> openTutorFromLesson(WidgetTester tester) async {
+    await tester.tap(find.text('العلوم والحياة'));
+    await settle(tester);
+    await tester.tap(find.text('طرق الشحن الكهربائي'));
+    await settle(tester);
+    await tester.tap(find.text(AppStrings.askTutor));
+    await settle(tester);
+  }
+
+  testWidgets(
+      'returning student: splash -> shell -> subject -> lesson -> tutor tab',
+      (tester) async {
+    await bootReturningStudent(tester);
+    expect(find.text('العلوم والحياة'), findsOneWidget,
+        reason: 'splash should go to the shell');
 
     await tester.tap(find.text('العلوم والحياة'));
     await settle(tester);
     expect(find.text('الكهرباء الساكنة'), findsOneWidget);
-    expect(find.text('طرق الشحن الكهربائي'), findsOneWidget, reason: 'first unit starts expanded');
+    expect(find.text('طرق الشحن الكهربائي'), findsOneWidget,
+        reason: 'first unit starts expanded');
 
     await tester.tap(find.text('طرق الشحن الكهربائي'));
     await settle(tester);
@@ -125,8 +148,87 @@ void main() {
 
     await tester.tap(find.text(AppStrings.askTutor));
     await settle(tester);
-    // No model is downloaded, so the tutor tab offers setup instead of a chat.
-    expect(find.text(AppStrings.tutorNeedsSetup), findsOneWidget);
+    // The lesson is pre-selected and the chat is ready to take a question.
+    expect(find.text(AppStrings.askHint), findsOneWidget);
+    expect(find.text(AppStrings.lessonLabel), findsOneWidget);
     expect(find.byType(NavigationBar), findsOneWidget);
+  });
+
+  testWidgets(
+      'a question from the pack bank is answered offline with its source',
+      (tester) async {
+    await bootReturningStudent(tester);
+    await openTutorFromLesson(tester);
+
+    await tester.enterText(
+        find.byType(TextField), 'ما هي طرق الشحن الكهربائي؟');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await settle(tester);
+
+    expect(find.text(AppStrings.fromPack), findsOneWidget);
+    expect(
+        find.textContaining('الشحن بالدلك، والشحن بالتماس', findRichText: true),
+        findsOneWidget);
+    expect(
+        find.textContaining('${AppStrings.sourceLabel}:', findRichText: true),
+        findsOneWidget);
+    expect(find.text(AppStrings.save), findsOneWidget);
+  });
+
+  testWidgets(
+      'an in-scope question without the cloud tutor is queued with its passages',
+      (tester) async {
+    await bootReturningStudent(tester);
+    await openTutorFromLesson(tester);
+
+    await tester.enterText(find.byType(TextField), 'لماذا ينفرج ورقتا الكشاف؟');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await settle(tester);
+
+    expect(find.text(AppStrings.pendingBadge), findsOneWidget);
+    expect(find.text(AppStrings.nearestPassages), findsOneWidget);
+    expect(find.text(AppStrings.openInPack), findsWidgets);
+  });
+
+  testWidgets('a question outside the pack gets the out-of-scope message',
+      (tester) async {
+    await bootReturningStudent(tester);
+    await openTutorFromLesson(tester);
+
+    await tester.enterText(find.byType(TextField), 'من اخترع البطارية؟');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await settle(tester);
+
+    expect(find.text(AppStrings.outOfScopeTitle), findsOneWidget);
+  });
+
+  testWidgets('the tutor route opens full screen with the subject and lesson pre-selected', (tester) async {
+    await bootReturningStudent(tester);
+
+    Get.toNamed<void>(
+      AppRoutes.tutor,
+      arguments: const TutorArgs(
+          subjectId: DevSeedScienceG9.subjectId, lessonId: DevSeedScienceG9.lessonId),
+    );
+    await settle(tester);
+
+    expect(find.text(AppStrings.askHint), findsOneWidget);
+    expect(find.text(DevSeedScienceG9.lessonTitle), findsWidgets);
+    expect(find.byIcon(LucideIcons.arrowRight), findsOneWidget, reason: 'back button');
+
+    await tester.tap(find.byIcon(LucideIcons.arrowRight));
+    await settle(tester);
+    expect(find.byType(NavigationBar), findsOneWidget);
+    expect(find.byIcon(LucideIcons.arrowRight), findsNothing);
+  });
+
+  testWidgets('the tutor route with invalid arguments still opens', (tester) async {
+    await bootReturningStudent(tester);
+
+    Get.toNamed<void>(AppRoutes.tutor, arguments: 'not tutor args');
+    await settle(tester);
+
+    expect(find.text(AppStrings.askHint), findsOneWidget);
+    expect(find.byIcon(LucideIcons.arrowRight), findsOneWidget);
   });
 }

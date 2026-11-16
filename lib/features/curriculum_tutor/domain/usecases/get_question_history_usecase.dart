@@ -6,5 +6,6 @@ class GetQuestionHistoryUseCase {
   GetQuestionHistoryUseCase(this._repository);
   final QuestionHistoryRepository _repository;
 
-  Future<List<QuestionHistoryItem>> call() => _repository.recent(limit: Limits.historyMax);
+  Future<List<QuestionHistoryItem>> call() =>
+      _repository.recent(limit: Limits.historyMax);
 }

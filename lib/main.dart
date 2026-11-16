@@ -2,11 +2,12 @@ import 'package:flutter/material.dart';
 
 import 'app.dart';
 import 'core/bindings/initial_binding.dart';
-import 'features/curriculum_tutor/data/datasources/gemma_bootstrap.dart';
-import 'features/curriculum_tutor/data/datasources/gemma_runtime.dart';
+import 'core/db/content/seed/dev_seed_loader.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  final binding = await InitialBinding.create(runtime: GemmaRuntime(GemmaBootstrap()));
+  final binding = await InitialBinding.create(
+    installDevSeed: DevSeedLoader.isEnabled(),
+  );
   runApp(MualimiApp(initialBinding: binding));
 }
