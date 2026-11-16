@@ -26,6 +26,11 @@ class PackInfo extends Equatable {
   final String sha256;
   final List<SubjectInfo> subjects;
 
+  static const int spaceMarginBytes = 20 * 1024 * 1024;
+
+  /// The zip and its extracted copy coexist, so twice the size plus a margin.
+  int get requiredFreeBytes => size * 2 + spaceMarginBytes;
+
   /// Packs download through the same engine as models, as a one-part artifact.
   ArtifactInfo get asArtifact => ArtifactInfo(
         id: 'pack-$grade${track == null ? '' : '-$track'}',
