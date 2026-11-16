@@ -10,14 +10,14 @@ class SplashBackground extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.colors;
+    final colors = context.colors;
     return Stack(
       clipBehavior: Clip.hardEdge,
       children: [
         Positioned(
           top: SplashDimens.decoTop,
           left: SplashDimens.decoLeft,
-          child: _Circle(size: SplashDimens.decoSize, color: c.heroDeco),
+          child: _Circle(size: SplashDimens.decoSize, color: colors.heroDeco),
         ),
         Positioned(
           top: SplashDimens.ringTop,
@@ -25,7 +25,7 @@ class SplashBackground extends StatelessWidget {
           child: _Circle(
             size: SplashDimens.ringSize,
             border: Border.all(
-              color: c.heroRing.withValues(alpha: SplashDimens.ringOpacity),
+              color: colors.heroRing.withValues(alpha: SplashDimens.ringOpacity),
               width: SplashDimens.ringBorder,
             ),
           ),
@@ -33,7 +33,7 @@ class SplashBackground extends StatelessWidget {
         Positioned(
           bottom: SplashDimens.decoDeepBottom,
           right: SplashDimens.decoDeepRight,
-          child: _Circle(size: SplashDimens.decoDeepSize, color: c.heroDecoDeep),
+          child: _Circle(size: SplashDimens.decoDeepSize, color: colors.heroDecoDeep),
         ),
       ],
     );

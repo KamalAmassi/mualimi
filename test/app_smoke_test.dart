@@ -53,7 +53,7 @@ Future<void> boot(WidgetTester tester, Directory root) async {
         deviceInfo: _RoomyDevice(),
       ));
   await tester.pumpWidget(MualimiApp(initialBinding: binding!));
-  await tester.pump(SplashTiming.minDisplay); // splash stays up at least this long
+  await tester.pump(SplashTiming.minDisplay);
   await settle(tester);
 }
 

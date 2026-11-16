@@ -12,7 +12,7 @@ class SplashBrand extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.colors;
+    final colors = context.colors;
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       spacing: SplashDimens.gap,
@@ -22,11 +22,11 @@ class SplashBrand extends StatelessWidget {
           height: SplashDimens.logoBox,
           alignment: Alignment.center,
           decoration: BoxDecoration(
-            color: c.heroChip,
+            color: colors.heroChip,
             borderRadius: BorderRadius.circular(SplashDimens.logoRadius),
-            border: Border.all(color: c.heroTrack, width: SplashDimens.logoBorder),
+            border: Border.all(color: colors.heroTrack, width: SplashDimens.logoBorder),
           ),
-          child: SplashBookIcon(color: c.onHero),
+          child: SplashBookIcon(color: colors.onHero),
         ),
         FittedBox(
           fit: BoxFit.scaleDown,
@@ -34,11 +34,11 @@ class SplashBrand extends StatelessWidget {
             TextSpan(
               text: AppStrings.appName,
               children: [
-                TextSpan(text: SplashStrings.nameDot, style: TextStyle(color: c.heroHighlight)),
+                TextSpan(text: SplashStrings.nameDot, style: TextStyle(color: colors.heroHighlight)),
               ],
             ),
             style: TextStyle(
-              color: c.onHero,
+              color: colors.onHero,
               fontSize: SplashDimens.nameFontSize,
               fontWeight: FontWeight.w700,
               height: SplashDimens.nameLineHeight,
@@ -49,7 +49,7 @@ class SplashBrand extends StatelessWidget {
         Text(
           SplashStrings.tagline,
           textAlign: TextAlign.center,
-          style: TextStyle(color: c.onHeroMuted, fontSize: SplashDimens.taglineFontSize),
+          style: TextStyle(color: colors.onHeroMuted, fontSize: SplashDimens.taglineFontSize),
         ),
       ],
     );

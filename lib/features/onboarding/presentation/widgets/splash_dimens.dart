@@ -2,7 +2,6 @@
 /// (px → logical pixels). Shared spacing lives in `AppSizes`; these values
 /// belong to this one screen.
 abstract final class SplashDimens {
-  // Content
   static const double gap = 14;
   static const double footerBottomPadding = 48;
 
@@ -11,24 +10,20 @@ abstract final class SplashDimens {
   static const double logoBox = 92 + 2 * logoBorder;
   static const double logoRadius = 28;
 
-  // Book icon (inline SVG)
   static const double icon = 46;
   static const double iconViewBox = 24;
   static const double iconStroke = 1.7;
 
-  // Text
   static const double nameFontSize = 56;
   static const double nameLineHeight = 1.1;
   static const double taglineFontSize = 16;
   static const double footerFontSize = 12;
 
-  // Progress track
   static const double trackWidth = 120;
   static const double trackHeight = 4;
   static const double trackRadius = 2;
   static const double trackFill = 0.55;
 
-  // Decorative circles (physical offsets, as in the HTML)
   static const double decoSize = 420;
   static const double decoTop = -190;
   static const double decoLeft = -170;

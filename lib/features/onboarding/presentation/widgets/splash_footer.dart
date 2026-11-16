@@ -11,7 +11,7 @@ class SplashFooter extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final c = context.colors;
+    final colors = context.colors;
     final radius = BorderRadius.circular(SplashDimens.trackRadius);
     return Padding(
       padding: const EdgeInsets.only(bottom: SplashDimens.footerBottomPadding),
@@ -23,14 +23,14 @@ class SplashFooter extends StatelessWidget {
             width: SplashDimens.trackWidth,
             height: SplashDimens.trackHeight,
             clipBehavior: Clip.antiAlias,
-            decoration: BoxDecoration(color: c.heroTrack, borderRadius: radius),
+            decoration: BoxDecoration(color: colors.heroTrack, borderRadius: radius),
             child: Align(
               alignment: AlignmentDirectional.centerStart,
               child: FractionallySizedBox(
                 widthFactor: SplashDimens.trackFill,
                 heightFactor: 1,
                 child: DecoratedBox(
-                  decoration: BoxDecoration(color: c.heroHighlight, borderRadius: radius),
+                  decoration: BoxDecoration(color: colors.heroHighlight, borderRadius: radius),
                 ),
               ),
             ),
@@ -38,7 +38,7 @@ class SplashFooter extends StatelessWidget {
           Text(
             SplashStrings.footer,
             textAlign: TextAlign.center,
-            style: TextStyle(color: c.onHeroMuted, fontSize: SplashDimens.footerFontSize),
+            style: TextStyle(color: colors.onHeroMuted, fontSize: SplashDimens.footerFontSize),
           ),
         ],
       ),
