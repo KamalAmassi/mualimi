@@ -18,6 +18,7 @@ import 'package:mualimi/core/db/content/seed/dev_seed_science_g9.dart';
 import 'package:mualimi/core/services/device_info_source.dart';
 import 'package:mualimi/core/services/device_snapshot.dart';
 import 'package:mualimi/features/curriculum_tutor/presentation/routes/tutor_args.dart';
+import 'package:mualimi/features/onboarding/presentation/controllers/splash_timing.dart';
 
 class _WifiConnectivity extends Fake implements Connectivity {
   @override
@@ -52,6 +53,7 @@ Future<void> boot(WidgetTester tester, Directory root) async {
         deviceInfo: _RoomyDevice(),
       ));
   await tester.pumpWidget(MualimiApp(initialBinding: binding!));
+  await tester.pump(SplashTiming.minDisplay);
   await settle(tester);
 }
 
