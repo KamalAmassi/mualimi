@@ -29,6 +29,35 @@ void main() {
     });
   });
 
+  group('NoSpace strings match the design HTML', () {
+    final noSpace = _html('DownloadNoSpace');
+    String only(String pattern) {
+      final matches = RegExp(pattern).allMatches(noSpace).toList();
+      expect(matches, hasLength(1), reason: pattern);
+      return matches.single.group(1)!;
+    }
+
+    test('header title', () => expect(DownloadStrings.packTitle, only(r'<h1 [^>]*>([^<]+)</h1>')));
+
+    test('status title', () {
+      expect(DownloadStrings.noSpaceTitle, only(r'font-size: 19px; font-weight: 700">([^<]+)</div>'));
+    });
+
+    test('status body', () {
+      expect(DownloadStrings.noSpaceBody, only(r'line-height: 1.75; color: #605B7D">([^<]+)</div>'));
+    });
+
+    test('required label', () {
+      expect(DownloadStrings.requiredLabel, only(r'<span style="color: #605B7D">([^<]+)</span><b dir="ltr">'));
+    });
+
+    test('available label', () {
+      expect(DownloadStrings.availableLabel, only(r'<span style="color: #605B7D">([^<]+)</span><b dir="ltr" style'));
+    });
+
+    test('check again button', () => expect(DownloadStrings.checkAgain, only(r'</svg>([^<]+)</button>')));
+  });
+
   test('every DownloadIcons path appears in the design HTML', () {
     for (final p in [
       DownloadIcons.chevron,
