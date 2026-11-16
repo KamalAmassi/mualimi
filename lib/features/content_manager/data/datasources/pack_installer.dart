@@ -5,12 +5,15 @@ import 'package:archive/archive_io.dart';
 import 'package:path/path.dart' as p;
 
 import '../../../../core/constants/app_files.dart';
+import '../../../../core/db/content/content_database.dart';
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/services/app_paths_service.dart';
 import '../../../../core/services/database_service.dart';
 import '../../../../core/services/settings_service.dart';
 import 'core_pack_install_host.dart';
 import 'pack_install_host.dart';
+import 'pack_schema_source.dart';
+import 'sqlite_pack_schema_source.dart';
 
 /// Renames [entity] to [newPath]. Injectable so tests can simulate a failure.
 typedef PackRename = Future<FileSystemEntity> Function(
@@ -21,19 +24,25 @@ Future<FileSystemEntity> _defaultRename(FileSystemEntity e, String newPath) =>
 
 /// Installs a verified pack zip atomically: content.db (+ pdf/ when the pack
 /// has one) are swapped in with a backup, rolled back on any failure, and the
-/// content DB is always reopened. user.db and anything outside packsDir are
-/// never touched.
+/// content DB is always reopened. A pack whose schema_version does not match
+/// is rejected before anything is swapped. user.db and anything outside
+/// packsDir are never touched.
 class PackInstaller {
   PackInstaller(AppPathsService paths, DatabaseService databases, SettingsService settings)
       : this.withHost(CorePackInstallHost(paths, databases, settings));
 
-  PackInstaller.withHost(this._host, {PackRename rename = _defaultRename})
-      : _rename = rename;
+  PackInstaller.withHost(
+    this._host, {
+    PackRename rename = _defaultRename,
+    PackSchemaSource schemas = const SqlitePackSchemaSource(),
+  })  : _rename = rename,
+        _schemas = schemas;
 
   static const _bakSuffix = '.bak';
 
   final PackInstallHost _host;
   final PackRename _rename;
+  final PackSchemaSource _schemas;
 
   Future<void> install(File zip, int version) async {
     final staging = Directory(p.join(_host.packsDir.path, 'staging'));
@@ -46,6 +55,7 @@ class PackInstaller {
       if (!await newDb.exists()) {
         throw const ManifestException('pack has no content.db');
       }
+      await _ensureSchema(newDb);
       final newPdf = Directory(p.join(staging.path, AppFiles.pdfDir));
       await _swap(newDb, await newPdf.exists() ? newPdf : null, version);
       ok = true;
@@ -56,6 +66,14 @@ class PackInstaller {
       }
       await _deleteQuietly(staging);
       await _deleteQuietly(zip);
+    }
+  }
+
+  Future<void> _ensureSchema(File newDb) async {
+    const expected = ContentDatabase.packSchemaVersion;
+    final found = await _schemas.schemaVersionOf(newDb);
+    if (found != expected) {
+      throw ManifestException('pack schema_version $found, expected $expected');
     }
   }
 
