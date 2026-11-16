@@ -9,6 +9,7 @@ abstract final class AppRoutes {
   static const viewer = '/viewer/:lessonId';
   static const keyTerms = '/key-terms/:lessonId';
   static const saved = '/saved';
+  static const tutor = '/tutor';
 
   static String subjectOf(String id) => '/subject/$id';
   static String lessonOf(String id) => '/lesson/$id';

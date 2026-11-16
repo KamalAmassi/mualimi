@@ -1,60 +1,72 @@
 import 'dart:io';
 
-import 'package:background_downloader/background_downloader.dart';
-
+import 'download_engine.dart';
+import 'engine_task_info.dart';
+import 'engine_transfer.dart';
 import 'part_downloader.dart';
+import 'plugin_download_engine.dart';
 
-/// background_downloader implementation. Pause/resume is handled by the
-/// plugin (HTTP Range); it re-requests the task's original URL, and we never
-/// persist a post-redirect URL.
+/// background_downloader implementation. Each part/mirror has a
+/// deterministic task id, so a task from an earlier run is adopted or
+/// resumed (HTTP Range) instead of restarted. Resume always re-requests the
+/// task's original URL; a post-redirect URL is never persisted.
+///
+/// The destination is never deleted here: the plugin writes to a temp file
+/// and only moves it to [dest] on completion.
 class BackgroundPartDownloader implements PartDownloader {
-  Transfer? _transfer;
-  bool _started = false;
+  BackgroundPartDownloader({DownloadEngine? engine}) : _engine = engine ?? PluginDownloadEngine();
+
+  final DownloadEngine _engine;
+  EngineTransfer? _transfer;
 
   @override
   Future<PartResult> download({
+    required String taskId,
     required String url,
     required File dest,
     required void Function(double fraction) onProgress,
   }) async {
-    if (!_started) {
-      await FileDownloader().start(autoCleanDatabase: true);
-      _started = true;
-    }
+    await _engine.init();
     await dest.parent.create(recursive: true);
-    if (await dest.exists()) await dest.delete();
-
-    final (baseDirectory, directory, filename) = await Task.split(file: dest);
-    final task = DownloadTask(
-      url: url,
-      filename: filename,
-      directory: directory,
-      baseDirectory: baseDirectory,
-      updates: Updates.statusAndProgress,
-      allowPause: true,
-      retries: 2,
-      transferHints: {TransferHint.largeFile},
-    );
-
-    final transfer = await FileDownloader().transfers.start(task);
+    final transfer = await _obtain(taskId, url, dest);
     _transfer = transfer;
-    void onTick() {
-      final p = transfer.progressNotifier.value;
-      if (p != null && p >= 0) onProgress(p);
-    }
-
-    transfer.progressNotifier.addListener(onTick);
+    final stopListening = transfer.listenProgress(onProgress);
     try {
-      final result = await transfer.result;
-      return switch (result.status) {
-        TaskStatus.complete => PartResult.complete,
-        TaskStatus.canceled => PartResult.canceled,
-        _ => PartResult.failed,
-      };
+      return await transfer.result;
     } finally {
-      transfer.progressNotifier.removeListener(onTick);
+      stopListening();
       _transfer = null;
     }
+  }
+
+  /// Adopts a live task, resumes a known one, or starts fresh: never two
+  /// tasks for one destination.
+  Future<EngineTransfer> _obtain(String taskId, String url, File dest) async {
+    final known = await _engine.lookup(taskId);
+    final restart = known == null ||
+        known.url != url ||
+        known.status == EngineTaskStatus.complete ||
+        known.status == EngineTaskStatus.canceled;
+    if (restart) {
+      if (known != null) await _engine.forget(taskId);
+      return _engine.start(taskId: taskId, url: url, dest: dest);
+    }
+    final transfer = await _engine.attach(taskId);
+    final adoptAsIs = known.alive && known.status == EngineTaskStatus.active;
+    if (!adoptAsIs) await transfer.resume();
+    return transfer;
+  }
+
+  @override
+  Future<bool> canResume(String taskId) async {
+    await _engine.init();
+    return _engine.hasResumeData(taskId);
+  }
+
+  @override
+  Future<void> forget(String taskId) async {
+    await _engine.init();
+    await _engine.forget(taskId);
   }
 
   @override

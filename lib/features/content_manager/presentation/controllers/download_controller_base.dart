@@ -11,10 +11,15 @@ import '../../domain/usecases/download_artifacts_usecase.dart';
 import '../../domain/usecases/download_params.dart';
 import '../../domain/usecases/pause_download_usecase.dart';
 import '../../domain/usecases/resume_download_usecase.dart';
+import 'download_phase_ui.dart';
+import 'download_timings.dart';
 import 'download_ui_state.dart';
+import 'network_resume_policy.dart';
+import 'pause_reason.dart';
 
 /// The flow shared by pack and model downloads: mobile-data prompt, start,
-/// pause/resume, cancel, and mapping progress events to UI state.
+/// pause/resume, cancel, auto-resume after a network pause, and mapping
+/// progress events to UI state.
 abstract class DownloadControllerBase extends GetxController {
   DownloadControllerBase({
     required DownloadArtifactsUseCase download,
@@ -22,16 +27,19 @@ abstract class DownloadControllerBase extends GetxController {
     required ResumeDownloadUseCase resume,
     required CancelDownloadUseCase cancel,
     required this.connectivity,
+    Duration networkDebounce = DownloadTimings.networkDebounce,
   })  : _download = download,
         _pause = pause,
         _resume = resume,
-        _cancel = cancel;
+        _cancel = cancel,
+        _networkDebounce = networkDebounce;
 
   final DownloadArtifactsUseCase _download;
   final PauseDownloadUseCase _pause;
   final ResumeDownloadUseCase _resume;
   final CancelDownloadUseCase _cancel;
   final ConnectivityService connectivity;
+  final Duration _networkDebounce;
 
   final ui = DownloadUiState.idle.obs;
   final progress = 0.0.obs;
@@ -39,9 +47,29 @@ abstract class DownloadControllerBase extends GetxController {
   final totalBytes = 0.obs;
   final failure = Rxn<Failure>();
 
-  bool _mobileApproved = false;
+  late final NetworkResumePolicy _net = NetworkResumePolicy(
+    connectivity,
+    ui: ui,
+    failure: failure,
+    jobAlive: () => _jobAlive,
+    pauseJob: _pause.call,
+    resumeJob: _resume.call,
+    beginJob: _begin,
+    debounce: _networkDebounce,
+  );
   StreamSubscription<DownloadProgress>? _subscription;
-  Worker? _wifiWatcher;
+
+  /// A job stream exists that may still be paused or resumed.
+  bool _jobAlive = false;
+
+  /// Why the download is paused or waiting; null while it isn't.
+  PauseReason? get pauseReason => _net.reason;
+
+  @override
+  void onInit() {
+    super.onInit();
+    _net.listen();
+  }
 
   /// Resolves what to download; null means it can't start (set [failure]).
   Future<DownloadParams?> buildParams();
@@ -51,59 +79,63 @@ abstract class DownloadControllerBase extends GetxController {
 
   Future<void> onCompleted();
 
+  bool _starting = false;
+
+  /// True while a job is being prepared, running, paused, or waiting on a
+  /// network decision. [start] is a no-op then, so a job never runs twice.
+  bool get isBusy => _starting || ui.value.isBusy;
+
   Future<void> start() async {
-    if (connectivity.isOnMobile && !_mobileApproved) {
-      ui.value = DownloadUiState.awaitingNetworkChoice;
-      return;
-    }
-    if (!connectivity.isOnline) {
-      _fail(const NetworkFailure('offline'));
-      return;
-    }
-    await _begin();
+    if (isBusy) return;
+    await _net.proceed();
   }
 
   /// Local-file imports don't need a network, so they skip the checks in [start].
-  Future<void> startOffline() => _begin();
+  Future<void> startOffline() async {
+    if (isBusy) return;
+    _net.clear();
+    await _begin();
+  }
 
   Future<void> _begin() async {
-    final params = await buildParams();
-    if (params == null) {
-      ui.value = DownloadUiState.failed;
-      return;
+    if (_starting) return;
+    _starting = true;
+    try {
+      final params = await buildParams();
+      if (params == null) {
+        // A network failure while offline already shows the waiting state.
+        if (_net.reason != PauseReason.network) ui.value = DownloadUiState.failed;
+        return;
+      }
+      failure.value = null;
+      ui.value = DownloadUiState.downloading;
+      await _subscription?.cancel();
+      _jobAlive = true;
+      _subscription = _download(params).listen(_apply, onDone: () => _jobAlive = false);
+    } finally {
+      _starting = false;
     }
-    failure.value = null;
-    ui.value = DownloadUiState.downloading;
-    await _subscription?.cancel();
-    _subscription = _download(params).listen(_apply);
   }
 
   void continueOnMobile() {
-    _mobileApproved = true;
-    start();
+    if (ui.value != DownloadUiState.awaitingNetworkChoice) return;
+    _net.approveMobile();
+    _net.proceed();
   }
 
-  void waitForWifi() {
-    ui.value = DownloadUiState.waitingForWifi;
-    _wifiWatcher?.dispose();
-    _wifiWatcher = ever(connectivity.network, (_) {
-      if (connectivity.isOnWifi) {
-        _wifiWatcher?.dispose();
-        start();
-      }
-    });
-  }
+  /// The policy's network listener continues once Wi-Fi is back.
+  void waitForWifi() => ui.value = DownloadUiState.waitingForWifi;
 
-  Future<void> pause() async {
-    if (await _pause()) ui.value = DownloadUiState.paused;
-  }
+  Future<void> pause() => _net.pauseByUser();
 
+  /// Resumes a paused job, or starts again if the job is gone.
   Future<void> resume() async {
-    if (await _resume()) ui.value = DownloadUiState.downloading;
+    if (ui.value == DownloadUiState.paused) await _net.proceed();
   }
 
   Future<void> cancel() async {
-    _wifiWatcher?.dispose();
+    _net.clear();
+    _jobAlive = false;
     await _cancel();
     ui.value = DownloadUiState.idle;
   }
@@ -113,27 +145,17 @@ abstract class DownloadControllerBase extends GetxController {
     bytesDone.value = p.bytesDone;
     totalBytes.value = p.totalBytes;
     progress.value = p.fraction;
-    switch (p.phase) {
-      case DownloadPhase.downloading:
-        ui.value = DownloadUiState.downloading;
-      case DownloadPhase.paused:
-        ui.value = DownloadUiState.paused;
-      case DownloadPhase.verifying:
-        ui.value = DownloadUiState.verifying;
-      case DownloadPhase.assembling:
-        ui.value = DownloadUiState.assembling;
-      case DownloadPhase.canceled:
-        ui.value = DownloadUiState.idle;
-      case DownloadPhase.failed:
-        _fail(p.failure ?? const NetworkFailure());
-      case DownloadPhase.completed:
-        ui.value = DownloadUiState.completed;
-        onCompleted();
-    }
+    if (p.isFinal) _jobAlive = false;
+    if (p.phase == DownloadPhase.failed) return _fail(p.failure ?? const NetworkFailure());
+    // The job pausing for the mobile prompt must not hide the prompt.
+    if (p.phase == DownloadPhase.paused && ui.value == DownloadUiState.awaitingNetworkChoice) return;
+    ui.value = p.phase.uiState;
+    if (p.phase == DownloadPhase.completed) onCompleted();
   }
 
   void _fail(Failure f) {
     failure.value = f;
+    if (_net.absorbs(f)) return;
     ui.value = f is NotEnoughSpaceFailure ? DownloadUiState.noSpace : DownloadUiState.failed;
   }
 
@@ -143,7 +165,7 @@ abstract class DownloadControllerBase extends GetxController {
   @override
   void onClose() {
     _subscription?.cancel();
-    _wifiWatcher?.dispose();
+    _net.dispose();
     super.onClose();
   }
 }

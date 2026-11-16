@@ -1,243 +1,149 @@
-import 'package:dartz/dartz.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mualimi/core/constants/limits.dart';
-import 'package:mualimi/core/error/exceptions.dart';
-import 'package:mualimi/core/error/failures.dart';
-import 'package:mualimi/core/services/device_tier.dart';
-import 'package:mualimi/features/curriculum_tutor/domain/entities/answer_source.dart';
-import 'package:mualimi/features/curriculum_tutor/domain/entities/quick_action.dart';
-import 'package:mualimi/features/curriculum_tutor/domain/entities/retrieved_chunk.dart';
 import 'package:mualimi/features/curriculum_tutor/domain/entities/tutor_event.dart';
-import 'package:mualimi/features/curriculum_tutor/domain/repositories/llm_repository.dart';
-import 'package:mualimi/features/curriculum_tutor/domain/repositories/prebuilt_answer_repository.dart';
-import 'package:mualimi/features/curriculum_tutor/domain/repositories/retrieval_repository.dart';
-import 'package:mualimi/features/curriculum_tutor/domain/repositories/tutor_scope_repository.dart';
+import 'package:mualimi/features/curriculum_tutor/domain/services/prompt_builder.dart';
 import 'package:mualimi/features/curriculum_tutor/domain/usecases/ask_tutor_params.dart';
 import 'package:mualimi/features/curriculum_tutor/domain/usecases/ask_tutor_usecase.dart';
-import 'package:mualimi/features/curriculum_tutor/domain/usecases/build_prompt_usecase.dart';
-import 'package:mualimi/features/curriculum_tutor/domain/usecases/quick_action_usecase.dart';
-import 'package:mualimi/features/curriculum_tutor/domain/usecases/retrieve_chunks_usecase.dart';
+import 'package:mualimi/features/curriculum_tutor/domain/usecases/generate_answer_usecase.dart';
 
-class _FakeScope implements TutorScopeRepository {
-  _FakeScope(this.enabled);
-  final bool enabled;
-  @override
-  Future<bool> isTutorEnabled(String subjectId, {String? lessonId}) async => enabled;
-}
-
-class _FakeRetrieval implements RetrievalRepository {
-  List<RetrievedChunk> keyword = const [];
-  List<RetrievedChunk> semantic = const [];
-  Failure? keywordFailure;
-  final queries = <String>[];
-
-  @override
-  Future<Either<Failure, List<RetrievedChunk>>> searchKeywords(String q,
-      {required String subjectId, String? lessonId, required int limit}) async {
-    queries.add(q);
-    final f = keywordFailure;
-    return f == null ? Right(keyword) : Left(f);
-  }
-
-  @override
-  Future<Either<Failure, List<RetrievedChunk>>> searchSemantic(String q,
-          {required String subjectId, String? lessonId, required int limit}) async =>
-      Right(semantic);
-}
-
-class _FakeLlm implements LlmRepository {
-  List<String> tokens = const ['الشحن ', 'بالدلك'];
-  bool fail = false;
-  int calls = 0;
-  String? prompt;
-  int? maxOutputTokens;
-
-  @override
-  Stream<String> generate(String prompt, {required int maxOutputTokens}) async* {
-    calls++;
-    this.prompt = prompt;
-    this.maxOutputTokens = maxOutputTokens;
-    if (fail) throw const ModelException('not ready');
-    for (final t in tokens) {
-      yield t;
-    }
-  }
-
-  @override
-  Future<void> stop() async {}
-}
-
-class _FakePrebuilt implements PrebuiltAnswerRepository {
-  String? answer;
-  @override
-  Future<String?> find(String lessonId, QuickAction action) async => answer;
-}
-
-RetrievedChunk chunk(int id, double score, {int page = 12, String text = 'الشحن بالدلك'}) =>
-    RetrievedChunk(id: id, lessonId: 'l1', page: page, text: text, score: score);
+import 'support/tutor_fakes.dart';
 
 void main() {
-  late _FakeRetrieval retrieval;
-  late _FakeLlm llm;
-  var tier = DeviceTier.full;
-  var scopeEnabled = true;
+  late FakeScope scope;
+  late FakeBank bank;
+  late FakePassages passages;
+  late FakeHistory history;
+  late FakeConnection connection;
+  late FakeUsage usage;
+  late FakeLlm llm;
+  late FakePending pending;
+  late AskTutorUseCase ask;
 
-  AskTutorUseCase build() => AskTutorUseCase(
-        scope: _FakeScope(scopeEnabled),
-        retrieve: RetrieveChunksUseCase(retrieval),
-        buildPrompt: const BuildPromptUseCase(),
-        llm: llm,
-        deviceTier: () => tier,
-      );
-
-  const params = AskTutorParams(question: 'ما هو الشحن بالدَّلك؟', subjectId: 'science', lessonId: 'l1');
+  const params = AskTutorParams(
+    question: 'ما هو الشحن بالحث؟',
+    subjectId: 'science',
+    lessonId: 'science-9-charging',
+  );
 
   setUp(() {
-    retrieval = _FakeRetrieval();
-    llm = _FakeLlm();
-    tier = DeviceTier.full;
-    scopeEnabled = true;
+    scope = FakeScope();
+    bank = FakeBank();
+    passages = FakePassages()
+      ..found = [passage(id: 1), passage(id: 2, score: 0.5)];
+    history = FakeHistory();
+    connection = FakeConnection();
+    usage = FakeUsage();
+    llm = FakeLlm();
+    pending = FakePending();
+    ask = AskTutorUseCase(
+      scope: scope,
+      bank: bank,
+      passages: passages,
+      history: history,
+      generate: GenerateAnswerUseCase(
+        connection: connection,
+        usage: usage,
+        llm: llm,
+        pending: pending,
+        history: history,
+        promptBuilder: const PromptBuilder(),
+        grade: () => 9,
+      ),
+    );
   });
 
-  test('subjectUnsupported: tutor-disabled subject never searches or generates', () async {
-    scopeEnabled = false;
-    final events = await build()(params).toList();
-    expect(events, [const TutorSubjectUnsupported()]);
-    expect(retrieval.queries, isEmpty);
-    expect(llm.calls, 0);
+  Future<List<TutorEvent>> run() => ask(params).toList();
+
+  test('unsupported subject stops before any search', () async {
+    scope.enabled = false;
+    expect(await run(), [const TutorSubjectUnsupported()]);
+    expect(llm.prompts, isEmpty);
   });
 
-  group('outOfScope', () {
-    test('top score below the threshold', () async {
-      retrieval.keyword = [chunk(1, Limits.outOfScopeThreshold - 0.01)];
-      final events = await build()(params).toList();
-      expect(events, [const TutorOutOfScope()]);
-      expect(llm.calls, 0);
-    });
-
-    test('no chunks at all', () async {
-      final events = await build()(params).toList();
-      expect(events, [const TutorOutOfScope()]);
-    });
-
-    test('a score exactly at the threshold is in scope', () async {
-      retrieval.keyword = [chunk(1, Limits.outOfScopeThreshold)];
-      final events = await build()(params).toList();
-      expect(events.last, isA<TutorDone>());
-    });
+  test('a question bank hit answers offline from the pack and skips the cloud',
+      () async {
+    bank.match = bankMatch();
+    final events = await run();
+    expect(events, hasLength(1));
+    final answer = (events.single as TutorBankAnswer).answer;
+    expect(answer.fromBank, isTrue);
+    expect(answer.text, 'جواب من الرزمة');
+    expect(llm.prompts, isEmpty);
+    expect(history.items.single.fromBank, isTrue);
+    expect(usage.recorded, 0);
   });
 
-  test('searchOnly: returns the passages and never generates', () async {
-    tier = DeviceTier.searchOnly;
-    final hit = chunk(1, 0.9);
-    retrieval.keyword = [hit];
-    final events = await build()(params).toList();
-    expect(events, [
-      TutorPassages([hit])
-    ]);
-    expect(llm.calls, 0);
+  test('no passages is out of scope', () async {
+    passages.found = const [];
+    expect(await run(), [const TutorOutOfScope()]);
   });
 
-  group('normal generation', () {
-    setUp(() => retrieval.keyword = [chunk(7, 0.9, page: 14, text: 'نص المقطع')]);
-
-    test('streams tokens then done with lesson and page', () async {
-      final events = await build()(params).toList();
-      expect(events, [
-        const TutorToken('الشحن '),
-        const TutorToken('بالدلك'),
-        const TutorDone(AnswerSource(lessonId: 'l1', page: 14)),
-      ]);
-    });
-
-    test('retrieves with the normalized question', () async {
-      await build()(params).toList();
-      expect(retrieval.queries.single, 'ما هو الشحن بالدلك؟');
-    });
-
-    test('prompt contains the chunk, its page and the original question', () async {
-      await build()(params).toList();
-      expect(llm.prompt, contains('نص المقطع'));
-      expect(llm.prompt, contains('14'));
-      expect(llm.prompt, contains(params.question));
-    });
-
-    test('caps the reply length', () async {
-      await build()(params).toList();
-      expect(llm.maxOutputTokens, Limits.maxOutputTokens);
-    });
-
-    test('a model failure becomes a TutorError, with no done event', () async {
-      llm.fail = true;
-      final events = await build()(params).toList();
-      expect(events.single, isA<TutorError>());
-      expect((events.single as TutorError).failure, isA<ModelFailure>());
-    });
+  test('a weak best passage is out of scope', () async {
+    passages.found = [passage(score: Limits.passageScoreThreshold - 0.01)];
+    expect(await run(), [const TutorOutOfScope()]);
+    expect(llm.prompts, isEmpty);
   });
 
-  test('a retrieval failure becomes a TutorError', () async {
-    retrieval.keywordFailure = const DatabaseFailure('no pack');
-    final events = await build()(params).toList();
-    expect(events.single, isA<TutorError>());
-    expect(llm.calls, 0);
+  test('offline queues the question with its passages', () async {
+    connection.isOnline = false;
+    final events = await run();
+    final offline = events.single as TutorOffline;
+    expect(offline.pendingQuestionId, 1);
+    expect(offline.passages, hasLength(2));
+    expect(pending.queued.single.chunkIds, [1, 2]);
+    expect(pending.queued.single.question, params.question);
+    expect(llm.prompts, isEmpty);
   });
 
-  group('RetrieveChunksUseCase.merge', () {
-    test('keyword alone keeps its full score (not halved)', () {
-      final merged = RetrieveChunksUseCase.merge([chunk(1, 0.8)], const []);
-      expect(merged.single.score, closeTo(0.8, 1e-9));
-    });
-
-    test('semantic alone keeps its full score', () {
-      final merged = RetrieveChunksUseCase.merge(const [], [chunk(1, 0.6)]);
-      expect(merged.single.score, closeTo(0.6, 1e-9));
-    });
-
-    test('a chunk found by both is blended by weight and ranked first', () {
-      final merged = RetrieveChunksUseCase.merge(
-        [chunk(1, 0.5), chunk(2, 0.5)],
-        [chunk(1, 1.0)],
-      );
-      expect(merged.first.id, 1);
-      expect(merged.first.score,
-          closeTo(Limits.ftsWeight * 0.5 + Limits.vectorWeight * 1.0, 1e-9));
-    });
-
-    test('returns at most the configured number of chunks, best first', () {
-      final many = [for (var i = 0; i < 10; i++) chunk(i, i / 10)];
-      final merged = RetrieveChunksUseCase.merge(many, const []);
-      expect(merged, hasLength(Limits.retrievalMaxChunks));
-      expect(merged.first.id, 9);
-    });
-
-    test('nothing in, nothing out', () {
-      expect(RetrieveChunksUseCase.merge(const [], const []), isEmpty);
-    });
+  test('a missing API key queues the question like being offline', () async {
+    connection.isConfigured = false;
+    final events = await run();
+    expect(events.single, isA<TutorOffline>());
+    expect(pending.queued, hasLength(1));
   });
 
-  group('QuickActionUseCase', () {
-    late _FakePrebuilt prebuilt;
+  test('the daily limit shows the passages without calling the cloud',
+      () async {
+    usage.limitReached = true;
+    final events = await run();
+    expect((events.single as TutorDailyLimitReached).passages, hasLength(2));
+    expect(llm.prompts, isEmpty);
+    expect(pending.queued, isEmpty);
+  });
 
-    setUp(() {
-      prebuilt = _FakePrebuilt();
-      retrieval.keyword = [chunk(1, 0.9)];
-    });
+  test(
+      'a successful stream emits tokens, then done with the top passage as source',
+      () async {
+    final events = await run();
+    expect(
+        events.whereType<TutorToken>().map((e) => e.text), ['جواب ', 'قصير']);
+    final done = events.last as TutorDone;
+    expect(done.answer.text, 'جواب قصير');
+    expect(done.answer.source!.printedPage, '16');
+    expect(done.answer.source!.lessonTitle, 'طرق الشحن الكهربائي');
+    expect(done.answer.fromBank, isFalse);
+    expect(usage.recorded, 1);
+    expect(history.items.single.answer, 'جواب قصير');
+    expect(llm.prompts.single.userMessage,
+        contains('سؤال الطالب:\n${params.question}'));
+  });
 
-    const quick = QuickActionParams(action: QuickAction.summary, subjectId: 'science', lessonId: 'l1');
+  test('a stopped answer is kept and marked as stopped', () async {
+    llm.stopped = true;
+    final done = (await run()).last as TutorDone;
+    expect(done.answer.stopped, isTrue);
+    expect(done.answer.text, isNotEmpty);
+  });
 
-    test('uses the prebuilt answer and does not touch the model', () async {
-      prebuilt.answer = 'ملخص جاهز';
-      final events = await QuickActionUseCase(prebuilt, build())(quick).toList();
-      expect(events.first, const TutorToken('ملخص جاهز'));
-      expect(events.last, isA<TutorDone>());
-      expect(llm.calls, 0);
-      expect(retrieval.queries, isEmpty);
-    });
-
-    test('falls back to generating when no prebuilt answer exists', () async {
-      final events = await QuickActionUseCase(prebuilt, build())(quick).toList();
-      expect(llm.calls, 1);
-      expect(events.last, isA<TutorDone>());
-    });
+  test('a failure mid-stream queues the question and returns the passages',
+      () async {
+    llm.failAfter = 1;
+    final events = await run();
+    expect(events.first, isA<TutorToken>());
+    final offline = events.last as TutorOffline;
+    expect(offline.pendingQuestionId, 1);
+    expect(pending.queued, hasLength(1));
+    expect(usage.recorded, 0);
+    expect(history.items, isEmpty);
   });
 }

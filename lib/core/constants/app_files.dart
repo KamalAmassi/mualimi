@@ -9,7 +9,4 @@ abstract final class AppFiles {
   static const partSuffix = '.part';
   static const manifestCacheFile = 'manifest.json';
   static const settingsFile = 'settings.json';
-
-  /// SentencePiece tokenizer the embedding model needs next to it.
-  static const embeddingTokenizerFile = 'sentencepiece.model';
 }

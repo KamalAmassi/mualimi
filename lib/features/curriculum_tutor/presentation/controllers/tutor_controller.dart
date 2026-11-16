@@ -3,162 +3,193 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 import 'package:get/get.dart';
 
-import '../../../../core/services/connectivity_service.dart';
+import '../../../../core/routes/app_routes.dart';
 import '../../../../core/services/tutor_engine_service.dart';
-import '../../../../core/services/tutor_engine_state.dart';
+import '../../../shell/presentation/controllers/shell_controller.dart';
 import '../../domain/entities/chat_message.dart';
+import '../../domain/entities/follow_up.dart';
 import '../../domain/entities/question_history_item.dart';
 import '../../domain/entities/quick_action.dart';
 import '../../domain/entities/saved_answer.dart';
 import '../../domain/entities/tutor_event.dart';
-import '../../domain/usecases/add_question_history_usecase.dart';
 import '../../domain/usecases/ask_tutor_params.dart';
-import '../../domain/usecases/ask_tutor_usecase.dart';
-import '../../domain/usecases/flush_pending_reports_usecase.dart';
-import '../../domain/usecases/quick_action_usecase.dart';
-import '../../domain/usecases/save_answer_usecase.dart';
-import '../../domain/usecases/stop_generation_usecase.dart';
+import '../../domain/usecases/follow_up_usecase.dart';
+import '../../domain/usecases/get_quick_answer_usecase.dart';
+import '../formatting/example_questions.dart';
+import '../routes/tutor_args.dart';
 import '../widgets/lesson_picker_sheet.dart';
 import 'chat_transcript.dart';
+import 'pending_conversation.dart';
+import 'tutor_selection.dart';
+import 'tutor_use_cases.dart';
 
 /// The chat tab. Streaming and token batching live in [ChatTranscript].
 class TutorController extends GetxController {
   TutorController({
-    required AskTutorUseCase ask,
-    required QuickActionUseCase quick,
-    required StopGenerationUseCase stop,
-    required AddQuestionHistoryUseCase addHistory,
-    required SaveAnswerUseCase saveAnswer,
-    required FlushPendingReportsUseCase flushReports,
+    required this.selection,
+    required TutorUseCases useCases,
     required TutorEngineService engine,
-    required ConnectivityService connectivity,
-  })  : _ask = ask,
-        _quick = quick,
-        _stop = stop,
-        _addHistory = addHistory,
-        _saveAnswer = saveAnswer,
-        _flushReports = flushReports,
-        _engine = engine,
-        _connectivity = connectivity;
+    required PendingConversation Function(ChatTranscript, void Function())
+        pendingConversation,
+  })  : _use = useCases,
+        _engine = engine {
+    _pending = pendingConversation(_transcript, _openTutorTab);
+  }
 
-  final AskTutorUseCase _ask;
-  final QuickActionUseCase _quick;
-  final StopGenerationUseCase _stop;
-  final AddQuestionHistoryUseCase _addHistory;
-  final SaveAnswerUseCase _saveAnswer;
-  final FlushPendingReportsUseCase _flushReports;
+  final TutorSelection selection;
+  final TutorUseCases _use;
   final TutorEngineService _engine;
-  final ConnectivityService _connectivity;
+  final _transcript = ChatTranscript();
+  late final PendingConversation _pending;
 
   final input = TextEditingController();
-  final _transcript = ChatTranscript();
   final isGenerating = false.obs;
   final savedIds = <int>{}.obs;
-
-  final subjectId = RxnString();
-  final lessonId = RxnString();
-  final lessonTitle = RxnString();
-
-  /// False for subjects/lessons the tutor can't handle yet (math).
-  final tutorSupported = true.obs;
+  final examples = <String>[].obs;
 
   StreamSubscription<TutorEvent>? _subscription;
+  Worker? _engineWatcher;
 
   RxList<ChatMessage> get messages => _transcript.messages;
-
   Rx<TutorEngineState> get engineState => _engine.state;
-
-  /// The student can type when the model is usable or loading (the question
-  /// is queued), or on a search-only device.
-  bool get canAsk => switch (_engine.state.value) {
-        Downloaded() || Loading() || Ready() || SearchOnly() => true,
-        _ => false,
-      };
-
-  bool get isLoadingModel => _engine.state.value is Loading;
-  bool get isSearchOnly => _engine.state.value is SearchOnly;
-  bool get hasLesson => lessonId.value != null;
 
   @override
   void onReady() {
     super.onReady();
-    _flushReports();
-    // Queued reports go out as soon as the device comes online.
-    ever(_connectivity.network, (_) {
-      if (_connectivity.isOnline) _flushReports();
-    });
+    _init();
   }
 
+  Future<void> _init() async {
+    await selection.load();
+    await _refreshExamples();
+    ever(selection.subjectId, (_) => _refreshExamples());
+    ever(selection.lessonId, (_) => _refreshExamples());
+    _engineWatcher = ever(_engine.state, (s) {
+      if (s == TutorEngineState.ready) _use.flushReports();
+    });
+    _use.flushReports();
+    await _pending.start();
+  }
+
+  /// Opens the tutor for the route arguments; invalid arguments change nothing.
+  Future<void> openWith(TutorArgs? args) async {
+    if (args != null) await selection.applyArgs(args);
+  }
+
+  /// Direct selection, kept for callers that already know the lesson.
+  /// Contract with the lesson page: "Ask the tutor" pre-selects subject and lesson.
   void selectLesson({
     required String subject,
     String? lesson,
     String? title,
     required bool tutorEnabled,
-  }) {
-    subjectId.value = subject;
-    lessonId.value = lesson;
-    lessonTitle.value = title;
-    tutorSupported.value = tutorEnabled;
-  }
+  }) =>
+      selection.select(
+          subject: subject,
+          lesson: lesson,
+          title: title,
+          tutorEnabled: tutorEnabled);
 
-  void newChat() {
-    stop();
-    _transcript.clear();
-  }
-
-  Future<void> send() async {
+  void send() {
     final question = input.text.trim();
-    final subject = subjectId.value;
-    if (question.isEmpty || isGenerating.value || !tutorSupported.value) return;
+    if (question.isEmpty) return;
+    input.clear();
+    ask(question);
+  }
+
+  void ask(String question) {
+    final subject = selection.subjectId.value;
+    if (isGenerating.value || !selection.supported.value) return;
     if (subject == null) {
-      showLessonPickerSheet(); // the question stays in the field
+      showLessonPickerSheet();
       return;
     }
-    input.clear();
-    await _addHistory(QuestionHistoryItem(
-        subjectId: subject, lessonId: lessonId.value, question: question));
     _begin(
       question,
-      _ask(AskTutorParams(question: question, subjectId: subject, lessonId: lessonId.value)),
+      question,
+      _use.ask(AskTutorParams(
+          question: question,
+          subjectId: subject,
+          lessonId: selection.lessonId.value)),
     );
   }
 
-  void quickAction(QuickAction action, String label) {
-    final subject = subjectId.value;
-    final lesson = lessonId.value;
+  void quickAction(QuickAction action) {
+    final subject = selection.subjectId.value;
+    final lesson = selection.lessonId.value;
     if (subject == null || lesson == null || isGenerating.value) return;
     _begin(
-      label,
-      _quick(QuickActionParams(action: action, subjectId: subject, lessonId: lesson)),
+      action.label,
+      action.label,
+      _use.quick(QuickAnswerParams(
+          lessonId: lesson, subjectId: subject, action: action)),
+    );
+  }
+
+  void followUp(ChatMessage answer, FollowUp followUp) {
+    final subject = selection.subjectId.value;
+    final question = answer.question;
+    if (subject == null || question == null || isGenerating.value) return;
+    _begin(
+      followUp.label,
+      question,
+      _use.followUp(FollowUpParams(
+        followUp: followUp,
+        question: question,
+        previousAnswer: answer.text,
+        subjectId: subject,
+        lessonId: selection.lessonId.value,
+        passages: answer.passages,
+      )),
     );
   }
 
   Future<void> stop() async {
-    if (!isGenerating.value) return;
-    await _subscription?.cancel();
-    await _stop();
-    _finish();
+    if (isGenerating.value) await _use.stop();
   }
 
   Future<void> save(ChatMessage message) async {
-    final subject = subjectId.value;
-    if (subject == null || message.question == null) return;
-    await _saveAnswer(SavedAnswer(
-      subjectId: subject,
-      lessonId: lessonId.value,
-      question: message.question!,
+    final question = message.question;
+    if (question == null) return;
+    await _use.saveAnswer(SavedAnswer(
+      question: question,
       answer: message.text,
-      sourcePage: message.source?.page,
+      source: message.source,
+      fromBank: message.fromBank,
     ));
     savedIds.add(message.id);
   }
 
-  void _begin(String question, Stream<TutorEvent> events) {
-    final answerId = _transcript.startExchange(question, question: question);
+  Future<void> deletePending(ChatMessage message) async {
+    final id = message.pendingQuestionId;
+    if (id == null) return;
+    await _use.deletePending(id);
+    _transcript.removePending(id);
+  }
+
+  /// Shows a stored answer from the question history and returns to the chat.
+  void showHistoryItem(QuestionHistoryItem item) {
+    _transcript.addHistoryItem(item);
+    _openTutorTab();
+  }
+
+  void openSubject() {
+    final subject = selection.subjectId.value;
+    if (subject != null) Get.toNamed<void>(AppRoutes.subjectOf(subject));
+  }
+
+  /// Contract with the pack viewer: lesson id and the PDF page to open.
+  void openInPack(String lessonId, int pdfPage) => Get.toNamed<void>(
+      '${AppRoutes.viewerOf(lessonId, tab: 'pdf')}&pdfPage=$pdfPage');
+
+  void _begin(String userText, String question, Stream<TutorEvent> events) {
+    final answerId = _transcript.startExchange(userText, question: question);
     isGenerating.value = true;
     _subscription = events.listen(
       (e) {
-        if (e is TutorSubjectUnsupported) tutorSupported.value = false;
+        if (e is TutorOffline && e.pendingQuestionId != null) {
+          _use.requestNotifications();
+        }
         _transcript.apply(answerId, e);
       },
       onError: (Object _) => _transcript.fail(answerId),
@@ -172,9 +203,25 @@ class TutorController extends GetxController {
     isGenerating.value = false;
   }
 
+  Future<void> _refreshExamples() async {
+    final subject = selection.subjectId.value;
+    if (subject == null) return;
+    final stored =
+        await _use.getExamples(subject, lessonId: selection.lessonId.value);
+    examples.assignAll(ExampleQuestions.fill(
+      stored,
+      subjectName: selection.subjectName,
+      lessonTitle: selection.lessonTitle.value,
+    ));
+  }
+
+  void _openTutorTab() => Get.find<ShellController>().openTutor();
+
   @override
   void onClose() {
     _subscription?.cancel();
+    _engineWatcher?.dispose();
+    _pending.dispose();
     _transcript.dispose();
     input.dispose();
     super.onClose();

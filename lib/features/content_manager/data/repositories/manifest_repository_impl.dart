@@ -14,27 +14,41 @@ class ManifestRepositoryImpl implements ManifestRepository {
   final ManifestRemoteDataSource _remote;
   final ManifestLocalDataSource _local;
 
+  /// Never throws: every failure becomes a [Left], after trying the cache.
   @override
   Future<Either<Failure, Manifest>> getManifest() async {
+    final Map<String, dynamic> json;
+    final ManifestModel manifest;
     try {
-      final json = await _remote.fetch();
-      final manifest = ManifestModel.fromJson(json);
-      await _local.write(json); // only a parsed, valid manifest becomes the cache
-      return Right(manifest);
+      json = await _remote.fetch();
+      manifest = ManifestModel.fromJson(json);
     } on NetworkException catch (e) {
       return _fromCache(NetworkFailure(e.message));
     } on ManifestException catch (e) {
-      return Left(ManifestFailure(e.message));
+      return _fromCache(ManifestFailure(e.message));
+    } catch (e) {
+      return _fromCache(ManifestFailure('unexpected manifest error: $e'));
+    }
+    await _writeCache(json); // only a parsed, valid manifest becomes the cache
+    return Right(manifest);
+  }
+
+  /// A failed cache write must not fail a successful fetch.
+  Future<void> _writeCache(Map<String, dynamic> json) async {
+    try {
+      await _local.write(json);
+    } catch (_) {
+      // The next successful fetch will try again.
     }
   }
 
-  Future<Either<Failure, Manifest>> _fromCache(Failure networkFailure) async {
+  Future<Either<Failure, Manifest>> _fromCache(Failure remoteFailure) async {
     try {
       final cached = await _local.read();
-      if (cached == null) return Left(networkFailure);
+      if (cached == null) return Left(remoteFailure);
       return Right(ManifestModel.fromJson(cached));
-    } on ManifestException {
-      return Left(networkFailure);
+    } catch (_) {
+      return Left(remoteFailure);
     }
   }
 }

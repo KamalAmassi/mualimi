@@ -24,11 +24,25 @@ class $SavedAnswersTable extends SavedAnswers
   late final GeneratedColumn<String> subjectId = GeneratedColumn<String>(
       'subject_id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _subjectNameMeta =
+      const VerificationMeta('subjectName');
+  @override
+  late final GeneratedColumn<String> subjectName = GeneratedColumn<String>(
+      'subject_name', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(''));
   static const VerificationMeta _lessonIdMeta =
       const VerificationMeta('lessonId');
   @override
   late final GeneratedColumn<String> lessonId = GeneratedColumn<String>(
       'lesson_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _lessonTitleMeta =
+      const VerificationMeta('lessonTitle');
+  @override
+  late final GeneratedColumn<String> lessonTitle = GeneratedColumn<String>(
+      'lesson_title', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _questionMeta =
       const VerificationMeta('question');
@@ -41,12 +55,28 @@ class $SavedAnswersTable extends SavedAnswers
   late final GeneratedColumn<String> answer = GeneratedColumn<String>(
       'answer', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
-  static const VerificationMeta _sourcePageMeta =
-      const VerificationMeta('sourcePage');
+  static const VerificationMeta _printedPageMeta =
+      const VerificationMeta('printedPage');
   @override
-  late final GeneratedColumn<int> sourcePage = GeneratedColumn<int>(
-      'source_page', aliasedName, true,
+  late final GeneratedColumn<String> printedPage = GeneratedColumn<String>(
+      'printed_page', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _pdfPageMeta =
+      const VerificationMeta('pdfPage');
+  @override
+  late final GeneratedColumn<int> pdfPage = GeneratedColumn<int>(
+      'pdf_page', aliasedName, true,
       type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _fromBankMeta =
+      const VerificationMeta('fromBank');
+  @override
+  late final GeneratedColumn<bool> fromBank = GeneratedColumn<bool>(
+      'from_bank', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("from_bank" IN (0, 1))'),
+      defaultValue: const Constant(false));
   static const VerificationMeta _createdAtMeta =
       const VerificationMeta('createdAt');
   @override
@@ -56,8 +86,19 @@ class $SavedAnswersTable extends SavedAnswers
       requiredDuringInsert: false,
       defaultValue: currentDateAndTime);
   @override
-  List<GeneratedColumn> get $columns =>
-      [id, subjectId, lessonId, question, answer, sourcePage, createdAt];
+  List<GeneratedColumn> get $columns => [
+        id,
+        subjectId,
+        subjectName,
+        lessonId,
+        lessonTitle,
+        question,
+        answer,
+        printedPage,
+        pdfPage,
+        fromBank,
+        createdAt
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -77,9 +118,21 @@ class $SavedAnswersTable extends SavedAnswers
     } else if (isInserting) {
       context.missing(_subjectIdMeta);
     }
+    if (data.containsKey('subject_name')) {
+      context.handle(
+          _subjectNameMeta,
+          subjectName.isAcceptableOrUnknown(
+              data['subject_name']!, _subjectNameMeta));
+    }
     if (data.containsKey('lesson_id')) {
       context.handle(_lessonIdMeta,
           lessonId.isAcceptableOrUnknown(data['lesson_id']!, _lessonIdMeta));
+    }
+    if (data.containsKey('lesson_title')) {
+      context.handle(
+          _lessonTitleMeta,
+          lessonTitle.isAcceptableOrUnknown(
+              data['lesson_title']!, _lessonTitleMeta));
     }
     if (data.containsKey('question')) {
       context.handle(_questionMeta,
@@ -93,11 +146,19 @@ class $SavedAnswersTable extends SavedAnswers
     } else if (isInserting) {
       context.missing(_answerMeta);
     }
-    if (data.containsKey('source_page')) {
+    if (data.containsKey('printed_page')) {
       context.handle(
-          _sourcePageMeta,
-          sourcePage.isAcceptableOrUnknown(
-              data['source_page']!, _sourcePageMeta));
+          _printedPageMeta,
+          printedPage.isAcceptableOrUnknown(
+              data['printed_page']!, _printedPageMeta));
+    }
+    if (data.containsKey('pdf_page')) {
+      context.handle(_pdfPageMeta,
+          pdfPage.isAcceptableOrUnknown(data['pdf_page']!, _pdfPageMeta));
+    }
+    if (data.containsKey('from_bank')) {
+      context.handle(_fromBankMeta,
+          fromBank.isAcceptableOrUnknown(data['from_bank']!, _fromBankMeta));
     }
     if (data.containsKey('created_at')) {
       context.handle(_createdAtMeta,
@@ -116,14 +177,22 @@ class $SavedAnswersTable extends SavedAnswers
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       subjectId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}subject_id'])!,
+      subjectName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}subject_name'])!,
       lessonId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}lesson_id']),
+      lessonTitle: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}lesson_title']),
       question: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}question'])!,
       answer: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}answer'])!,
-      sourcePage: attachedDatabase.typeMapping
-          .read(DriftSqlType.int, data['${effectivePrefix}source_page']),
+      printedPage: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}printed_page']),
+      pdfPage: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}pdf_page']),
+      fromBank: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}from_bank'])!,
       createdAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
     );
@@ -138,32 +207,48 @@ class $SavedAnswersTable extends SavedAnswers
 class SavedAnswerRow extends DataClass implements Insertable<SavedAnswerRow> {
   final int id;
   final String subjectId;
+  final String subjectName;
   final String? lessonId;
+  final String? lessonTitle;
   final String question;
   final String answer;
-  final int? sourcePage;
+  final String? printedPage;
+  final int? pdfPage;
+  final bool fromBank;
   final DateTime createdAt;
   const SavedAnswerRow(
       {required this.id,
       required this.subjectId,
+      required this.subjectName,
       this.lessonId,
+      this.lessonTitle,
       required this.question,
       required this.answer,
-      this.sourcePage,
+      this.printedPage,
+      this.pdfPage,
+      required this.fromBank,
       required this.createdAt});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['subject_id'] = Variable<String>(subjectId);
+    map['subject_name'] = Variable<String>(subjectName);
     if (!nullToAbsent || lessonId != null) {
       map['lesson_id'] = Variable<String>(lessonId);
     }
+    if (!nullToAbsent || lessonTitle != null) {
+      map['lesson_title'] = Variable<String>(lessonTitle);
+    }
     map['question'] = Variable<String>(question);
     map['answer'] = Variable<String>(answer);
-    if (!nullToAbsent || sourcePage != null) {
-      map['source_page'] = Variable<int>(sourcePage);
+    if (!nullToAbsent || printedPage != null) {
+      map['printed_page'] = Variable<String>(printedPage);
     }
+    if (!nullToAbsent || pdfPage != null) {
+      map['pdf_page'] = Variable<int>(pdfPage);
+    }
+    map['from_bank'] = Variable<bool>(fromBank);
     map['created_at'] = Variable<DateTime>(createdAt);
     return map;
   }
@@ -172,14 +257,22 @@ class SavedAnswerRow extends DataClass implements Insertable<SavedAnswerRow> {
     return SavedAnswersCompanion(
       id: Value(id),
       subjectId: Value(subjectId),
+      subjectName: Value(subjectName),
       lessonId: lessonId == null && nullToAbsent
           ? const Value.absent()
           : Value(lessonId),
+      lessonTitle: lessonTitle == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lessonTitle),
       question: Value(question),
       answer: Value(answer),
-      sourcePage: sourcePage == null && nullToAbsent
+      printedPage: printedPage == null && nullToAbsent
           ? const Value.absent()
-          : Value(sourcePage),
+          : Value(printedPage),
+      pdfPage: pdfPage == null && nullToAbsent
+          ? const Value.absent()
+          : Value(pdfPage),
+      fromBank: Value(fromBank),
       createdAt: Value(createdAt),
     );
   }
@@ -190,10 +283,14 @@ class SavedAnswerRow extends DataClass implements Insertable<SavedAnswerRow> {
     return SavedAnswerRow(
       id: serializer.fromJson<int>(json['id']),
       subjectId: serializer.fromJson<String>(json['subjectId']),
+      subjectName: serializer.fromJson<String>(json['subjectName']),
       lessonId: serializer.fromJson<String?>(json['lessonId']),
+      lessonTitle: serializer.fromJson<String?>(json['lessonTitle']),
       question: serializer.fromJson<String>(json['question']),
       answer: serializer.fromJson<String>(json['answer']),
-      sourcePage: serializer.fromJson<int?>(json['sourcePage']),
+      printedPage: serializer.fromJson<String?>(json['printedPage']),
+      pdfPage: serializer.fromJson<int?>(json['pdfPage']),
+      fromBank: serializer.fromJson<bool>(json['fromBank']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
   }
@@ -203,10 +300,14 @@ class SavedAnswerRow extends DataClass implements Insertable<SavedAnswerRow> {
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'subjectId': serializer.toJson<String>(subjectId),
+      'subjectName': serializer.toJson<String>(subjectName),
       'lessonId': serializer.toJson<String?>(lessonId),
+      'lessonTitle': serializer.toJson<String?>(lessonTitle),
       'question': serializer.toJson<String>(question),
       'answer': serializer.toJson<String>(answer),
-      'sourcePage': serializer.toJson<int?>(sourcePage),
+      'printedPage': serializer.toJson<String?>(printedPage),
+      'pdfPage': serializer.toJson<int?>(pdfPage),
+      'fromBank': serializer.toJson<bool>(fromBank),
       'createdAt': serializer.toJson<DateTime>(createdAt),
     };
   }
@@ -214,29 +315,43 @@ class SavedAnswerRow extends DataClass implements Insertable<SavedAnswerRow> {
   SavedAnswerRow copyWith(
           {int? id,
           String? subjectId,
+          String? subjectName,
           Value<String?> lessonId = const Value.absent(),
+          Value<String?> lessonTitle = const Value.absent(),
           String? question,
           String? answer,
-          Value<int?> sourcePage = const Value.absent(),
+          Value<String?> printedPage = const Value.absent(),
+          Value<int?> pdfPage = const Value.absent(),
+          bool? fromBank,
           DateTime? createdAt}) =>
       SavedAnswerRow(
         id: id ?? this.id,
         subjectId: subjectId ?? this.subjectId,
+        subjectName: subjectName ?? this.subjectName,
         lessonId: lessonId.present ? lessonId.value : this.lessonId,
+        lessonTitle: lessonTitle.present ? lessonTitle.value : this.lessonTitle,
         question: question ?? this.question,
         answer: answer ?? this.answer,
-        sourcePage: sourcePage.present ? sourcePage.value : this.sourcePage,
+        printedPage: printedPage.present ? printedPage.value : this.printedPage,
+        pdfPage: pdfPage.present ? pdfPage.value : this.pdfPage,
+        fromBank: fromBank ?? this.fromBank,
         createdAt: createdAt ?? this.createdAt,
       );
   SavedAnswerRow copyWithCompanion(SavedAnswersCompanion data) {
     return SavedAnswerRow(
       id: data.id.present ? data.id.value : this.id,
       subjectId: data.subjectId.present ? data.subjectId.value : this.subjectId,
+      subjectName:
+          data.subjectName.present ? data.subjectName.value : this.subjectName,
       lessonId: data.lessonId.present ? data.lessonId.value : this.lessonId,
+      lessonTitle:
+          data.lessonTitle.present ? data.lessonTitle.value : this.lessonTitle,
       question: data.question.present ? data.question.value : this.question,
       answer: data.answer.present ? data.answer.value : this.answer,
-      sourcePage:
-          data.sourcePage.present ? data.sourcePage.value : this.sourcePage,
+      printedPage:
+          data.printedPage.present ? data.printedPage.value : this.printedPage,
+      pdfPage: data.pdfPage.present ? data.pdfPage.value : this.pdfPage,
+      fromBank: data.fromBank.present ? data.fromBank.value : this.fromBank,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
   }
@@ -246,55 +361,75 @@ class SavedAnswerRow extends DataClass implements Insertable<SavedAnswerRow> {
     return (StringBuffer('SavedAnswerRow(')
           ..write('id: $id, ')
           ..write('subjectId: $subjectId, ')
+          ..write('subjectName: $subjectName, ')
           ..write('lessonId: $lessonId, ')
+          ..write('lessonTitle: $lessonTitle, ')
           ..write('question: $question, ')
           ..write('answer: $answer, ')
-          ..write('sourcePage: $sourcePage, ')
+          ..write('printedPage: $printedPage, ')
+          ..write('pdfPage: $pdfPage, ')
+          ..write('fromBank: $fromBank, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(
-      id, subjectId, lessonId, question, answer, sourcePage, createdAt);
+  int get hashCode => Object.hash(id, subjectId, subjectName, lessonId,
+      lessonTitle, question, answer, printedPage, pdfPage, fromBank, createdAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is SavedAnswerRow &&
           other.id == this.id &&
           other.subjectId == this.subjectId &&
+          other.subjectName == this.subjectName &&
           other.lessonId == this.lessonId &&
+          other.lessonTitle == this.lessonTitle &&
           other.question == this.question &&
           other.answer == this.answer &&
-          other.sourcePage == this.sourcePage &&
+          other.printedPage == this.printedPage &&
+          other.pdfPage == this.pdfPage &&
+          other.fromBank == this.fromBank &&
           other.createdAt == this.createdAt);
 }
 
 class SavedAnswersCompanion extends UpdateCompanion<SavedAnswerRow> {
   final Value<int> id;
   final Value<String> subjectId;
+  final Value<String> subjectName;
   final Value<String?> lessonId;
+  final Value<String?> lessonTitle;
   final Value<String> question;
   final Value<String> answer;
-  final Value<int?> sourcePage;
+  final Value<String?> printedPage;
+  final Value<int?> pdfPage;
+  final Value<bool> fromBank;
   final Value<DateTime> createdAt;
   const SavedAnswersCompanion({
     this.id = const Value.absent(),
     this.subjectId = const Value.absent(),
+    this.subjectName = const Value.absent(),
     this.lessonId = const Value.absent(),
+    this.lessonTitle = const Value.absent(),
     this.question = const Value.absent(),
     this.answer = const Value.absent(),
-    this.sourcePage = const Value.absent(),
+    this.printedPage = const Value.absent(),
+    this.pdfPage = const Value.absent(),
+    this.fromBank = const Value.absent(),
     this.createdAt = const Value.absent(),
   });
   SavedAnswersCompanion.insert({
     this.id = const Value.absent(),
     required String subjectId,
+    this.subjectName = const Value.absent(),
     this.lessonId = const Value.absent(),
+    this.lessonTitle = const Value.absent(),
     required String question,
     required String answer,
-    this.sourcePage = const Value.absent(),
+    this.printedPage = const Value.absent(),
+    this.pdfPage = const Value.absent(),
+    this.fromBank = const Value.absent(),
     this.createdAt = const Value.absent(),
   })  : subjectId = Value(subjectId),
         question = Value(question),
@@ -302,19 +437,27 @@ class SavedAnswersCompanion extends UpdateCompanion<SavedAnswerRow> {
   static Insertable<SavedAnswerRow> custom({
     Expression<int>? id,
     Expression<String>? subjectId,
+    Expression<String>? subjectName,
     Expression<String>? lessonId,
+    Expression<String>? lessonTitle,
     Expression<String>? question,
     Expression<String>? answer,
-    Expression<int>? sourcePage,
+    Expression<String>? printedPage,
+    Expression<int>? pdfPage,
+    Expression<bool>? fromBank,
     Expression<DateTime>? createdAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (subjectId != null) 'subject_id': subjectId,
+      if (subjectName != null) 'subject_name': subjectName,
       if (lessonId != null) 'lesson_id': lessonId,
+      if (lessonTitle != null) 'lesson_title': lessonTitle,
       if (question != null) 'question': question,
       if (answer != null) 'answer': answer,
-      if (sourcePage != null) 'source_page': sourcePage,
+      if (printedPage != null) 'printed_page': printedPage,
+      if (pdfPage != null) 'pdf_page': pdfPage,
+      if (fromBank != null) 'from_bank': fromBank,
       if (createdAt != null) 'created_at': createdAt,
     });
   }
@@ -322,18 +465,26 @@ class SavedAnswersCompanion extends UpdateCompanion<SavedAnswerRow> {
   SavedAnswersCompanion copyWith(
       {Value<int>? id,
       Value<String>? subjectId,
+      Value<String>? subjectName,
       Value<String?>? lessonId,
+      Value<String?>? lessonTitle,
       Value<String>? question,
       Value<String>? answer,
-      Value<int?>? sourcePage,
+      Value<String?>? printedPage,
+      Value<int?>? pdfPage,
+      Value<bool>? fromBank,
       Value<DateTime>? createdAt}) {
     return SavedAnswersCompanion(
       id: id ?? this.id,
       subjectId: subjectId ?? this.subjectId,
+      subjectName: subjectName ?? this.subjectName,
       lessonId: lessonId ?? this.lessonId,
+      lessonTitle: lessonTitle ?? this.lessonTitle,
       question: question ?? this.question,
       answer: answer ?? this.answer,
-      sourcePage: sourcePage ?? this.sourcePage,
+      printedPage: printedPage ?? this.printedPage,
+      pdfPage: pdfPage ?? this.pdfPage,
+      fromBank: fromBank ?? this.fromBank,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -347,8 +498,14 @@ class SavedAnswersCompanion extends UpdateCompanion<SavedAnswerRow> {
     if (subjectId.present) {
       map['subject_id'] = Variable<String>(subjectId.value);
     }
+    if (subjectName.present) {
+      map['subject_name'] = Variable<String>(subjectName.value);
+    }
     if (lessonId.present) {
       map['lesson_id'] = Variable<String>(lessonId.value);
+    }
+    if (lessonTitle.present) {
+      map['lesson_title'] = Variable<String>(lessonTitle.value);
     }
     if (question.present) {
       map['question'] = Variable<String>(question.value);
@@ -356,8 +513,14 @@ class SavedAnswersCompanion extends UpdateCompanion<SavedAnswerRow> {
     if (answer.present) {
       map['answer'] = Variable<String>(answer.value);
     }
-    if (sourcePage.present) {
-      map['source_page'] = Variable<int>(sourcePage.value);
+    if (printedPage.present) {
+      map['printed_page'] = Variable<String>(printedPage.value);
+    }
+    if (pdfPage.present) {
+      map['pdf_page'] = Variable<int>(pdfPage.value);
+    }
+    if (fromBank.present) {
+      map['from_bank'] = Variable<bool>(fromBank.value);
     }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
@@ -370,10 +533,14 @@ class SavedAnswersCompanion extends UpdateCompanion<SavedAnswerRow> {
     return (StringBuffer('SavedAnswersCompanion(')
           ..write('id: $id, ')
           ..write('subjectId: $subjectId, ')
+          ..write('subjectName: $subjectName, ')
           ..write('lessonId: $lessonId, ')
+          ..write('lessonTitle: $lessonTitle, ')
           ..write('question: $question, ')
           ..write('answer: $answer, ')
-          ..write('sourcePage: $sourcePage, ')
+          ..write('printedPage: $printedPage, ')
+          ..write('pdfPage: $pdfPage, ')
+          ..write('fromBank: $fromBank, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
@@ -401,11 +568,25 @@ class $QuestionHistoryTable extends QuestionHistory
   late final GeneratedColumn<String> subjectId = GeneratedColumn<String>(
       'subject_id', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _subjectNameMeta =
+      const VerificationMeta('subjectName');
+  @override
+  late final GeneratedColumn<String> subjectName = GeneratedColumn<String>(
+      'subject_name', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(''));
   static const VerificationMeta _lessonIdMeta =
       const VerificationMeta('lessonId');
   @override
   late final GeneratedColumn<String> lessonId = GeneratedColumn<String>(
       'lesson_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _lessonTitleMeta =
+      const VerificationMeta('lessonTitle');
+  @override
+  late final GeneratedColumn<String> lessonTitle = GeneratedColumn<String>(
+      'lesson_title', aliasedName, true,
       type: DriftSqlType.string, requiredDuringInsert: false);
   static const VerificationMeta _questionMeta =
       const VerificationMeta('question');
@@ -413,6 +594,35 @@ class $QuestionHistoryTable extends QuestionHistory
   late final GeneratedColumn<String> question = GeneratedColumn<String>(
       'question', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _answerMeta = const VerificationMeta('answer');
+  @override
+  late final GeneratedColumn<String> answer = GeneratedColumn<String>(
+      'answer', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(''));
+  static const VerificationMeta _printedPageMeta =
+      const VerificationMeta('printedPage');
+  @override
+  late final GeneratedColumn<String> printedPage = GeneratedColumn<String>(
+      'printed_page', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _pdfPageMeta =
+      const VerificationMeta('pdfPage');
+  @override
+  late final GeneratedColumn<int> pdfPage = GeneratedColumn<int>(
+      'pdf_page', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _fromBankMeta =
+      const VerificationMeta('fromBank');
+  @override
+  late final GeneratedColumn<bool> fromBank = GeneratedColumn<bool>(
+      'from_bank', aliasedName, false,
+      type: DriftSqlType.bool,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('CHECK ("from_bank" IN (0, 1))'),
+      defaultValue: const Constant(false));
   static const VerificationMeta _createdAtMeta =
       const VerificationMeta('createdAt');
   @override
@@ -422,8 +632,19 @@ class $QuestionHistoryTable extends QuestionHistory
       requiredDuringInsert: false,
       defaultValue: currentDateAndTime);
   @override
-  List<GeneratedColumn> get $columns =>
-      [id, subjectId, lessonId, question, createdAt];
+  List<GeneratedColumn> get $columns => [
+        id,
+        subjectId,
+        subjectName,
+        lessonId,
+        lessonTitle,
+        question,
+        answer,
+        printedPage,
+        pdfPage,
+        fromBank,
+        createdAt
+      ];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -443,15 +664,45 @@ class $QuestionHistoryTable extends QuestionHistory
     } else if (isInserting) {
       context.missing(_subjectIdMeta);
     }
+    if (data.containsKey('subject_name')) {
+      context.handle(
+          _subjectNameMeta,
+          subjectName.isAcceptableOrUnknown(
+              data['subject_name']!, _subjectNameMeta));
+    }
     if (data.containsKey('lesson_id')) {
       context.handle(_lessonIdMeta,
           lessonId.isAcceptableOrUnknown(data['lesson_id']!, _lessonIdMeta));
+    }
+    if (data.containsKey('lesson_title')) {
+      context.handle(
+          _lessonTitleMeta,
+          lessonTitle.isAcceptableOrUnknown(
+              data['lesson_title']!, _lessonTitleMeta));
     }
     if (data.containsKey('question')) {
       context.handle(_questionMeta,
           question.isAcceptableOrUnknown(data['question']!, _questionMeta));
     } else if (isInserting) {
       context.missing(_questionMeta);
+    }
+    if (data.containsKey('answer')) {
+      context.handle(_answerMeta,
+          answer.isAcceptableOrUnknown(data['answer']!, _answerMeta));
+    }
+    if (data.containsKey('printed_page')) {
+      context.handle(
+          _printedPageMeta,
+          printedPage.isAcceptableOrUnknown(
+              data['printed_page']!, _printedPageMeta));
+    }
+    if (data.containsKey('pdf_page')) {
+      context.handle(_pdfPageMeta,
+          pdfPage.isAcceptableOrUnknown(data['pdf_page']!, _pdfPageMeta));
+    }
+    if (data.containsKey('from_bank')) {
+      context.handle(_fromBankMeta,
+          fromBank.isAcceptableOrUnknown(data['from_bank']!, _fromBankMeta));
     }
     if (data.containsKey('created_at')) {
       context.handle(_createdAtMeta,
@@ -470,10 +721,22 @@ class $QuestionHistoryTable extends QuestionHistory
           .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
       subjectId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}subject_id'])!,
+      subjectName: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}subject_name'])!,
       lessonId: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}lesson_id']),
+      lessonTitle: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}lesson_title']),
       question: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}question'])!,
+      answer: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}answer'])!,
+      printedPage: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}printed_page']),
+      pdfPage: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}pdf_page']),
+      fromBank: attachedDatabase.typeMapping
+          .read(DriftSqlType.bool, data['${effectivePrefix}from_bank'])!,
       createdAt: attachedDatabase.typeMapping
           .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
     );
@@ -489,24 +752,48 @@ class QuestionHistoryRow extends DataClass
     implements Insertable<QuestionHistoryRow> {
   final int id;
   final String subjectId;
+  final String subjectName;
   final String? lessonId;
+  final String? lessonTitle;
   final String question;
+  final String answer;
+  final String? printedPage;
+  final int? pdfPage;
+  final bool fromBank;
   final DateTime createdAt;
   const QuestionHistoryRow(
       {required this.id,
       required this.subjectId,
+      required this.subjectName,
       this.lessonId,
+      this.lessonTitle,
       required this.question,
+      required this.answer,
+      this.printedPage,
+      this.pdfPage,
+      required this.fromBank,
       required this.createdAt});
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
     final map = <String, Expression>{};
     map['id'] = Variable<int>(id);
     map['subject_id'] = Variable<String>(subjectId);
+    map['subject_name'] = Variable<String>(subjectName);
     if (!nullToAbsent || lessonId != null) {
       map['lesson_id'] = Variable<String>(lessonId);
     }
+    if (!nullToAbsent || lessonTitle != null) {
+      map['lesson_title'] = Variable<String>(lessonTitle);
+    }
     map['question'] = Variable<String>(question);
+    map['answer'] = Variable<String>(answer);
+    if (!nullToAbsent || printedPage != null) {
+      map['printed_page'] = Variable<String>(printedPage);
+    }
+    if (!nullToAbsent || pdfPage != null) {
+      map['pdf_page'] = Variable<int>(pdfPage);
+    }
+    map['from_bank'] = Variable<bool>(fromBank);
     map['created_at'] = Variable<DateTime>(createdAt);
     return map;
   }
@@ -515,10 +802,22 @@ class QuestionHistoryRow extends DataClass
     return QuestionHistoryCompanion(
       id: Value(id),
       subjectId: Value(subjectId),
+      subjectName: Value(subjectName),
       lessonId: lessonId == null && nullToAbsent
           ? const Value.absent()
           : Value(lessonId),
+      lessonTitle: lessonTitle == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lessonTitle),
       question: Value(question),
+      answer: Value(answer),
+      printedPage: printedPage == null && nullToAbsent
+          ? const Value.absent()
+          : Value(printedPage),
+      pdfPage: pdfPage == null && nullToAbsent
+          ? const Value.absent()
+          : Value(pdfPage),
+      fromBank: Value(fromBank),
       createdAt: Value(createdAt),
     );
   }
@@ -529,8 +828,14 @@ class QuestionHistoryRow extends DataClass
     return QuestionHistoryRow(
       id: serializer.fromJson<int>(json['id']),
       subjectId: serializer.fromJson<String>(json['subjectId']),
+      subjectName: serializer.fromJson<String>(json['subjectName']),
       lessonId: serializer.fromJson<String?>(json['lessonId']),
+      lessonTitle: serializer.fromJson<String?>(json['lessonTitle']),
       question: serializer.fromJson<String>(json['question']),
+      answer: serializer.fromJson<String>(json['answer']),
+      printedPage: serializer.fromJson<String?>(json['printedPage']),
+      pdfPage: serializer.fromJson<int?>(json['pdfPage']),
+      fromBank: serializer.fromJson<bool>(json['fromBank']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
   }
@@ -540,8 +845,14 @@ class QuestionHistoryRow extends DataClass
     return <String, dynamic>{
       'id': serializer.toJson<int>(id),
       'subjectId': serializer.toJson<String>(subjectId),
+      'subjectName': serializer.toJson<String>(subjectName),
       'lessonId': serializer.toJson<String?>(lessonId),
+      'lessonTitle': serializer.toJson<String?>(lessonTitle),
       'question': serializer.toJson<String>(question),
+      'answer': serializer.toJson<String>(answer),
+      'printedPage': serializer.toJson<String?>(printedPage),
+      'pdfPage': serializer.toJson<int?>(pdfPage),
+      'fromBank': serializer.toJson<bool>(fromBank),
       'createdAt': serializer.toJson<DateTime>(createdAt),
     };
   }
@@ -549,22 +860,43 @@ class QuestionHistoryRow extends DataClass
   QuestionHistoryRow copyWith(
           {int? id,
           String? subjectId,
+          String? subjectName,
           Value<String?> lessonId = const Value.absent(),
+          Value<String?> lessonTitle = const Value.absent(),
           String? question,
+          String? answer,
+          Value<String?> printedPage = const Value.absent(),
+          Value<int?> pdfPage = const Value.absent(),
+          bool? fromBank,
           DateTime? createdAt}) =>
       QuestionHistoryRow(
         id: id ?? this.id,
         subjectId: subjectId ?? this.subjectId,
+        subjectName: subjectName ?? this.subjectName,
         lessonId: lessonId.present ? lessonId.value : this.lessonId,
+        lessonTitle: lessonTitle.present ? lessonTitle.value : this.lessonTitle,
         question: question ?? this.question,
+        answer: answer ?? this.answer,
+        printedPage: printedPage.present ? printedPage.value : this.printedPage,
+        pdfPage: pdfPage.present ? pdfPage.value : this.pdfPage,
+        fromBank: fromBank ?? this.fromBank,
         createdAt: createdAt ?? this.createdAt,
       );
   QuestionHistoryRow copyWithCompanion(QuestionHistoryCompanion data) {
     return QuestionHistoryRow(
       id: data.id.present ? data.id.value : this.id,
       subjectId: data.subjectId.present ? data.subjectId.value : this.subjectId,
+      subjectName:
+          data.subjectName.present ? data.subjectName.value : this.subjectName,
       lessonId: data.lessonId.present ? data.lessonId.value : this.lessonId,
+      lessonTitle:
+          data.lessonTitle.present ? data.lessonTitle.value : this.lessonTitle,
       question: data.question.present ? data.question.value : this.question,
+      answer: data.answer.present ? data.answer.value : this.answer,
+      printedPage:
+          data.printedPage.present ? data.printedPage.value : this.printedPage,
+      pdfPage: data.pdfPage.present ? data.pdfPage.value : this.pdfPage,
+      fromBank: data.fromBank.present ? data.fromBank.value : this.fromBank,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
   }
@@ -574,59 +906,102 @@ class QuestionHistoryRow extends DataClass
     return (StringBuffer('QuestionHistoryRow(')
           ..write('id: $id, ')
           ..write('subjectId: $subjectId, ')
+          ..write('subjectName: $subjectName, ')
           ..write('lessonId: $lessonId, ')
+          ..write('lessonTitle: $lessonTitle, ')
           ..write('question: $question, ')
+          ..write('answer: $answer, ')
+          ..write('printedPage: $printedPage, ')
+          ..write('pdfPage: $pdfPage, ')
+          ..write('fromBank: $fromBank, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(id, subjectId, lessonId, question, createdAt);
+  int get hashCode => Object.hash(id, subjectId, subjectName, lessonId,
+      lessonTitle, question, answer, printedPage, pdfPage, fromBank, createdAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
       (other is QuestionHistoryRow &&
           other.id == this.id &&
           other.subjectId == this.subjectId &&
+          other.subjectName == this.subjectName &&
           other.lessonId == this.lessonId &&
+          other.lessonTitle == this.lessonTitle &&
           other.question == this.question &&
+          other.answer == this.answer &&
+          other.printedPage == this.printedPage &&
+          other.pdfPage == this.pdfPage &&
+          other.fromBank == this.fromBank &&
           other.createdAt == this.createdAt);
 }
 
 class QuestionHistoryCompanion extends UpdateCompanion<QuestionHistoryRow> {
   final Value<int> id;
   final Value<String> subjectId;
+  final Value<String> subjectName;
   final Value<String?> lessonId;
+  final Value<String?> lessonTitle;
   final Value<String> question;
+  final Value<String> answer;
+  final Value<String?> printedPage;
+  final Value<int?> pdfPage;
+  final Value<bool> fromBank;
   final Value<DateTime> createdAt;
   const QuestionHistoryCompanion({
     this.id = const Value.absent(),
     this.subjectId = const Value.absent(),
+    this.subjectName = const Value.absent(),
     this.lessonId = const Value.absent(),
+    this.lessonTitle = const Value.absent(),
     this.question = const Value.absent(),
+    this.answer = const Value.absent(),
+    this.printedPage = const Value.absent(),
+    this.pdfPage = const Value.absent(),
+    this.fromBank = const Value.absent(),
     this.createdAt = const Value.absent(),
   });
   QuestionHistoryCompanion.insert({
     this.id = const Value.absent(),
     required String subjectId,
+    this.subjectName = const Value.absent(),
     this.lessonId = const Value.absent(),
+    this.lessonTitle = const Value.absent(),
     required String question,
+    this.answer = const Value.absent(),
+    this.printedPage = const Value.absent(),
+    this.pdfPage = const Value.absent(),
+    this.fromBank = const Value.absent(),
     this.createdAt = const Value.absent(),
   })  : subjectId = Value(subjectId),
         question = Value(question);
   static Insertable<QuestionHistoryRow> custom({
     Expression<int>? id,
     Expression<String>? subjectId,
+    Expression<String>? subjectName,
     Expression<String>? lessonId,
+    Expression<String>? lessonTitle,
     Expression<String>? question,
+    Expression<String>? answer,
+    Expression<String>? printedPage,
+    Expression<int>? pdfPage,
+    Expression<bool>? fromBank,
     Expression<DateTime>? createdAt,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
       if (subjectId != null) 'subject_id': subjectId,
+      if (subjectName != null) 'subject_name': subjectName,
       if (lessonId != null) 'lesson_id': lessonId,
+      if (lessonTitle != null) 'lesson_title': lessonTitle,
       if (question != null) 'question': question,
+      if (answer != null) 'answer': answer,
+      if (printedPage != null) 'printed_page': printedPage,
+      if (pdfPage != null) 'pdf_page': pdfPage,
+      if (fromBank != null) 'from_bank': fromBank,
       if (createdAt != null) 'created_at': createdAt,
     });
   }
@@ -634,14 +1009,26 @@ class QuestionHistoryCompanion extends UpdateCompanion<QuestionHistoryRow> {
   QuestionHistoryCompanion copyWith(
       {Value<int>? id,
       Value<String>? subjectId,
+      Value<String>? subjectName,
       Value<String?>? lessonId,
+      Value<String?>? lessonTitle,
       Value<String>? question,
+      Value<String>? answer,
+      Value<String?>? printedPage,
+      Value<int?>? pdfPage,
+      Value<bool>? fromBank,
       Value<DateTime>? createdAt}) {
     return QuestionHistoryCompanion(
       id: id ?? this.id,
       subjectId: subjectId ?? this.subjectId,
+      subjectName: subjectName ?? this.subjectName,
       lessonId: lessonId ?? this.lessonId,
+      lessonTitle: lessonTitle ?? this.lessonTitle,
       question: question ?? this.question,
+      answer: answer ?? this.answer,
+      printedPage: printedPage ?? this.printedPage,
+      pdfPage: pdfPage ?? this.pdfPage,
+      fromBank: fromBank ?? this.fromBank,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -655,11 +1042,29 @@ class QuestionHistoryCompanion extends UpdateCompanion<QuestionHistoryRow> {
     if (subjectId.present) {
       map['subject_id'] = Variable<String>(subjectId.value);
     }
+    if (subjectName.present) {
+      map['subject_name'] = Variable<String>(subjectName.value);
+    }
     if (lessonId.present) {
       map['lesson_id'] = Variable<String>(lessonId.value);
     }
+    if (lessonTitle.present) {
+      map['lesson_title'] = Variable<String>(lessonTitle.value);
+    }
     if (question.present) {
       map['question'] = Variable<String>(question.value);
+    }
+    if (answer.present) {
+      map['answer'] = Variable<String>(answer.value);
+    }
+    if (printedPage.present) {
+      map['printed_page'] = Variable<String>(printedPage.value);
+    }
+    if (pdfPage.present) {
+      map['pdf_page'] = Variable<int>(pdfPage.value);
+    }
+    if (fromBank.present) {
+      map['from_bank'] = Variable<bool>(fromBank.value);
     }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
@@ -672,8 +1077,14 @@ class QuestionHistoryCompanion extends UpdateCompanion<QuestionHistoryRow> {
     return (StringBuffer('QuestionHistoryCompanion(')
           ..write('id: $id, ')
           ..write('subjectId: $subjectId, ')
+          ..write('subjectName: $subjectName, ')
           ..write('lessonId: $lessonId, ')
+          ..write('lessonTitle: $lessonTitle, ')
           ..write('question: $question, ')
+          ..write('answer: $answer, ')
+          ..write('printedPage: $printedPage, ')
+          ..write('pdfPage: $pdfPage, ')
+          ..write('fromBank: $fromBank, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
@@ -1287,6 +1698,654 @@ class PendingReportsCompanion extends UpdateCompanion<PendingReportRow> {
   }
 }
 
+class $PendingQuestionsTable extends PendingQuestions
+    with TableInfo<$PendingQuestionsTable, PendingQuestionRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PendingQuestionsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _questionMeta =
+      const VerificationMeta('question');
+  @override
+  late final GeneratedColumn<String> question = GeneratedColumn<String>(
+      'question', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _subjectIdMeta =
+      const VerificationMeta('subjectId');
+  @override
+  late final GeneratedColumn<String> subjectId = GeneratedColumn<String>(
+      'subject_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _lessonIdMeta =
+      const VerificationMeta('lessonId');
+  @override
+  late final GeneratedColumn<String> lessonId = GeneratedColumn<String>(
+      'lesson_id', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  static const VerificationMeta _chunkIdsMeta =
+      const VerificationMeta('chunkIds');
+  @override
+  late final GeneratedColumn<String> chunkIds = GeneratedColumn<String>(
+      'chunk_ids', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _statusMeta = const VerificationMeta('status');
+  @override
+  late final GeneratedColumn<String> status = GeneratedColumn<String>(
+      'status', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('pending'));
+  static const VerificationMeta _attemptsMeta =
+      const VerificationMeta('attempts');
+  @override
+  late final GeneratedColumn<int> attempts = GeneratedColumn<int>(
+      'attempts', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  static const VerificationMeta _createdAtMeta =
+      const VerificationMeta('createdAt');
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+      'created_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  static const VerificationMeta _answeredAtMeta =
+      const VerificationMeta('answeredAt');
+  @override
+  late final GeneratedColumn<DateTime> answeredAt = GeneratedColumn<DateTime>(
+      'answered_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns => [
+        id,
+        question,
+        subjectId,
+        lessonId,
+        chunkIds,
+        status,
+        attempts,
+        createdAt,
+        answeredAt
+      ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'pending_questions';
+  @override
+  VerificationContext validateIntegrity(Insertable<PendingQuestionRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('question')) {
+      context.handle(_questionMeta,
+          question.isAcceptableOrUnknown(data['question']!, _questionMeta));
+    } else if (isInserting) {
+      context.missing(_questionMeta);
+    }
+    if (data.containsKey('subject_id')) {
+      context.handle(_subjectIdMeta,
+          subjectId.isAcceptableOrUnknown(data['subject_id']!, _subjectIdMeta));
+    } else if (isInserting) {
+      context.missing(_subjectIdMeta);
+    }
+    if (data.containsKey('lesson_id')) {
+      context.handle(_lessonIdMeta,
+          lessonId.isAcceptableOrUnknown(data['lesson_id']!, _lessonIdMeta));
+    }
+    if (data.containsKey('chunk_ids')) {
+      context.handle(_chunkIdsMeta,
+          chunkIds.isAcceptableOrUnknown(data['chunk_ids']!, _chunkIdsMeta));
+    } else if (isInserting) {
+      context.missing(_chunkIdsMeta);
+    }
+    if (data.containsKey('status')) {
+      context.handle(_statusMeta,
+          status.isAcceptableOrUnknown(data['status']!, _statusMeta));
+    }
+    if (data.containsKey('attempts')) {
+      context.handle(_attemptsMeta,
+          attempts.isAcceptableOrUnknown(data['attempts']!, _attemptsMeta));
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(_createdAtMeta,
+          createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta));
+    }
+    if (data.containsKey('answered_at')) {
+      context.handle(
+          _answeredAtMeta,
+          answeredAt.isAcceptableOrUnknown(
+              data['answered_at']!, _answeredAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  PendingQuestionRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PendingQuestionRow(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      question: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}question'])!,
+      subjectId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}subject_id'])!,
+      lessonId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}lesson_id']),
+      chunkIds: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}chunk_ids'])!,
+      status: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}status'])!,
+      attempts: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}attempts'])!,
+      createdAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}created_at'])!,
+      answeredAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}answered_at']),
+    );
+  }
+
+  @override
+  $PendingQuestionsTable createAlias(String alias) {
+    return $PendingQuestionsTable(attachedDatabase, alias);
+  }
+}
+
+class PendingQuestionRow extends DataClass
+    implements Insertable<PendingQuestionRow> {
+  final int id;
+  final String question;
+  final String subjectId;
+  final String? lessonId;
+  final String chunkIds;
+  final String status;
+  final int attempts;
+  final DateTime createdAt;
+  final DateTime? answeredAt;
+  const PendingQuestionRow(
+      {required this.id,
+      required this.question,
+      required this.subjectId,
+      this.lessonId,
+      required this.chunkIds,
+      required this.status,
+      required this.attempts,
+      required this.createdAt,
+      this.answeredAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['question'] = Variable<String>(question);
+    map['subject_id'] = Variable<String>(subjectId);
+    if (!nullToAbsent || lessonId != null) {
+      map['lesson_id'] = Variable<String>(lessonId);
+    }
+    map['chunk_ids'] = Variable<String>(chunkIds);
+    map['status'] = Variable<String>(status);
+    map['attempts'] = Variable<int>(attempts);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    if (!nullToAbsent || answeredAt != null) {
+      map['answered_at'] = Variable<DateTime>(answeredAt);
+    }
+    return map;
+  }
+
+  PendingQuestionsCompanion toCompanion(bool nullToAbsent) {
+    return PendingQuestionsCompanion(
+      id: Value(id),
+      question: Value(question),
+      subjectId: Value(subjectId),
+      lessonId: lessonId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lessonId),
+      chunkIds: Value(chunkIds),
+      status: Value(status),
+      attempts: Value(attempts),
+      createdAt: Value(createdAt),
+      answeredAt: answeredAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(answeredAt),
+    );
+  }
+
+  factory PendingQuestionRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PendingQuestionRow(
+      id: serializer.fromJson<int>(json['id']),
+      question: serializer.fromJson<String>(json['question']),
+      subjectId: serializer.fromJson<String>(json['subjectId']),
+      lessonId: serializer.fromJson<String?>(json['lessonId']),
+      chunkIds: serializer.fromJson<String>(json['chunkIds']),
+      status: serializer.fromJson<String>(json['status']),
+      attempts: serializer.fromJson<int>(json['attempts']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      answeredAt: serializer.fromJson<DateTime?>(json['answeredAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'question': serializer.toJson<String>(question),
+      'subjectId': serializer.toJson<String>(subjectId),
+      'lessonId': serializer.toJson<String?>(lessonId),
+      'chunkIds': serializer.toJson<String>(chunkIds),
+      'status': serializer.toJson<String>(status),
+      'attempts': serializer.toJson<int>(attempts),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'answeredAt': serializer.toJson<DateTime?>(answeredAt),
+    };
+  }
+
+  PendingQuestionRow copyWith(
+          {int? id,
+          String? question,
+          String? subjectId,
+          Value<String?> lessonId = const Value.absent(),
+          String? chunkIds,
+          String? status,
+          int? attempts,
+          DateTime? createdAt,
+          Value<DateTime?> answeredAt = const Value.absent()}) =>
+      PendingQuestionRow(
+        id: id ?? this.id,
+        question: question ?? this.question,
+        subjectId: subjectId ?? this.subjectId,
+        lessonId: lessonId.present ? lessonId.value : this.lessonId,
+        chunkIds: chunkIds ?? this.chunkIds,
+        status: status ?? this.status,
+        attempts: attempts ?? this.attempts,
+        createdAt: createdAt ?? this.createdAt,
+        answeredAt: answeredAt.present ? answeredAt.value : this.answeredAt,
+      );
+  PendingQuestionRow copyWithCompanion(PendingQuestionsCompanion data) {
+    return PendingQuestionRow(
+      id: data.id.present ? data.id.value : this.id,
+      question: data.question.present ? data.question.value : this.question,
+      subjectId: data.subjectId.present ? data.subjectId.value : this.subjectId,
+      lessonId: data.lessonId.present ? data.lessonId.value : this.lessonId,
+      chunkIds: data.chunkIds.present ? data.chunkIds.value : this.chunkIds,
+      status: data.status.present ? data.status.value : this.status,
+      attempts: data.attempts.present ? data.attempts.value : this.attempts,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      answeredAt:
+          data.answeredAt.present ? data.answeredAt.value : this.answeredAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PendingQuestionRow(')
+          ..write('id: $id, ')
+          ..write('question: $question, ')
+          ..write('subjectId: $subjectId, ')
+          ..write('lessonId: $lessonId, ')
+          ..write('chunkIds: $chunkIds, ')
+          ..write('status: $status, ')
+          ..write('attempts: $attempts, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('answeredAt: $answeredAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, question, subjectId, lessonId, chunkIds,
+      status, attempts, createdAt, answeredAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PendingQuestionRow &&
+          other.id == this.id &&
+          other.question == this.question &&
+          other.subjectId == this.subjectId &&
+          other.lessonId == this.lessonId &&
+          other.chunkIds == this.chunkIds &&
+          other.status == this.status &&
+          other.attempts == this.attempts &&
+          other.createdAt == this.createdAt &&
+          other.answeredAt == this.answeredAt);
+}
+
+class PendingQuestionsCompanion extends UpdateCompanion<PendingQuestionRow> {
+  final Value<int> id;
+  final Value<String> question;
+  final Value<String> subjectId;
+  final Value<String?> lessonId;
+  final Value<String> chunkIds;
+  final Value<String> status;
+  final Value<int> attempts;
+  final Value<DateTime> createdAt;
+  final Value<DateTime?> answeredAt;
+  const PendingQuestionsCompanion({
+    this.id = const Value.absent(),
+    this.question = const Value.absent(),
+    this.subjectId = const Value.absent(),
+    this.lessonId = const Value.absent(),
+    this.chunkIds = const Value.absent(),
+    this.status = const Value.absent(),
+    this.attempts = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.answeredAt = const Value.absent(),
+  });
+  PendingQuestionsCompanion.insert({
+    this.id = const Value.absent(),
+    required String question,
+    required String subjectId,
+    this.lessonId = const Value.absent(),
+    required String chunkIds,
+    this.status = const Value.absent(),
+    this.attempts = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.answeredAt = const Value.absent(),
+  })  : question = Value(question),
+        subjectId = Value(subjectId),
+        chunkIds = Value(chunkIds);
+  static Insertable<PendingQuestionRow> custom({
+    Expression<int>? id,
+    Expression<String>? question,
+    Expression<String>? subjectId,
+    Expression<String>? lessonId,
+    Expression<String>? chunkIds,
+    Expression<String>? status,
+    Expression<int>? attempts,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? answeredAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (question != null) 'question': question,
+      if (subjectId != null) 'subject_id': subjectId,
+      if (lessonId != null) 'lesson_id': lessonId,
+      if (chunkIds != null) 'chunk_ids': chunkIds,
+      if (status != null) 'status': status,
+      if (attempts != null) 'attempts': attempts,
+      if (createdAt != null) 'created_at': createdAt,
+      if (answeredAt != null) 'answered_at': answeredAt,
+    });
+  }
+
+  PendingQuestionsCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? question,
+      Value<String>? subjectId,
+      Value<String?>? lessonId,
+      Value<String>? chunkIds,
+      Value<String>? status,
+      Value<int>? attempts,
+      Value<DateTime>? createdAt,
+      Value<DateTime?>? answeredAt}) {
+    return PendingQuestionsCompanion(
+      id: id ?? this.id,
+      question: question ?? this.question,
+      subjectId: subjectId ?? this.subjectId,
+      lessonId: lessonId ?? this.lessonId,
+      chunkIds: chunkIds ?? this.chunkIds,
+      status: status ?? this.status,
+      attempts: attempts ?? this.attempts,
+      createdAt: createdAt ?? this.createdAt,
+      answeredAt: answeredAt ?? this.answeredAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (question.present) {
+      map['question'] = Variable<String>(question.value);
+    }
+    if (subjectId.present) {
+      map['subject_id'] = Variable<String>(subjectId.value);
+    }
+    if (lessonId.present) {
+      map['lesson_id'] = Variable<String>(lessonId.value);
+    }
+    if (chunkIds.present) {
+      map['chunk_ids'] = Variable<String>(chunkIds.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (attempts.present) {
+      map['attempts'] = Variable<int>(attempts.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (answeredAt.present) {
+      map['answered_at'] = Variable<DateTime>(answeredAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PendingQuestionsCompanion(')
+          ..write('id: $id, ')
+          ..write('question: $question, ')
+          ..write('subjectId: $subjectId, ')
+          ..write('lessonId: $lessonId, ')
+          ..write('chunkIds: $chunkIds, ')
+          ..write('status: $status, ')
+          ..write('attempts: $attempts, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('answeredAt: $answeredAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $TutorUsageTable extends TutorUsage
+    with TableInfo<$TutorUsageTable, TutorUsageRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $TutorUsageTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _dayMeta = const VerificationMeta('day');
+  @override
+  late final GeneratedColumn<String> day = GeneratedColumn<String>(
+      'day', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _countMeta = const VerificationMeta('count');
+  @override
+  late final GeneratedColumn<int> count = GeneratedColumn<int>(
+      'count', aliasedName, false,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultValue: const Constant(0));
+  @override
+  List<GeneratedColumn> get $columns => [day, count];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'tutor_usage';
+  @override
+  VerificationContext validateIntegrity(Insertable<TutorUsageRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('day')) {
+      context.handle(
+          _dayMeta, day.isAcceptableOrUnknown(data['day']!, _dayMeta));
+    } else if (isInserting) {
+      context.missing(_dayMeta);
+    }
+    if (data.containsKey('count')) {
+      context.handle(
+          _countMeta, count.isAcceptableOrUnknown(data['count']!, _countMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {day};
+  @override
+  TutorUsageRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return TutorUsageRow(
+      day: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}day'])!,
+      count: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}count'])!,
+    );
+  }
+
+  @override
+  $TutorUsageTable createAlias(String alias) {
+    return $TutorUsageTable(attachedDatabase, alias);
+  }
+}
+
+class TutorUsageRow extends DataClass implements Insertable<TutorUsageRow> {
+  final String day;
+  final int count;
+  const TutorUsageRow({required this.day, required this.count});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['day'] = Variable<String>(day);
+    map['count'] = Variable<int>(count);
+    return map;
+  }
+
+  TutorUsageCompanion toCompanion(bool nullToAbsent) {
+    return TutorUsageCompanion(
+      day: Value(day),
+      count: Value(count),
+    );
+  }
+
+  factory TutorUsageRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return TutorUsageRow(
+      day: serializer.fromJson<String>(json['day']),
+      count: serializer.fromJson<int>(json['count']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'day': serializer.toJson<String>(day),
+      'count': serializer.toJson<int>(count),
+    };
+  }
+
+  TutorUsageRow copyWith({String? day, int? count}) => TutorUsageRow(
+        day: day ?? this.day,
+        count: count ?? this.count,
+      );
+  TutorUsageRow copyWithCompanion(TutorUsageCompanion data) {
+    return TutorUsageRow(
+      day: data.day.present ? data.day.value : this.day,
+      count: data.count.present ? data.count.value : this.count,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TutorUsageRow(')
+          ..write('day: $day, ')
+          ..write('count: $count')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(day, count);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is TutorUsageRow &&
+          other.day == this.day &&
+          other.count == this.count);
+}
+
+class TutorUsageCompanion extends UpdateCompanion<TutorUsageRow> {
+  final Value<String> day;
+  final Value<int> count;
+  final Value<int> rowid;
+  const TutorUsageCompanion({
+    this.day = const Value.absent(),
+    this.count = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  TutorUsageCompanion.insert({
+    required String day,
+    this.count = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : day = Value(day);
+  static Insertable<TutorUsageRow> custom({
+    Expression<String>? day,
+    Expression<int>? count,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (day != null) 'day': day,
+      if (count != null) 'count': count,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  TutorUsageCompanion copyWith(
+      {Value<String>? day, Value<int>? count, Value<int>? rowid}) {
+    return TutorUsageCompanion(
+      day: day ?? this.day,
+      count: count ?? this.count,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (day.present) {
+      map['day'] = Variable<String>(day.value);
+    }
+    if (count.present) {
+      map['count'] = Variable<int>(count.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('TutorUsageCompanion(')
+          ..write('day: $day, ')
+          ..write('count: $count, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 class $DownloadsStateTable extends DownloadsState
     with TableInfo<$DownloadsStateTable, DownloadStateRow> {
   @override
@@ -1727,6 +2786,9 @@ abstract class _$UserDatabase extends GeneratedDatabase {
       $QuestionHistoryTable(this);
   late final $LessonProgressTable lessonProgress = $LessonProgressTable(this);
   late final $PendingReportsTable pendingReports = $PendingReportsTable(this);
+  late final $PendingQuestionsTable pendingQuestions =
+      $PendingQuestionsTable(this);
+  late final $TutorUsageTable tutorUsage = $TutorUsageTable(this);
   late final $DownloadsStateTable downloadsState = $DownloadsStateTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
@@ -1737,6 +2799,8 @@ abstract class _$UserDatabase extends GeneratedDatabase {
         questionHistory,
         lessonProgress,
         pendingReports,
+        pendingQuestions,
+        tutorUsage,
         downloadsState
       ];
 }
@@ -1745,20 +2809,28 @@ typedef $$SavedAnswersTableCreateCompanionBuilder = SavedAnswersCompanion
     Function({
   Value<int> id,
   required String subjectId,
+  Value<String> subjectName,
   Value<String?> lessonId,
+  Value<String?> lessonTitle,
   required String question,
   required String answer,
-  Value<int?> sourcePage,
+  Value<String?> printedPage,
+  Value<int?> pdfPage,
+  Value<bool> fromBank,
   Value<DateTime> createdAt,
 });
 typedef $$SavedAnswersTableUpdateCompanionBuilder = SavedAnswersCompanion
     Function({
   Value<int> id,
   Value<String> subjectId,
+  Value<String> subjectName,
   Value<String?> lessonId,
+  Value<String?> lessonTitle,
   Value<String> question,
   Value<String> answer,
-  Value<int?> sourcePage,
+  Value<String?> printedPage,
+  Value<int?> pdfPage,
+  Value<bool> fromBank,
   Value<DateTime> createdAt,
 });
 
@@ -1777,8 +2849,14 @@ class $$SavedAnswersTableFilterComposer
   ColumnFilters<String> get subjectId => $composableBuilder(
       column: $table.subjectId, builder: (column) => ColumnFilters(column));
 
+  ColumnFilters<String> get subjectName => $composableBuilder(
+      column: $table.subjectName, builder: (column) => ColumnFilters(column));
+
   ColumnFilters<String> get lessonId => $composableBuilder(
       column: $table.lessonId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get lessonTitle => $composableBuilder(
+      column: $table.lessonTitle, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get question => $composableBuilder(
       column: $table.question, builder: (column) => ColumnFilters(column));
@@ -1786,8 +2864,14 @@ class $$SavedAnswersTableFilterComposer
   ColumnFilters<String> get answer => $composableBuilder(
       column: $table.answer, builder: (column) => ColumnFilters(column));
 
-  ColumnFilters<int> get sourcePage => $composableBuilder(
-      column: $table.sourcePage, builder: (column) => ColumnFilters(column));
+  ColumnFilters<String> get printedPage => $composableBuilder(
+      column: $table.printedPage, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get pdfPage => $composableBuilder(
+      column: $table.pdfPage, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get fromBank => $composableBuilder(
+      column: $table.fromBank, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnFilters(column));
@@ -1808,8 +2892,14 @@ class $$SavedAnswersTableOrderingComposer
   ColumnOrderings<String> get subjectId => $composableBuilder(
       column: $table.subjectId, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get subjectName => $composableBuilder(
+      column: $table.subjectName, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get lessonId => $composableBuilder(
       column: $table.lessonId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get lessonTitle => $composableBuilder(
+      column: $table.lessonTitle, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<String> get question => $composableBuilder(
       column: $table.question, builder: (column) => ColumnOrderings(column));
@@ -1817,8 +2907,14 @@ class $$SavedAnswersTableOrderingComposer
   ColumnOrderings<String> get answer => $composableBuilder(
       column: $table.answer, builder: (column) => ColumnOrderings(column));
 
-  ColumnOrderings<int> get sourcePage => $composableBuilder(
-      column: $table.sourcePage, builder: (column) => ColumnOrderings(column));
+  ColumnOrderings<String> get printedPage => $composableBuilder(
+      column: $table.printedPage, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get pdfPage => $composableBuilder(
+      column: $table.pdfPage, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get fromBank => $composableBuilder(
+      column: $table.fromBank, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnOrderings(column));
@@ -1839,8 +2935,14 @@ class $$SavedAnswersTableAnnotationComposer
   GeneratedColumn<String> get subjectId =>
       $composableBuilder(column: $table.subjectId, builder: (column) => column);
 
+  GeneratedColumn<String> get subjectName => $composableBuilder(
+      column: $table.subjectName, builder: (column) => column);
+
   GeneratedColumn<String> get lessonId =>
       $composableBuilder(column: $table.lessonId, builder: (column) => column);
+
+  GeneratedColumn<String> get lessonTitle => $composableBuilder(
+      column: $table.lessonTitle, builder: (column) => column);
 
   GeneratedColumn<String> get question =>
       $composableBuilder(column: $table.question, builder: (column) => column);
@@ -1848,8 +2950,14 @@ class $$SavedAnswersTableAnnotationComposer
   GeneratedColumn<String> get answer =>
       $composableBuilder(column: $table.answer, builder: (column) => column);
 
-  GeneratedColumn<int> get sourcePage => $composableBuilder(
-      column: $table.sourcePage, builder: (column) => column);
+  GeneratedColumn<String> get printedPage => $composableBuilder(
+      column: $table.printedPage, builder: (column) => column);
+
+  GeneratedColumn<int> get pdfPage =>
+      $composableBuilder(column: $table.pdfPage, builder: (column) => column);
+
+  GeneratedColumn<bool> get fromBank =>
+      $composableBuilder(column: $table.fromBank, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -1883,37 +2991,53 @@ class $$SavedAnswersTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<int> id = const Value.absent(),
             Value<String> subjectId = const Value.absent(),
+            Value<String> subjectName = const Value.absent(),
             Value<String?> lessonId = const Value.absent(),
+            Value<String?> lessonTitle = const Value.absent(),
             Value<String> question = const Value.absent(),
             Value<String> answer = const Value.absent(),
-            Value<int?> sourcePage = const Value.absent(),
+            Value<String?> printedPage = const Value.absent(),
+            Value<int?> pdfPage = const Value.absent(),
+            Value<bool> fromBank = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
           }) =>
               SavedAnswersCompanion(
             id: id,
             subjectId: subjectId,
+            subjectName: subjectName,
             lessonId: lessonId,
+            lessonTitle: lessonTitle,
             question: question,
             answer: answer,
-            sourcePage: sourcePage,
+            printedPage: printedPage,
+            pdfPage: pdfPage,
+            fromBank: fromBank,
             createdAt: createdAt,
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
             required String subjectId,
+            Value<String> subjectName = const Value.absent(),
             Value<String?> lessonId = const Value.absent(),
+            Value<String?> lessonTitle = const Value.absent(),
             required String question,
             required String answer,
-            Value<int?> sourcePage = const Value.absent(),
+            Value<String?> printedPage = const Value.absent(),
+            Value<int?> pdfPage = const Value.absent(),
+            Value<bool> fromBank = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
           }) =>
               SavedAnswersCompanion.insert(
             id: id,
             subjectId: subjectId,
+            subjectName: subjectName,
             lessonId: lessonId,
+            lessonTitle: lessonTitle,
             question: question,
             answer: answer,
-            sourcePage: sourcePage,
+            printedPage: printedPage,
+            pdfPage: pdfPage,
+            fromBank: fromBank,
             createdAt: createdAt,
           ),
           withReferenceMapper: (p0) => p0
@@ -1946,16 +3070,28 @@ typedef $$QuestionHistoryTableCreateCompanionBuilder = QuestionHistoryCompanion
     Function({
   Value<int> id,
   required String subjectId,
+  Value<String> subjectName,
   Value<String?> lessonId,
+  Value<String?> lessonTitle,
   required String question,
+  Value<String> answer,
+  Value<String?> printedPage,
+  Value<int?> pdfPage,
+  Value<bool> fromBank,
   Value<DateTime> createdAt,
 });
 typedef $$QuestionHistoryTableUpdateCompanionBuilder = QuestionHistoryCompanion
     Function({
   Value<int> id,
   Value<String> subjectId,
+  Value<String> subjectName,
   Value<String?> lessonId,
+  Value<String?> lessonTitle,
   Value<String> question,
+  Value<String> answer,
+  Value<String?> printedPage,
+  Value<int?> pdfPage,
+  Value<bool> fromBank,
   Value<DateTime> createdAt,
 });
 
@@ -1974,11 +3110,29 @@ class $$QuestionHistoryTableFilterComposer
   ColumnFilters<String> get subjectId => $composableBuilder(
       column: $table.subjectId, builder: (column) => ColumnFilters(column));
 
+  ColumnFilters<String> get subjectName => $composableBuilder(
+      column: $table.subjectName, builder: (column) => ColumnFilters(column));
+
   ColumnFilters<String> get lessonId => $composableBuilder(
       column: $table.lessonId, builder: (column) => ColumnFilters(column));
 
+  ColumnFilters<String> get lessonTitle => $composableBuilder(
+      column: $table.lessonTitle, builder: (column) => ColumnFilters(column));
+
   ColumnFilters<String> get question => $composableBuilder(
       column: $table.question, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get answer => $composableBuilder(
+      column: $table.answer, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get printedPage => $composableBuilder(
+      column: $table.printedPage, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get pdfPage => $composableBuilder(
+      column: $table.pdfPage, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<bool> get fromBank => $composableBuilder(
+      column: $table.fromBank, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnFilters(column));
@@ -1999,11 +3153,29 @@ class $$QuestionHistoryTableOrderingComposer
   ColumnOrderings<String> get subjectId => $composableBuilder(
       column: $table.subjectId, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get subjectName => $composableBuilder(
+      column: $table.subjectName, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get lessonId => $composableBuilder(
       column: $table.lessonId, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get lessonTitle => $composableBuilder(
+      column: $table.lessonTitle, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get question => $composableBuilder(
       column: $table.question, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get answer => $composableBuilder(
+      column: $table.answer, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get printedPage => $composableBuilder(
+      column: $table.printedPage, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get pdfPage => $composableBuilder(
+      column: $table.pdfPage, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<bool> get fromBank => $composableBuilder(
+      column: $table.fromBank, builder: (column) => ColumnOrderings(column));
 
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
       column: $table.createdAt, builder: (column) => ColumnOrderings(column));
@@ -2024,11 +3196,29 @@ class $$QuestionHistoryTableAnnotationComposer
   GeneratedColumn<String> get subjectId =>
       $composableBuilder(column: $table.subjectId, builder: (column) => column);
 
+  GeneratedColumn<String> get subjectName => $composableBuilder(
+      column: $table.subjectName, builder: (column) => column);
+
   GeneratedColumn<String> get lessonId =>
       $composableBuilder(column: $table.lessonId, builder: (column) => column);
 
+  GeneratedColumn<String> get lessonTitle => $composableBuilder(
+      column: $table.lessonTitle, builder: (column) => column);
+
   GeneratedColumn<String> get question =>
       $composableBuilder(column: $table.question, builder: (column) => column);
+
+  GeneratedColumn<String> get answer =>
+      $composableBuilder(column: $table.answer, builder: (column) => column);
+
+  GeneratedColumn<String> get printedPage => $composableBuilder(
+      column: $table.printedPage, builder: (column) => column);
+
+  GeneratedColumn<int> get pdfPage =>
+      $composableBuilder(column: $table.pdfPage, builder: (column) => column);
+
+  GeneratedColumn<bool> get fromBank =>
+      $composableBuilder(column: $table.fromBank, builder: (column) => column);
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
@@ -2063,29 +3253,53 @@ class $$QuestionHistoryTableTableManager extends RootTableManager<
           updateCompanionCallback: ({
             Value<int> id = const Value.absent(),
             Value<String> subjectId = const Value.absent(),
+            Value<String> subjectName = const Value.absent(),
             Value<String?> lessonId = const Value.absent(),
+            Value<String?> lessonTitle = const Value.absent(),
             Value<String> question = const Value.absent(),
+            Value<String> answer = const Value.absent(),
+            Value<String?> printedPage = const Value.absent(),
+            Value<int?> pdfPage = const Value.absent(),
+            Value<bool> fromBank = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
           }) =>
               QuestionHistoryCompanion(
             id: id,
             subjectId: subjectId,
+            subjectName: subjectName,
             lessonId: lessonId,
+            lessonTitle: lessonTitle,
             question: question,
+            answer: answer,
+            printedPage: printedPage,
+            pdfPage: pdfPage,
+            fromBank: fromBank,
             createdAt: createdAt,
           ),
           createCompanionCallback: ({
             Value<int> id = const Value.absent(),
             required String subjectId,
+            Value<String> subjectName = const Value.absent(),
             Value<String?> lessonId = const Value.absent(),
+            Value<String?> lessonTitle = const Value.absent(),
             required String question,
+            Value<String> answer = const Value.absent(),
+            Value<String?> printedPage = const Value.absent(),
+            Value<int?> pdfPage = const Value.absent(),
+            Value<bool> fromBank = const Value.absent(),
             Value<DateTime> createdAt = const Value.absent(),
           }) =>
               QuestionHistoryCompanion.insert(
             id: id,
             subjectId: subjectId,
+            subjectName: subjectName,
             lessonId: lessonId,
+            lessonTitle: lessonTitle,
             question: question,
+            answer: answer,
+            printedPage: printedPage,
+            pdfPage: pdfPage,
+            fromBank: fromBank,
             createdAt: createdAt,
           ),
           withReferenceMapper: (p0) => p0
@@ -2465,6 +3679,369 @@ typedef $$PendingReportsTableProcessedTableManager = ProcessedTableManager<
     ),
     PendingReportRow,
     PrefetchHooks Function()>;
+typedef $$PendingQuestionsTableCreateCompanionBuilder
+    = PendingQuestionsCompanion Function({
+  Value<int> id,
+  required String question,
+  required String subjectId,
+  Value<String?> lessonId,
+  required String chunkIds,
+  Value<String> status,
+  Value<int> attempts,
+  Value<DateTime> createdAt,
+  Value<DateTime?> answeredAt,
+});
+typedef $$PendingQuestionsTableUpdateCompanionBuilder
+    = PendingQuestionsCompanion Function({
+  Value<int> id,
+  Value<String> question,
+  Value<String> subjectId,
+  Value<String?> lessonId,
+  Value<String> chunkIds,
+  Value<String> status,
+  Value<int> attempts,
+  Value<DateTime> createdAt,
+  Value<DateTime?> answeredAt,
+});
+
+class $$PendingQuestionsTableFilterComposer
+    extends Composer<_$UserDatabase, $PendingQuestionsTable> {
+  $$PendingQuestionsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get question => $composableBuilder(
+      column: $table.question, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get subjectId => $composableBuilder(
+      column: $table.subjectId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get lessonId => $composableBuilder(
+      column: $table.lessonId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get chunkIds => $composableBuilder(
+      column: $table.chunkIds, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get attempts => $composableBuilder(
+      column: $table.attempts, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get answeredAt => $composableBuilder(
+      column: $table.answeredAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$PendingQuestionsTableOrderingComposer
+    extends Composer<_$UserDatabase, $PendingQuestionsTable> {
+  $$PendingQuestionsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get question => $composableBuilder(
+      column: $table.question, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get subjectId => $composableBuilder(
+      column: $table.subjectId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get lessonId => $composableBuilder(
+      column: $table.lessonId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get chunkIds => $composableBuilder(
+      column: $table.chunkIds, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get status => $composableBuilder(
+      column: $table.status, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get attempts => $composableBuilder(
+      column: $table.attempts, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+      column: $table.createdAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get answeredAt => $composableBuilder(
+      column: $table.answeredAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$PendingQuestionsTableAnnotationComposer
+    extends Composer<_$UserDatabase, $PendingQuestionsTable> {
+  $$PendingQuestionsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get question =>
+      $composableBuilder(column: $table.question, builder: (column) => column);
+
+  GeneratedColumn<String> get subjectId =>
+      $composableBuilder(column: $table.subjectId, builder: (column) => column);
+
+  GeneratedColumn<String> get lessonId =>
+      $composableBuilder(column: $table.lessonId, builder: (column) => column);
+
+  GeneratedColumn<String> get chunkIds =>
+      $composableBuilder(column: $table.chunkIds, builder: (column) => column);
+
+  GeneratedColumn<String> get status =>
+      $composableBuilder(column: $table.status, builder: (column) => column);
+
+  GeneratedColumn<int> get attempts =>
+      $composableBuilder(column: $table.attempts, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get answeredAt => $composableBuilder(
+      column: $table.answeredAt, builder: (column) => column);
+}
+
+class $$PendingQuestionsTableTableManager extends RootTableManager<
+    _$UserDatabase,
+    $PendingQuestionsTable,
+    PendingQuestionRow,
+    $$PendingQuestionsTableFilterComposer,
+    $$PendingQuestionsTableOrderingComposer,
+    $$PendingQuestionsTableAnnotationComposer,
+    $$PendingQuestionsTableCreateCompanionBuilder,
+    $$PendingQuestionsTableUpdateCompanionBuilder,
+    (
+      PendingQuestionRow,
+      BaseReferences<_$UserDatabase, $PendingQuestionsTable, PendingQuestionRow>
+    ),
+    PendingQuestionRow,
+    PrefetchHooks Function()> {
+  $$PendingQuestionsTableTableManager(
+      _$UserDatabase db, $PendingQuestionsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PendingQuestionsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$PendingQuestionsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$PendingQuestionsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> question = const Value.absent(),
+            Value<String> subjectId = const Value.absent(),
+            Value<String?> lessonId = const Value.absent(),
+            Value<String> chunkIds = const Value.absent(),
+            Value<String> status = const Value.absent(),
+            Value<int> attempts = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime?> answeredAt = const Value.absent(),
+          }) =>
+              PendingQuestionsCompanion(
+            id: id,
+            question: question,
+            subjectId: subjectId,
+            lessonId: lessonId,
+            chunkIds: chunkIds,
+            status: status,
+            attempts: attempts,
+            createdAt: createdAt,
+            answeredAt: answeredAt,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String question,
+            required String subjectId,
+            Value<String?> lessonId = const Value.absent(),
+            required String chunkIds,
+            Value<String> status = const Value.absent(),
+            Value<int> attempts = const Value.absent(),
+            Value<DateTime> createdAt = const Value.absent(),
+            Value<DateTime?> answeredAt = const Value.absent(),
+          }) =>
+              PendingQuestionsCompanion.insert(
+            id: id,
+            question: question,
+            subjectId: subjectId,
+            lessonId: lessonId,
+            chunkIds: chunkIds,
+            status: status,
+            attempts: attempts,
+            createdAt: createdAt,
+            answeredAt: answeredAt,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable<$PendingQuestionsTable, PendingQuestionRow>(
+                        table),
+                    BaseReferences<_$UserDatabase, $PendingQuestionsTable,
+                        PendingQuestionRow>(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$PendingQuestionsTableProcessedTableManager = ProcessedTableManager<
+    _$UserDatabase,
+    $PendingQuestionsTable,
+    PendingQuestionRow,
+    $$PendingQuestionsTableFilterComposer,
+    $$PendingQuestionsTableOrderingComposer,
+    $$PendingQuestionsTableAnnotationComposer,
+    $$PendingQuestionsTableCreateCompanionBuilder,
+    $$PendingQuestionsTableUpdateCompanionBuilder,
+    (
+      PendingQuestionRow,
+      BaseReferences<_$UserDatabase, $PendingQuestionsTable, PendingQuestionRow>
+    ),
+    PendingQuestionRow,
+    PrefetchHooks Function()>;
+typedef $$TutorUsageTableCreateCompanionBuilder = TutorUsageCompanion Function({
+  required String day,
+  Value<int> count,
+  Value<int> rowid,
+});
+typedef $$TutorUsageTableUpdateCompanionBuilder = TutorUsageCompanion Function({
+  Value<String> day,
+  Value<int> count,
+  Value<int> rowid,
+});
+
+class $$TutorUsageTableFilterComposer
+    extends Composer<_$UserDatabase, $TutorUsageTable> {
+  $$TutorUsageTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get day => $composableBuilder(
+      column: $table.day, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get count => $composableBuilder(
+      column: $table.count, builder: (column) => ColumnFilters(column));
+}
+
+class $$TutorUsageTableOrderingComposer
+    extends Composer<_$UserDatabase, $TutorUsageTable> {
+  $$TutorUsageTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get day => $composableBuilder(
+      column: $table.day, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get count => $composableBuilder(
+      column: $table.count, builder: (column) => ColumnOrderings(column));
+}
+
+class $$TutorUsageTableAnnotationComposer
+    extends Composer<_$UserDatabase, $TutorUsageTable> {
+  $$TutorUsageTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get day =>
+      $composableBuilder(column: $table.day, builder: (column) => column);
+
+  GeneratedColumn<int> get count =>
+      $composableBuilder(column: $table.count, builder: (column) => column);
+}
+
+class $$TutorUsageTableTableManager extends RootTableManager<
+    _$UserDatabase,
+    $TutorUsageTable,
+    TutorUsageRow,
+    $$TutorUsageTableFilterComposer,
+    $$TutorUsageTableOrderingComposer,
+    $$TutorUsageTableAnnotationComposer,
+    $$TutorUsageTableCreateCompanionBuilder,
+    $$TutorUsageTableUpdateCompanionBuilder,
+    (
+      TutorUsageRow,
+      BaseReferences<_$UserDatabase, $TutorUsageTable, TutorUsageRow>
+    ),
+    TutorUsageRow,
+    PrefetchHooks Function()> {
+  $$TutorUsageTableTableManager(_$UserDatabase db, $TutorUsageTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$TutorUsageTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$TutorUsageTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$TutorUsageTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> day = const Value.absent(),
+            Value<int> count = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TutorUsageCompanion(
+            day: day,
+            count: count,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String day,
+            Value<int> count = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              TutorUsageCompanion.insert(
+            day: day,
+            count: count,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable<$TutorUsageTable, TutorUsageRow>(table),
+                    BaseReferences<_$UserDatabase, $TutorUsageTable,
+                        TutorUsageRow>(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$TutorUsageTableProcessedTableManager = ProcessedTableManager<
+    _$UserDatabase,
+    $TutorUsageTable,
+    TutorUsageRow,
+    $$TutorUsageTableFilterComposer,
+    $$TutorUsageTableOrderingComposer,
+    $$TutorUsageTableAnnotationComposer,
+    $$TutorUsageTableCreateCompanionBuilder,
+    $$TutorUsageTableUpdateCompanionBuilder,
+    (
+      TutorUsageRow,
+      BaseReferences<_$UserDatabase, $TutorUsageTable, TutorUsageRow>
+    ),
+    TutorUsageRow,
+    PrefetchHooks Function()>;
 typedef $$DownloadsStateTableCreateCompanionBuilder = DownloadsStateCompanion
     Function({
   required String id,
@@ -2702,6 +4279,10 @@ class $UserDatabaseManager {
       $$LessonProgressTableTableManager(_db, _db.lessonProgress);
   $$PendingReportsTableTableManager get pendingReports =>
       $$PendingReportsTableTableManager(_db, _db.pendingReports);
+  $$PendingQuestionsTableTableManager get pendingQuestions =>
+      $$PendingQuestionsTableTableManager(_db, _db.pendingQuestions);
+  $$TutorUsageTableTableManager get tutorUsage =>
+      $$TutorUsageTableTableManager(_db, _db.tutorUsage);
   $$DownloadsStateTableTableManager get downloadsState =>
       $$DownloadsStateTableTableManager(_db, _db.downloadsState);
 }
