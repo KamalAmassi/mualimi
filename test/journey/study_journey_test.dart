@@ -53,9 +53,6 @@ void main() {
   group('E. lesson -> tutor', () {
     journeyTest(
       'Ask the tutor opens AppRoutes.tutor on top of the lesson; back returns to it',
-      skip: 'lesson owns this: LessonController.askTutor (lib/features/lesson/presentation/'
-          'controllers/lesson_controller.dart:59) unwinds to /shell and switches the tab '
-          'instead of calling Get.toNamed(AppRoutes.tutor, arguments: TutorArgs(...))',
       (j) async {
         await _openLesson(j);
         await j.tapText(AppStrings.askTutor);

@@ -3,8 +3,7 @@ import 'package:get/get.dart';
 import '../../../../core/error/failures.dart';
 import '../../../../core/routes/app_routes.dart';
 import '../../../../core/services/connectivity_service.dart';
-import '../../../curriculum_tutor/presentation/controllers/tutor_controller.dart';
-import '../../../shell/presentation/controllers/shell_controller.dart';
+import '../../../curriculum_tutor/presentation/routes/tutor_args.dart';
 import '../../domain/entities/lesson.dart';
 import '../../domain/usecases/get_last_section_usecase.dart';
 import '../../domain/usecases/get_lesson_usecase.dart';
@@ -54,17 +53,14 @@ class LessonController extends GetxController {
 
   void openKeyTerms() => Get.toNamed<void>(AppRoutes.keyTermsOf(lessonId));
 
-  /// Hands over to the tutor tab; disabled in the UI when the lesson's
-  /// subject has `tutorEnabled == false`.
+  /// Opens the tutor on top of this lesson; disabled in the UI when the
+  /// lesson's subject has `tutorEnabled == false`.
   void askTutor() {
     final l = lesson.value;
     if (l == null) return;
-    Get.find<TutorController>().selectLesson(
-      subject: l.subjectId,
-      lesson: l.id,
-      title: l.title,
-      tutorEnabled: l.tutorEnabled,
+    Get.toNamed<void>(
+      AppRoutes.tutor,
+      arguments: TutorArgs(subjectId: l.subjectId, lessonId: l.id),
     );
-    Get.find<ShellController>().openTutor();
   }
 }
