@@ -42,8 +42,11 @@ class ContentDatabase extends _$ContentDatabase {
       : super(NativeDatabase.opened(
             sqlite.sqlite3.open(file.path, mode: sqlite.OpenMode.readOnly)));
 
+  /// The `pack_meta.schema_version` an installable pack must carry.
+  static const packSchemaVersion = 2;
+
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => packSchemaVersion;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
