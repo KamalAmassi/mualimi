@@ -14,7 +14,7 @@ class WelcomeController extends GetxController {
   Future<void> next() async {
     final saved = await _saveName(nameField.text);
     invalid.value = !saved;
-    if (saved) Get.toNamed<void>(AppRoutes.grade);
+    if (saved) Get.toNamed<void>(AppRoutes.grade, arguments: nameField.text.trim());
   }
 
   @override
