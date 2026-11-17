@@ -104,4 +104,10 @@ abstract final class DownloadDimens {
   static const double statusTitleFontSize = 19;
   static const double statusBodyFontSize = 14.5;
   static const double statusBodyLineHeight = 1.75;
+
+  // Space compare card (no space).
+  static const double compareGap = 12;
+  static const double compareRowFontSize = 14;
+  static const double compareBarHeight = 10;
+  static const double compareBarRadius = 5;
 }
