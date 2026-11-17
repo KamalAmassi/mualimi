@@ -103,6 +103,7 @@ void main() {
         await tester.pumpAndSettle();
         expect(repository.savedName, 'سلمى');
         expect(Get.currentRoute, AppRoutes.grade);
+        expect(Get.arguments, 'سلمى', reason: 'the grade title greets the student by name');
         expect(find.byKey(_gradeStub), findsOneWidget);
       });
 
