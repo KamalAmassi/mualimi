@@ -163,10 +163,13 @@ void main() {
       expect(Get.currentRoute, AppRoutes.welcome);
     });
 
-    test('the flag is honoured in debug only', () {
-      expect(DevSeedLoader.isEnabled(debugMode: true, flagSet: true), isTrue);
-      expect(DevSeedLoader.isEnabled(debugMode: false, flagSet: true), isFalse);
-      expect(DevSeedLoader.isEnabled(debugMode: true, flagSet: false), isFalse);
+    test('the flag is honoured outside release only', () {
+      expect(
+          DevSeedLoader.isEnabled(releaseMode: false, flagSet: true), isTrue);
+      expect(
+          DevSeedLoader.isEnabled(releaseMode: true, flagSet: true), isFalse);
+      expect(
+          DevSeedLoader.isEnabled(releaseMode: false, flagSet: false), isFalse);
     });
   });
 }
