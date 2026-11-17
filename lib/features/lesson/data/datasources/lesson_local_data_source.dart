@@ -25,7 +25,10 @@ class LessonLocalDataSource {
 
   Future<List<KeyTerm>> keyTerms(String lessonId) async {
     final db = _content();
-    final rows = await (db.select(db.keyTerms)..where((t) => t.lessonId.equals(lessonId))).get();
+    final rows = await (db.select(db.keyTerms)
+          ..where((t) => t.lessonId.equals(lessonId))
+          ..orderBy([(t) => OrderingTerm.asc(t.id)]))
+        .get();
     return [for (final r in rows) KeyTerm(term: r.term, definition: r.definition)];
   }
 
