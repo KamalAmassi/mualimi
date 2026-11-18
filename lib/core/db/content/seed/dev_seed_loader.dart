@@ -22,8 +22,13 @@ abstract final class DevSeedLoader {
     SettingsService settings,
     DatabaseService databases,
   ) async {
-    if (paths.contentDbFile.existsSync()) return;
-    final db = ContentDatabase(NativeDatabase(paths.contentDbFile));
+    final file = paths.contentDbFile;
+    if (file.existsSync()) {
+      if (await _hasCurrentSchema(databases)) return;
+      await databases.closeContent();
+      file.deleteSync();
+    }
+    final db = ContentDatabase(NativeDatabase(file));
     await DevSeedScienceG9.insert(db);
     await db.close();
     databases.openContent();
@@ -31,5 +36,20 @@ abstract final class DevSeedLoader {
     await settings.setGrade(9);
     await settings.setInstalledPackVersion(1);
     await settings.setOnboardingDone(true);
+  }
+
+  /// Development databases from older schemas are rebuilt, never migrated.
+  static Future<bool> _hasCurrentSchema(DatabaseService databases) async {
+    try {
+      final rows = await databases.content
+          .customSelect(
+              "SELECT value FROM pack_meta WHERE key = 'schema_version'")
+          .get();
+      return rows.isNotEmpty &&
+          rows.first.read<String>('value') ==
+              '${ContentDatabase.packSchemaVersion}';
+    } on Exception {
+      return false;
+    }
   }
 }

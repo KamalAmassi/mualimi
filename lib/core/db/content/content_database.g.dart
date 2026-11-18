@@ -597,6 +597,30 @@ class $LessonsTable extends Lessons with TableInfo<$LessonsTable, LessonRow> {
   late final GeneratedColumn<int> bookPagesTo = GeneratedColumn<int>(
       'book_pages_to', aliasedName, true,
       type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _pdfPageFromMeta =
+      const VerificationMeta('pdfPageFrom');
+  @override
+  late final GeneratedColumn<int> pdfPageFrom = GeneratedColumn<int>(
+      'pdf_page_from', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _pdfPageToMeta =
+      const VerificationMeta('pdfPageTo');
+  @override
+  late final GeneratedColumn<int> pdfPageTo = GeneratedColumn<int>(
+      'pdf_page_to', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _printedPageFromMeta =
+      const VerificationMeta('printedPageFrom');
+  @override
+  late final GeneratedColumn<int> printedPageFrom = GeneratedColumn<int>(
+      'printed_page_from', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
+  static const VerificationMeta _printedPageToMeta =
+      const VerificationMeta('printedPageTo');
+  @override
+  late final GeneratedColumn<int> printedPageTo = GeneratedColumn<int>(
+      'printed_page_to', aliasedName, true,
+      type: DriftSqlType.int, requiredDuringInsert: false);
   static const VerificationMeta _pdfFileMeta =
       const VerificationMeta('pdfFile');
   @override
@@ -624,6 +648,10 @@ class $LessonsTable extends Lessons with TableInfo<$LessonsTable, LessonRow> {
         videoChaptersJson,
         bookPagesFrom,
         bookPagesTo,
+        pdfPageFrom,
+        pdfPageTo,
+        printedPageFrom,
+        printedPageTo,
         pdfFile,
         tutorEnabled
       ];
@@ -686,6 +714,30 @@ class $LessonsTable extends Lessons with TableInfo<$LessonsTable, LessonRow> {
           bookPagesTo.isAcceptableOrUnknown(
               data['book_pages_to']!, _bookPagesToMeta));
     }
+    if (data.containsKey('pdf_page_from')) {
+      context.handle(
+          _pdfPageFromMeta,
+          pdfPageFrom.isAcceptableOrUnknown(
+              data['pdf_page_from']!, _pdfPageFromMeta));
+    }
+    if (data.containsKey('pdf_page_to')) {
+      context.handle(
+          _pdfPageToMeta,
+          pdfPageTo.isAcceptableOrUnknown(
+              data['pdf_page_to']!, _pdfPageToMeta));
+    }
+    if (data.containsKey('printed_page_from')) {
+      context.handle(
+          _printedPageFromMeta,
+          printedPageFrom.isAcceptableOrUnknown(
+              data['printed_page_from']!, _printedPageFromMeta));
+    }
+    if (data.containsKey('printed_page_to')) {
+      context.handle(
+          _printedPageToMeta,
+          printedPageTo.isAcceptableOrUnknown(
+              data['printed_page_to']!, _printedPageToMeta));
+    }
     if (data.containsKey('pdf_file')) {
       context.handle(_pdfFileMeta,
           pdfFile.isAcceptableOrUnknown(data['pdf_file']!, _pdfFileMeta));
@@ -723,6 +775,14 @@ class $LessonsTable extends Lessons with TableInfo<$LessonsTable, LessonRow> {
           .read(DriftSqlType.int, data['${effectivePrefix}book_pages_from']),
       bookPagesTo: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}book_pages_to']),
+      pdfPageFrom: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}pdf_page_from']),
+      pdfPageTo: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}pdf_page_to']),
+      printedPageFrom: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}printed_page_from']),
+      printedPageTo: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}printed_page_to']),
       pdfFile: attachedDatabase.typeMapping
           .read(DriftSqlType.string, data['${effectivePrefix}pdf_file']),
       tutorEnabled: attachedDatabase.typeMapping
@@ -746,6 +806,10 @@ class LessonRow extends DataClass implements Insertable<LessonRow> {
   final String? videoChaptersJson;
   final int? bookPagesFrom;
   final int? bookPagesTo;
+  final int? pdfPageFrom;
+  final int? pdfPageTo;
+  final int? printedPageFrom;
+  final int? printedPageTo;
   final String? pdfFile;
   final bool tutorEnabled;
   const LessonRow(
@@ -758,6 +822,10 @@ class LessonRow extends DataClass implements Insertable<LessonRow> {
       this.videoChaptersJson,
       this.bookPagesFrom,
       this.bookPagesTo,
+      this.pdfPageFrom,
+      this.pdfPageTo,
+      this.printedPageFrom,
+      this.printedPageTo,
       this.pdfFile,
       required this.tutorEnabled});
   @override
@@ -779,6 +847,18 @@ class LessonRow extends DataClass implements Insertable<LessonRow> {
     }
     if (!nullToAbsent || bookPagesTo != null) {
       map['book_pages_to'] = Variable<int>(bookPagesTo);
+    }
+    if (!nullToAbsent || pdfPageFrom != null) {
+      map['pdf_page_from'] = Variable<int>(pdfPageFrom);
+    }
+    if (!nullToAbsent || pdfPageTo != null) {
+      map['pdf_page_to'] = Variable<int>(pdfPageTo);
+    }
+    if (!nullToAbsent || printedPageFrom != null) {
+      map['printed_page_from'] = Variable<int>(printedPageFrom);
+    }
+    if (!nullToAbsent || printedPageTo != null) {
+      map['printed_page_to'] = Variable<int>(printedPageTo);
     }
     if (!nullToAbsent || pdfFile != null) {
       map['pdf_file'] = Variable<String>(pdfFile);
@@ -806,6 +886,18 @@ class LessonRow extends DataClass implements Insertable<LessonRow> {
       bookPagesTo: bookPagesTo == null && nullToAbsent
           ? const Value.absent()
           : Value(bookPagesTo),
+      pdfPageFrom: pdfPageFrom == null && nullToAbsent
+          ? const Value.absent()
+          : Value(pdfPageFrom),
+      pdfPageTo: pdfPageTo == null && nullToAbsent
+          ? const Value.absent()
+          : Value(pdfPageTo),
+      printedPageFrom: printedPageFrom == null && nullToAbsent
+          ? const Value.absent()
+          : Value(printedPageFrom),
+      printedPageTo: printedPageTo == null && nullToAbsent
+          ? const Value.absent()
+          : Value(printedPageTo),
       pdfFile: pdfFile == null && nullToAbsent
           ? const Value.absent()
           : Value(pdfFile),
@@ -827,6 +919,10 @@ class LessonRow extends DataClass implements Insertable<LessonRow> {
           serializer.fromJson<String?>(json['videoChaptersJson']),
       bookPagesFrom: serializer.fromJson<int?>(json['bookPagesFrom']),
       bookPagesTo: serializer.fromJson<int?>(json['bookPagesTo']),
+      pdfPageFrom: serializer.fromJson<int?>(json['pdfPageFrom']),
+      pdfPageTo: serializer.fromJson<int?>(json['pdfPageTo']),
+      printedPageFrom: serializer.fromJson<int?>(json['printedPageFrom']),
+      printedPageTo: serializer.fromJson<int?>(json['printedPageTo']),
       pdfFile: serializer.fromJson<String?>(json['pdfFile']),
       tutorEnabled: serializer.fromJson<bool>(json['tutorEnabled']),
     );
@@ -844,6 +940,10 @@ class LessonRow extends DataClass implements Insertable<LessonRow> {
       'videoChaptersJson': serializer.toJson<String?>(videoChaptersJson),
       'bookPagesFrom': serializer.toJson<int?>(bookPagesFrom),
       'bookPagesTo': serializer.toJson<int?>(bookPagesTo),
+      'pdfPageFrom': serializer.toJson<int?>(pdfPageFrom),
+      'pdfPageTo': serializer.toJson<int?>(pdfPageTo),
+      'printedPageFrom': serializer.toJson<int?>(printedPageFrom),
+      'printedPageTo': serializer.toJson<int?>(printedPageTo),
       'pdfFile': serializer.toJson<String?>(pdfFile),
       'tutorEnabled': serializer.toJson<bool>(tutorEnabled),
     };
@@ -859,6 +959,10 @@ class LessonRow extends DataClass implements Insertable<LessonRow> {
           Value<String?> videoChaptersJson = const Value.absent(),
           Value<int?> bookPagesFrom = const Value.absent(),
           Value<int?> bookPagesTo = const Value.absent(),
+          Value<int?> pdfPageFrom = const Value.absent(),
+          Value<int?> pdfPageTo = const Value.absent(),
+          Value<int?> printedPageFrom = const Value.absent(),
+          Value<int?> printedPageTo = const Value.absent(),
           Value<String?> pdfFile = const Value.absent(),
           bool? tutorEnabled}) =>
       LessonRow(
@@ -874,6 +978,13 @@ class LessonRow extends DataClass implements Insertable<LessonRow> {
         bookPagesFrom:
             bookPagesFrom.present ? bookPagesFrom.value : this.bookPagesFrom,
         bookPagesTo: bookPagesTo.present ? bookPagesTo.value : this.bookPagesTo,
+        pdfPageFrom: pdfPageFrom.present ? pdfPageFrom.value : this.pdfPageFrom,
+        pdfPageTo: pdfPageTo.present ? pdfPageTo.value : this.pdfPageTo,
+        printedPageFrom: printedPageFrom.present
+            ? printedPageFrom.value
+            : this.printedPageFrom,
+        printedPageTo:
+            printedPageTo.present ? printedPageTo.value : this.printedPageTo,
         pdfFile: pdfFile.present ? pdfFile.value : this.pdfFile,
         tutorEnabled: tutorEnabled ?? this.tutorEnabled,
       );
@@ -893,6 +1004,15 @@ class LessonRow extends DataClass implements Insertable<LessonRow> {
           : this.bookPagesFrom,
       bookPagesTo:
           data.bookPagesTo.present ? data.bookPagesTo.value : this.bookPagesTo,
+      pdfPageFrom:
+          data.pdfPageFrom.present ? data.pdfPageFrom.value : this.pdfPageFrom,
+      pdfPageTo: data.pdfPageTo.present ? data.pdfPageTo.value : this.pdfPageTo,
+      printedPageFrom: data.printedPageFrom.present
+          ? data.printedPageFrom.value
+          : this.printedPageFrom,
+      printedPageTo: data.printedPageTo.present
+          ? data.printedPageTo.value
+          : this.printedPageTo,
       pdfFile: data.pdfFile.present ? data.pdfFile.value : this.pdfFile,
       tutorEnabled: data.tutorEnabled.present
           ? data.tutorEnabled.value
@@ -912,6 +1032,10 @@ class LessonRow extends DataClass implements Insertable<LessonRow> {
           ..write('videoChaptersJson: $videoChaptersJson, ')
           ..write('bookPagesFrom: $bookPagesFrom, ')
           ..write('bookPagesTo: $bookPagesTo, ')
+          ..write('pdfPageFrom: $pdfPageFrom, ')
+          ..write('pdfPageTo: $pdfPageTo, ')
+          ..write('printedPageFrom: $printedPageFrom, ')
+          ..write('printedPageTo: $printedPageTo, ')
           ..write('pdfFile: $pdfFile, ')
           ..write('tutorEnabled: $tutorEnabled')
           ..write(')'))
@@ -929,6 +1053,10 @@ class LessonRow extends DataClass implements Insertable<LessonRow> {
       videoChaptersJson,
       bookPagesFrom,
       bookPagesTo,
+      pdfPageFrom,
+      pdfPageTo,
+      printedPageFrom,
+      printedPageTo,
       pdfFile,
       tutorEnabled);
   @override
@@ -944,6 +1072,10 @@ class LessonRow extends DataClass implements Insertable<LessonRow> {
           other.videoChaptersJson == this.videoChaptersJson &&
           other.bookPagesFrom == this.bookPagesFrom &&
           other.bookPagesTo == this.bookPagesTo &&
+          other.pdfPageFrom == this.pdfPageFrom &&
+          other.pdfPageTo == this.pdfPageTo &&
+          other.printedPageFrom == this.printedPageFrom &&
+          other.printedPageTo == this.printedPageTo &&
           other.pdfFile == this.pdfFile &&
           other.tutorEnabled == this.tutorEnabled);
 }
@@ -958,6 +1090,10 @@ class LessonsCompanion extends UpdateCompanion<LessonRow> {
   final Value<String?> videoChaptersJson;
   final Value<int?> bookPagesFrom;
   final Value<int?> bookPagesTo;
+  final Value<int?> pdfPageFrom;
+  final Value<int?> pdfPageTo;
+  final Value<int?> printedPageFrom;
+  final Value<int?> printedPageTo;
   final Value<String?> pdfFile;
   final Value<bool> tutorEnabled;
   final Value<int> rowid;
@@ -971,6 +1107,10 @@ class LessonsCompanion extends UpdateCompanion<LessonRow> {
     this.videoChaptersJson = const Value.absent(),
     this.bookPagesFrom = const Value.absent(),
     this.bookPagesTo = const Value.absent(),
+    this.pdfPageFrom = const Value.absent(),
+    this.pdfPageTo = const Value.absent(),
+    this.printedPageFrom = const Value.absent(),
+    this.printedPageTo = const Value.absent(),
     this.pdfFile = const Value.absent(),
     this.tutorEnabled = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -985,6 +1125,10 @@ class LessonsCompanion extends UpdateCompanion<LessonRow> {
     this.videoChaptersJson = const Value.absent(),
     this.bookPagesFrom = const Value.absent(),
     this.bookPagesTo = const Value.absent(),
+    this.pdfPageFrom = const Value.absent(),
+    this.pdfPageTo = const Value.absent(),
+    this.printedPageFrom = const Value.absent(),
+    this.printedPageTo = const Value.absent(),
     this.pdfFile = const Value.absent(),
     this.tutorEnabled = const Value.absent(),
     this.rowid = const Value.absent(),
@@ -1002,6 +1146,10 @@ class LessonsCompanion extends UpdateCompanion<LessonRow> {
     Expression<String>? videoChaptersJson,
     Expression<int>? bookPagesFrom,
     Expression<int>? bookPagesTo,
+    Expression<int>? pdfPageFrom,
+    Expression<int>? pdfPageTo,
+    Expression<int>? printedPageFrom,
+    Expression<int>? printedPageTo,
     Expression<String>? pdfFile,
     Expression<bool>? tutorEnabled,
     Expression<int>? rowid,
@@ -1016,6 +1164,10 @@ class LessonsCompanion extends UpdateCompanion<LessonRow> {
       if (videoChaptersJson != null) 'video_chapters_json': videoChaptersJson,
       if (bookPagesFrom != null) 'book_pages_from': bookPagesFrom,
       if (bookPagesTo != null) 'book_pages_to': bookPagesTo,
+      if (pdfPageFrom != null) 'pdf_page_from': pdfPageFrom,
+      if (pdfPageTo != null) 'pdf_page_to': pdfPageTo,
+      if (printedPageFrom != null) 'printed_page_from': printedPageFrom,
+      if (printedPageTo != null) 'printed_page_to': printedPageTo,
       if (pdfFile != null) 'pdf_file': pdfFile,
       if (tutorEnabled != null) 'tutor_enabled': tutorEnabled,
       if (rowid != null) 'rowid': rowid,
@@ -1032,6 +1184,10 @@ class LessonsCompanion extends UpdateCompanion<LessonRow> {
       Value<String?>? videoChaptersJson,
       Value<int?>? bookPagesFrom,
       Value<int?>? bookPagesTo,
+      Value<int?>? pdfPageFrom,
+      Value<int?>? pdfPageTo,
+      Value<int?>? printedPageFrom,
+      Value<int?>? printedPageTo,
       Value<String?>? pdfFile,
       Value<bool>? tutorEnabled,
       Value<int>? rowid}) {
@@ -1045,6 +1201,10 @@ class LessonsCompanion extends UpdateCompanion<LessonRow> {
       videoChaptersJson: videoChaptersJson ?? this.videoChaptersJson,
       bookPagesFrom: bookPagesFrom ?? this.bookPagesFrom,
       bookPagesTo: bookPagesTo ?? this.bookPagesTo,
+      pdfPageFrom: pdfPageFrom ?? this.pdfPageFrom,
+      pdfPageTo: pdfPageTo ?? this.pdfPageTo,
+      printedPageFrom: printedPageFrom ?? this.printedPageFrom,
+      printedPageTo: printedPageTo ?? this.printedPageTo,
       pdfFile: pdfFile ?? this.pdfFile,
       tutorEnabled: tutorEnabled ?? this.tutorEnabled,
       rowid: rowid ?? this.rowid,
@@ -1081,6 +1241,18 @@ class LessonsCompanion extends UpdateCompanion<LessonRow> {
     if (bookPagesTo.present) {
       map['book_pages_to'] = Variable<int>(bookPagesTo.value);
     }
+    if (pdfPageFrom.present) {
+      map['pdf_page_from'] = Variable<int>(pdfPageFrom.value);
+    }
+    if (pdfPageTo.present) {
+      map['pdf_page_to'] = Variable<int>(pdfPageTo.value);
+    }
+    if (printedPageFrom.present) {
+      map['printed_page_from'] = Variable<int>(printedPageFrom.value);
+    }
+    if (printedPageTo.present) {
+      map['printed_page_to'] = Variable<int>(printedPageTo.value);
+    }
     if (pdfFile.present) {
       map['pdf_file'] = Variable<String>(pdfFile.value);
     }
@@ -1105,6 +1277,10 @@ class LessonsCompanion extends UpdateCompanion<LessonRow> {
           ..write('videoChaptersJson: $videoChaptersJson, ')
           ..write('bookPagesFrom: $bookPagesFrom, ')
           ..write('bookPagesTo: $bookPagesTo, ')
+          ..write('pdfPageFrom: $pdfPageFrom, ')
+          ..write('pdfPageTo: $pdfPageTo, ')
+          ..write('printedPageFrom: $printedPageFrom, ')
+          ..write('printedPageTo: $printedPageTo, ')
           ..write('pdfFile: $pdfFile, ')
           ..write('tutorEnabled: $tutorEnabled, ')
           ..write('rowid: $rowid')
@@ -2033,6 +2209,12 @@ class $BookSolutionsTable extends BookSolutions
   late final GeneratedColumn<int> number = GeneratedColumn<int>(
       'number', aliasedName, false,
       type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _questionMeta =
+      const VerificationMeta('question');
+  @override
+  late final GeneratedColumn<String> question = GeneratedColumn<String>(
+      'question', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
   static const VerificationMeta _pageMeta = const VerificationMeta('page');
   @override
   late final GeneratedColumn<int> page = GeneratedColumn<int>(
@@ -2045,7 +2227,8 @@ class $BookSolutionsTable extends BookSolutions
       'solution', aliasedName, false,
       type: DriftSqlType.string, requiredDuringInsert: true);
   @override
-  List<GeneratedColumn> get $columns => [id, lessonId, number, page, solution];
+  List<GeneratedColumn> get $columns =>
+      [id, lessonId, number, question, page, solution];
   @override
   String get aliasedName => _alias ?? actualTableName;
   @override
@@ -2070,6 +2253,12 @@ class $BookSolutionsTable extends BookSolutions
           number.isAcceptableOrUnknown(data['number']!, _numberMeta));
     } else if (isInserting) {
       context.missing(_numberMeta);
+    }
+    if (data.containsKey('question')) {
+      context.handle(_questionMeta,
+          question.isAcceptableOrUnknown(data['question']!, _questionMeta));
+    } else if (isInserting) {
+      context.missing(_questionMeta);
     }
     if (data.containsKey('page')) {
       context.handle(
@@ -2098,6 +2287,8 @@ class $BookSolutionsTable extends BookSolutions
           .read(DriftSqlType.string, data['${effectivePrefix}lesson_id'])!,
       number: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}number'])!,
+      question: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}question'])!,
       page: attachedDatabase.typeMapping
           .read(DriftSqlType.int, data['${effectivePrefix}page'])!,
       solution: attachedDatabase.typeMapping
@@ -2115,12 +2306,14 @@ class BookSolutionRow extends DataClass implements Insertable<BookSolutionRow> {
   final int id;
   final String lessonId;
   final int number;
+  final String question;
   final int page;
   final String solution;
   const BookSolutionRow(
       {required this.id,
       required this.lessonId,
       required this.number,
+      required this.question,
       required this.page,
       required this.solution});
   @override
@@ -2129,6 +2322,7 @@ class BookSolutionRow extends DataClass implements Insertable<BookSolutionRow> {
     map['id'] = Variable<int>(id);
     map['lesson_id'] = Variable<String>(lessonId);
     map['number'] = Variable<int>(number);
+    map['question'] = Variable<String>(question);
     map['page'] = Variable<int>(page);
     map['solution'] = Variable<String>(solution);
     return map;
@@ -2139,6 +2333,7 @@ class BookSolutionRow extends DataClass implements Insertable<BookSolutionRow> {
       id: Value(id),
       lessonId: Value(lessonId),
       number: Value(number),
+      question: Value(question),
       page: Value(page),
       solution: Value(solution),
     );
@@ -2151,6 +2346,7 @@ class BookSolutionRow extends DataClass implements Insertable<BookSolutionRow> {
       id: serializer.fromJson<int>(json['id']),
       lessonId: serializer.fromJson<String>(json['lessonId']),
       number: serializer.fromJson<int>(json['number']),
+      question: serializer.fromJson<String>(json['question']),
       page: serializer.fromJson<int>(json['page']),
       solution: serializer.fromJson<String>(json['solution']),
     );
@@ -2162,6 +2358,7 @@ class BookSolutionRow extends DataClass implements Insertable<BookSolutionRow> {
       'id': serializer.toJson<int>(id),
       'lessonId': serializer.toJson<String>(lessonId),
       'number': serializer.toJson<int>(number),
+      'question': serializer.toJson<String>(question),
       'page': serializer.toJson<int>(page),
       'solution': serializer.toJson<String>(solution),
     };
@@ -2171,12 +2368,14 @@ class BookSolutionRow extends DataClass implements Insertable<BookSolutionRow> {
           {int? id,
           String? lessonId,
           int? number,
+          String? question,
           int? page,
           String? solution}) =>
       BookSolutionRow(
         id: id ?? this.id,
         lessonId: lessonId ?? this.lessonId,
         number: number ?? this.number,
+        question: question ?? this.question,
         page: page ?? this.page,
         solution: solution ?? this.solution,
       );
@@ -2185,6 +2384,7 @@ class BookSolutionRow extends DataClass implements Insertable<BookSolutionRow> {
       id: data.id.present ? data.id.value : this.id,
       lessonId: data.lessonId.present ? data.lessonId.value : this.lessonId,
       number: data.number.present ? data.number.value : this.number,
+      question: data.question.present ? data.question.value : this.question,
       page: data.page.present ? data.page.value : this.page,
       solution: data.solution.present ? data.solution.value : this.solution,
     );
@@ -2196,6 +2396,7 @@ class BookSolutionRow extends DataClass implements Insertable<BookSolutionRow> {
           ..write('id: $id, ')
           ..write('lessonId: $lessonId, ')
           ..write('number: $number, ')
+          ..write('question: $question, ')
           ..write('page: $page, ')
           ..write('solution: $solution')
           ..write(')'))
@@ -2203,7 +2404,8 @@ class BookSolutionRow extends DataClass implements Insertable<BookSolutionRow> {
   }
 
   @override
-  int get hashCode => Object.hash(id, lessonId, number, page, solution);
+  int get hashCode =>
+      Object.hash(id, lessonId, number, question, page, solution);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -2211,6 +2413,7 @@ class BookSolutionRow extends DataClass implements Insertable<BookSolutionRow> {
           other.id == this.id &&
           other.lessonId == this.lessonId &&
           other.number == this.number &&
+          other.question == this.question &&
           other.page == this.page &&
           other.solution == this.solution);
 }
@@ -2219,12 +2422,14 @@ class BookSolutionsCompanion extends UpdateCompanion<BookSolutionRow> {
   final Value<int> id;
   final Value<String> lessonId;
   final Value<int> number;
+  final Value<String> question;
   final Value<int> page;
   final Value<String> solution;
   const BookSolutionsCompanion({
     this.id = const Value.absent(),
     this.lessonId = const Value.absent(),
     this.number = const Value.absent(),
+    this.question = const Value.absent(),
     this.page = const Value.absent(),
     this.solution = const Value.absent(),
   });
@@ -2232,16 +2437,19 @@ class BookSolutionsCompanion extends UpdateCompanion<BookSolutionRow> {
     this.id = const Value.absent(),
     required String lessonId,
     required int number,
+    required String question,
     required int page,
     required String solution,
   })  : lessonId = Value(lessonId),
         number = Value(number),
+        question = Value(question),
         page = Value(page),
         solution = Value(solution);
   static Insertable<BookSolutionRow> custom({
     Expression<int>? id,
     Expression<String>? lessonId,
     Expression<int>? number,
+    Expression<String>? question,
     Expression<int>? page,
     Expression<String>? solution,
   }) {
@@ -2249,6 +2457,7 @@ class BookSolutionsCompanion extends UpdateCompanion<BookSolutionRow> {
       if (id != null) 'id': id,
       if (lessonId != null) 'lesson_id': lessonId,
       if (number != null) 'number': number,
+      if (question != null) 'question': question,
       if (page != null) 'page': page,
       if (solution != null) 'solution': solution,
     });
@@ -2258,12 +2467,14 @@ class BookSolutionsCompanion extends UpdateCompanion<BookSolutionRow> {
       {Value<int>? id,
       Value<String>? lessonId,
       Value<int>? number,
+      Value<String>? question,
       Value<int>? page,
       Value<String>? solution}) {
     return BookSolutionsCompanion(
       id: id ?? this.id,
       lessonId: lessonId ?? this.lessonId,
       number: number ?? this.number,
+      question: question ?? this.question,
       page: page ?? this.page,
       solution: solution ?? this.solution,
     );
@@ -2281,6 +2492,9 @@ class BookSolutionsCompanion extends UpdateCompanion<BookSolutionRow> {
     if (number.present) {
       map['number'] = Variable<int>(number.value);
     }
+    if (question.present) {
+      map['question'] = Variable<String>(question.value);
+    }
     if (page.present) {
       map['page'] = Variable<int>(page.value);
     }
@@ -2296,6 +2510,7 @@ class BookSolutionsCompanion extends UpdateCompanion<BookSolutionRow> {
           ..write('id: $id, ')
           ..write('lessonId: $lessonId, ')
           ..write('number: $number, ')
+          ..write('question: $question, ')
           ..write('page: $page, ')
           ..write('solution: $solution')
           ..write(')'))
@@ -3482,6 +3697,243 @@ class PackMetaCompanion extends UpdateCompanion<PackMetaRow> {
   }
 }
 
+class $PackPagesTable extends PackPages
+    with TableInfo<$PackPagesTable, PackPageRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PackPagesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _subjectIdMeta =
+      const VerificationMeta('subjectId');
+  @override
+  late final GeneratedColumn<String> subjectId = GeneratedColumn<String>(
+      'subject_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _pdfPageMeta =
+      const VerificationMeta('pdfPage');
+  @override
+  late final GeneratedColumn<int> pdfPage = GeneratedColumn<int>(
+      'pdf_page', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _printedPageMeta =
+      const VerificationMeta('printedPage');
+  @override
+  late final GeneratedColumn<String> printedPage = GeneratedColumn<String>(
+      'printed_page', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [subjectId, pdfPage, printedPage];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'pack_pages';
+  @override
+  VerificationContext validateIntegrity(Insertable<PackPageRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('subject_id')) {
+      context.handle(_subjectIdMeta,
+          subjectId.isAcceptableOrUnknown(data['subject_id']!, _subjectIdMeta));
+    } else if (isInserting) {
+      context.missing(_subjectIdMeta);
+    }
+    if (data.containsKey('pdf_page')) {
+      context.handle(_pdfPageMeta,
+          pdfPage.isAcceptableOrUnknown(data['pdf_page']!, _pdfPageMeta));
+    } else if (isInserting) {
+      context.missing(_pdfPageMeta);
+    }
+    if (data.containsKey('printed_page')) {
+      context.handle(
+          _printedPageMeta,
+          printedPage.isAcceptableOrUnknown(
+              data['printed_page']!, _printedPageMeta));
+    } else if (isInserting) {
+      context.missing(_printedPageMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {subjectId, pdfPage};
+  @override
+  PackPageRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PackPageRow(
+      subjectId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}subject_id'])!,
+      pdfPage: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}pdf_page'])!,
+      printedPage: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}printed_page'])!,
+    );
+  }
+
+  @override
+  $PackPagesTable createAlias(String alias) {
+    return $PackPagesTable(attachedDatabase, alias);
+  }
+}
+
+class PackPageRow extends DataClass implements Insertable<PackPageRow> {
+  final String subjectId;
+  final int pdfPage;
+  final String printedPage;
+  const PackPageRow(
+      {required this.subjectId,
+      required this.pdfPage,
+      required this.printedPage});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['subject_id'] = Variable<String>(subjectId);
+    map['pdf_page'] = Variable<int>(pdfPage);
+    map['printed_page'] = Variable<String>(printedPage);
+    return map;
+  }
+
+  PackPagesCompanion toCompanion(bool nullToAbsent) {
+    return PackPagesCompanion(
+      subjectId: Value(subjectId),
+      pdfPage: Value(pdfPage),
+      printedPage: Value(printedPage),
+    );
+  }
+
+  factory PackPageRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PackPageRow(
+      subjectId: serializer.fromJson<String>(json['subjectId']),
+      pdfPage: serializer.fromJson<int>(json['pdfPage']),
+      printedPage: serializer.fromJson<String>(json['printedPage']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'subjectId': serializer.toJson<String>(subjectId),
+      'pdfPage': serializer.toJson<int>(pdfPage),
+      'printedPage': serializer.toJson<String>(printedPage),
+    };
+  }
+
+  PackPageRow copyWith(
+          {String? subjectId, int? pdfPage, String? printedPage}) =>
+      PackPageRow(
+        subjectId: subjectId ?? this.subjectId,
+        pdfPage: pdfPage ?? this.pdfPage,
+        printedPage: printedPage ?? this.printedPage,
+      );
+  PackPageRow copyWithCompanion(PackPagesCompanion data) {
+    return PackPageRow(
+      subjectId: data.subjectId.present ? data.subjectId.value : this.subjectId,
+      pdfPage: data.pdfPage.present ? data.pdfPage.value : this.pdfPage,
+      printedPage:
+          data.printedPage.present ? data.printedPage.value : this.printedPage,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PackPageRow(')
+          ..write('subjectId: $subjectId, ')
+          ..write('pdfPage: $pdfPage, ')
+          ..write('printedPage: $printedPage')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(subjectId, pdfPage, printedPage);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PackPageRow &&
+          other.subjectId == this.subjectId &&
+          other.pdfPage == this.pdfPage &&
+          other.printedPage == this.printedPage);
+}
+
+class PackPagesCompanion extends UpdateCompanion<PackPageRow> {
+  final Value<String> subjectId;
+  final Value<int> pdfPage;
+  final Value<String> printedPage;
+  final Value<int> rowid;
+  const PackPagesCompanion({
+    this.subjectId = const Value.absent(),
+    this.pdfPage = const Value.absent(),
+    this.printedPage = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  PackPagesCompanion.insert({
+    required String subjectId,
+    required int pdfPage,
+    required String printedPage,
+    this.rowid = const Value.absent(),
+  })  : subjectId = Value(subjectId),
+        pdfPage = Value(pdfPage),
+        printedPage = Value(printedPage);
+  static Insertable<PackPageRow> custom({
+    Expression<String>? subjectId,
+    Expression<int>? pdfPage,
+    Expression<String>? printedPage,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (subjectId != null) 'subject_id': subjectId,
+      if (pdfPage != null) 'pdf_page': pdfPage,
+      if (printedPage != null) 'printed_page': printedPage,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  PackPagesCompanion copyWith(
+      {Value<String>? subjectId,
+      Value<int>? pdfPage,
+      Value<String>? printedPage,
+      Value<int>? rowid}) {
+    return PackPagesCompanion(
+      subjectId: subjectId ?? this.subjectId,
+      pdfPage: pdfPage ?? this.pdfPage,
+      printedPage: printedPage ?? this.printedPage,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (subjectId.present) {
+      map['subject_id'] = Variable<String>(subjectId.value);
+    }
+    if (pdfPage.present) {
+      map['pdf_page'] = Variable<int>(pdfPage.value);
+    }
+    if (printedPage.present) {
+      map['printed_page'] = Variable<String>(printedPage.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PackPagesCompanion(')
+          ..write('subjectId: $subjectId, ')
+          ..write('pdfPage: $pdfPage, ')
+          ..write('printedPage: $printedPage, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$ContentDatabase extends GeneratedDatabase {
   _$ContentDatabase(QueryExecutor e) : super(e);
   $ContentDatabaseManager get managers => $ContentDatabaseManager(this);
@@ -3497,6 +3949,7 @@ abstract class _$ContentDatabase extends GeneratedDatabase {
       $PrebuiltAnswersTable(this);
   late final $QuestionBankTable questionBank = $QuestionBankTable(this);
   late final $PackMetaTable packMeta = $PackMetaTable(this);
+  late final $PackPagesTable packPages = $PackPagesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -3512,7 +3965,8 @@ abstract class _$ContentDatabase extends GeneratedDatabase {
         chunks,
         prebuiltAnswers,
         questionBank,
-        packMeta
+        packMeta,
+        packPages
       ];
 }
 
@@ -3835,6 +4289,10 @@ typedef $$LessonsTableCreateCompanionBuilder = LessonsCompanion Function({
   Value<String?> videoChaptersJson,
   Value<int?> bookPagesFrom,
   Value<int?> bookPagesTo,
+  Value<int?> pdfPageFrom,
+  Value<int?> pdfPageTo,
+  Value<int?> printedPageFrom,
+  Value<int?> printedPageTo,
   Value<String?> pdfFile,
   Value<bool> tutorEnabled,
   Value<int> rowid,
@@ -3849,6 +4307,10 @@ typedef $$LessonsTableUpdateCompanionBuilder = LessonsCompanion Function({
   Value<String?> videoChaptersJson,
   Value<int?> bookPagesFrom,
   Value<int?> bookPagesTo,
+  Value<int?> pdfPageFrom,
+  Value<int?> pdfPageTo,
+  Value<int?> printedPageFrom,
+  Value<int?> printedPageTo,
   Value<String?> pdfFile,
   Value<bool> tutorEnabled,
   Value<int> rowid,
@@ -3890,6 +4352,19 @@ class $$LessonsTableFilterComposer
 
   ColumnFilters<int> get bookPagesTo => $composableBuilder(
       column: $table.bookPagesTo, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get pdfPageFrom => $composableBuilder(
+      column: $table.pdfPageFrom, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get pdfPageTo => $composableBuilder(
+      column: $table.pdfPageTo, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get printedPageFrom => $composableBuilder(
+      column: $table.printedPageFrom,
+      builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get printedPageTo => $composableBuilder(
+      column: $table.printedPageTo, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<String> get pdfFile => $composableBuilder(
       column: $table.pdfFile, builder: (column) => ColumnFilters(column));
@@ -3936,6 +4411,20 @@ class $$LessonsTableOrderingComposer
   ColumnOrderings<int> get bookPagesTo => $composableBuilder(
       column: $table.bookPagesTo, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<int> get pdfPageFrom => $composableBuilder(
+      column: $table.pdfPageFrom, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get pdfPageTo => $composableBuilder(
+      column: $table.pdfPageTo, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get printedPageFrom => $composableBuilder(
+      column: $table.printedPageFrom,
+      builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get printedPageTo => $composableBuilder(
+      column: $table.printedPageTo,
+      builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<String> get pdfFile => $composableBuilder(
       column: $table.pdfFile, builder: (column) => ColumnOrderings(column));
 
@@ -3980,6 +4469,18 @@ class $$LessonsTableAnnotationComposer
   GeneratedColumn<int> get bookPagesTo => $composableBuilder(
       column: $table.bookPagesTo, builder: (column) => column);
 
+  GeneratedColumn<int> get pdfPageFrom => $composableBuilder(
+      column: $table.pdfPageFrom, builder: (column) => column);
+
+  GeneratedColumn<int> get pdfPageTo =>
+      $composableBuilder(column: $table.pdfPageTo, builder: (column) => column);
+
+  GeneratedColumn<int> get printedPageFrom => $composableBuilder(
+      column: $table.printedPageFrom, builder: (column) => column);
+
+  GeneratedColumn<int> get printedPageTo => $composableBuilder(
+      column: $table.printedPageTo, builder: (column) => column);
+
   GeneratedColumn<String> get pdfFile =>
       $composableBuilder(column: $table.pdfFile, builder: (column) => column);
 
@@ -4019,6 +4520,10 @@ class $$LessonsTableTableManager extends RootTableManager<
             Value<String?> videoChaptersJson = const Value.absent(),
             Value<int?> bookPagesFrom = const Value.absent(),
             Value<int?> bookPagesTo = const Value.absent(),
+            Value<int?> pdfPageFrom = const Value.absent(),
+            Value<int?> pdfPageTo = const Value.absent(),
+            Value<int?> printedPageFrom = const Value.absent(),
+            Value<int?> printedPageTo = const Value.absent(),
             Value<String?> pdfFile = const Value.absent(),
             Value<bool> tutorEnabled = const Value.absent(),
             Value<int> rowid = const Value.absent(),
@@ -4033,6 +4538,10 @@ class $$LessonsTableTableManager extends RootTableManager<
             videoChaptersJson: videoChaptersJson,
             bookPagesFrom: bookPagesFrom,
             bookPagesTo: bookPagesTo,
+            pdfPageFrom: pdfPageFrom,
+            pdfPageTo: pdfPageTo,
+            printedPageFrom: printedPageFrom,
+            printedPageTo: printedPageTo,
             pdfFile: pdfFile,
             tutorEnabled: tutorEnabled,
             rowid: rowid,
@@ -4047,6 +4556,10 @@ class $$LessonsTableTableManager extends RootTableManager<
             Value<String?> videoChaptersJson = const Value.absent(),
             Value<int?> bookPagesFrom = const Value.absent(),
             Value<int?> bookPagesTo = const Value.absent(),
+            Value<int?> pdfPageFrom = const Value.absent(),
+            Value<int?> pdfPageTo = const Value.absent(),
+            Value<int?> printedPageFrom = const Value.absent(),
+            Value<int?> printedPageTo = const Value.absent(),
             Value<String?> pdfFile = const Value.absent(),
             Value<bool> tutorEnabled = const Value.absent(),
             Value<int> rowid = const Value.absent(),
@@ -4061,6 +4574,10 @@ class $$LessonsTableTableManager extends RootTableManager<
             videoChaptersJson: videoChaptersJson,
             bookPagesFrom: bookPagesFrom,
             bookPagesTo: bookPagesTo,
+            pdfPageFrom: pdfPageFrom,
+            pdfPageTo: pdfPageTo,
+            printedPageFrom: printedPageFrom,
+            printedPageTo: printedPageTo,
             pdfFile: pdfFile,
             tutorEnabled: tutorEnabled,
             rowid: rowid,
@@ -4588,6 +5105,7 @@ typedef $$BookSolutionsTableCreateCompanionBuilder = BookSolutionsCompanion
   Value<int> id,
   required String lessonId,
   required int number,
+  required String question,
   required int page,
   required String solution,
 });
@@ -4596,6 +5114,7 @@ typedef $$BookSolutionsTableUpdateCompanionBuilder = BookSolutionsCompanion
   Value<int> id,
   Value<String> lessonId,
   Value<int> number,
+  Value<String> question,
   Value<int> page,
   Value<String> solution,
 });
@@ -4617,6 +5136,9 @@ class $$BookSolutionsTableFilterComposer
 
   ColumnFilters<int> get number => $composableBuilder(
       column: $table.number, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get question => $composableBuilder(
+      column: $table.question, builder: (column) => ColumnFilters(column));
 
   ColumnFilters<int> get page => $composableBuilder(
       column: $table.page, builder: (column) => ColumnFilters(column));
@@ -4643,6 +5165,9 @@ class $$BookSolutionsTableOrderingComposer
   ColumnOrderings<int> get number => $composableBuilder(
       column: $table.number, builder: (column) => ColumnOrderings(column));
 
+  ColumnOrderings<String> get question => $composableBuilder(
+      column: $table.question, builder: (column) => ColumnOrderings(column));
+
   ColumnOrderings<int> get page => $composableBuilder(
       column: $table.page, builder: (column) => ColumnOrderings(column));
 
@@ -4667,6 +5192,9 @@ class $$BookSolutionsTableAnnotationComposer
 
   GeneratedColumn<int> get number =>
       $composableBuilder(column: $table.number, builder: (column) => column);
+
+  GeneratedColumn<String> get question =>
+      $composableBuilder(column: $table.question, builder: (column) => column);
 
   GeneratedColumn<int> get page =>
       $composableBuilder(column: $table.page, builder: (column) => column);
@@ -4705,6 +5233,7 @@ class $$BookSolutionsTableTableManager extends RootTableManager<
             Value<int> id = const Value.absent(),
             Value<String> lessonId = const Value.absent(),
             Value<int> number = const Value.absent(),
+            Value<String> question = const Value.absent(),
             Value<int> page = const Value.absent(),
             Value<String> solution = const Value.absent(),
           }) =>
@@ -4712,6 +5241,7 @@ class $$BookSolutionsTableTableManager extends RootTableManager<
             id: id,
             lessonId: lessonId,
             number: number,
+            question: question,
             page: page,
             solution: solution,
           ),
@@ -4719,6 +5249,7 @@ class $$BookSolutionsTableTableManager extends RootTableManager<
             Value<int> id = const Value.absent(),
             required String lessonId,
             required int number,
+            required String question,
             required int page,
             required String solution,
           }) =>
@@ -4726,6 +5257,7 @@ class $$BookSolutionsTableTableManager extends RootTableManager<
             id: id,
             lessonId: lessonId,
             number: number,
+            question: question,
             page: page,
             solution: solution,
           ),
@@ -5429,6 +5961,151 @@ typedef $$PackMetaTableProcessedTableManager = ProcessedTableManager<
     ),
     PackMetaRow,
     PrefetchHooks Function()>;
+typedef $$PackPagesTableCreateCompanionBuilder = PackPagesCompanion Function({
+  required String subjectId,
+  required int pdfPage,
+  required String printedPage,
+  Value<int> rowid,
+});
+typedef $$PackPagesTableUpdateCompanionBuilder = PackPagesCompanion Function({
+  Value<String> subjectId,
+  Value<int> pdfPage,
+  Value<String> printedPage,
+  Value<int> rowid,
+});
+
+class $$PackPagesTableFilterComposer
+    extends Composer<_$ContentDatabase, $PackPagesTable> {
+  $$PackPagesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get subjectId => $composableBuilder(
+      column: $table.subjectId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get pdfPage => $composableBuilder(
+      column: $table.pdfPage, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get printedPage => $composableBuilder(
+      column: $table.printedPage, builder: (column) => ColumnFilters(column));
+}
+
+class $$PackPagesTableOrderingComposer
+    extends Composer<_$ContentDatabase, $PackPagesTable> {
+  $$PackPagesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get subjectId => $composableBuilder(
+      column: $table.subjectId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get pdfPage => $composableBuilder(
+      column: $table.pdfPage, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get printedPage => $composableBuilder(
+      column: $table.printedPage, builder: (column) => ColumnOrderings(column));
+}
+
+class $$PackPagesTableAnnotationComposer
+    extends Composer<_$ContentDatabase, $PackPagesTable> {
+  $$PackPagesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get subjectId =>
+      $composableBuilder(column: $table.subjectId, builder: (column) => column);
+
+  GeneratedColumn<int> get pdfPage =>
+      $composableBuilder(column: $table.pdfPage, builder: (column) => column);
+
+  GeneratedColumn<String> get printedPage => $composableBuilder(
+      column: $table.printedPage, builder: (column) => column);
+}
+
+class $$PackPagesTableTableManager extends RootTableManager<
+    _$ContentDatabase,
+    $PackPagesTable,
+    PackPageRow,
+    $$PackPagesTableFilterComposer,
+    $$PackPagesTableOrderingComposer,
+    $$PackPagesTableAnnotationComposer,
+    $$PackPagesTableCreateCompanionBuilder,
+    $$PackPagesTableUpdateCompanionBuilder,
+    (
+      PackPageRow,
+      BaseReferences<_$ContentDatabase, $PackPagesTable, PackPageRow>
+    ),
+    PackPageRow,
+    PrefetchHooks Function()> {
+  $$PackPagesTableTableManager(_$ContentDatabase db, $PackPagesTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PackPagesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$PackPagesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$PackPagesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> subjectId = const Value.absent(),
+            Value<int> pdfPage = const Value.absent(),
+            Value<String> printedPage = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              PackPagesCompanion(
+            subjectId: subjectId,
+            pdfPage: pdfPage,
+            printedPage: printedPage,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String subjectId,
+            required int pdfPage,
+            required String printedPage,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              PackPagesCompanion.insert(
+            subjectId: subjectId,
+            pdfPage: pdfPage,
+            printedPage: printedPage,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable<$PackPagesTable, PackPageRow>(table),
+                    BaseReferences<_$ContentDatabase, $PackPagesTable,
+                        PackPageRow>(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$PackPagesTableProcessedTableManager = ProcessedTableManager<
+    _$ContentDatabase,
+    $PackPagesTable,
+    PackPageRow,
+    $$PackPagesTableFilterComposer,
+    $$PackPagesTableOrderingComposer,
+    $$PackPagesTableAnnotationComposer,
+    $$PackPagesTableCreateCompanionBuilder,
+    $$PackPagesTableUpdateCompanionBuilder,
+    (
+      PackPageRow,
+      BaseReferences<_$ContentDatabase, $PackPagesTable, PackPageRow>
+    ),
+    PackPageRow,
+    PrefetchHooks Function()>;
 
 class $ContentDatabaseManager {
   final _$ContentDatabase _db;
@@ -5455,4 +6132,6 @@ class $ContentDatabaseManager {
       $$QuestionBankTableTableManager(_db, _db.questionBank);
   $$PackMetaTableTableManager get packMeta =>
       $$PackMetaTableTableManager(_db, _db.packMeta);
+  $$PackPagesTableTableManager get packPages =>
+      $$PackPagesTableTableManager(_db, _db.packPages);
 }

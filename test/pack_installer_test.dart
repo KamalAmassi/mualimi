@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:archive/archive_io.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mualimi/core/db/content/content_database.dart';
 import 'package:mualimi/core/error/exceptions.dart';
 import 'package:mualimi/features/content_manager/data/datasources/pack_install_host.dart';
 import 'package:mualimi/features/content_manager/data/datasources/pack_installer.dart';
@@ -36,6 +37,8 @@ class _FakeHost implements PackInstallHost {
   }
 }
 
+const _current = ContentDatabase.packSchemaVersion;
+
 void main() {
   late Directory root;
   late _FakeHost host;
@@ -48,7 +51,7 @@ void main() {
       FileSystemEntity.typeSync(p.join(host.packsDir.path, rel)) !=
       FileSystemEntityType.notFound;
 
-  List<int> packDb({String? schema = '2'}) {
+  List<int> packDb({String? schema = '$_current'}) {
     final path = p.join(root.path, 'fixture.db');
     final bytes = writeContentDb(path, schemaVersion: schema, marker: 'new-db').readAsBytesSync();
     File(path).deleteSync();
@@ -68,7 +71,7 @@ void main() {
     root = Directory.systemTemp.createTempSync('pack_installer_');
     host = _FakeHost(root);
     Directory(p.join(host.pdfDir.path)).createSync(recursive: true);
-    writeContentDb(host.contentDbFile.path, schemaVersion: '2', marker: 'old-db');
+    writeContentDb(host.contentDbFile.path, schemaVersion: '$_current', marker: 'old-db');
     File(p.join(host.pdfDir.path, 'old.pdf')).writeAsStringSync('old-pdf');
     userDb = File(p.join(root.path, 'user.db'))..writeAsStringSync('user-data');
   });
@@ -163,8 +166,8 @@ void main() {
   });
 
   for (final (label, schema) in [
-    ('older', '1'),
-    ('newer', '3'),
+    ('older', '${_current - 1}'),
+    ('newer', '${_current + 1}'),
     ('missing', null),
     ('non-numeric', 'two'),
   ]) {

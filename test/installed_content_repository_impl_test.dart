@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mualimi/core/db/content/content_database.dart';
 import 'package:mualimi/core/services/database_service.dart';
 import 'package:mualimi/core/services/settings_service.dart';
 import 'package:mualimi/features/content_manager/data/datasources/sqlite_pack_schema_source.dart';
@@ -16,6 +17,8 @@ class _FakeDatabases extends Fake implements DatabaseService {
   @override
   final bool hasContent;
 }
+
+const _current = ContentDatabase.packSchemaVersion;
 
 void main() {
   late Directory root;
@@ -36,15 +39,15 @@ void main() {
           const SqlitePackSchemaSource(), contentDb);
 
   test('matching schema_version is usable', () async {
-    writeContentDb(contentDb.path, schemaVersion: '2');
+    writeContentDb(contentDb.path, schemaVersion: '$_current');
 
     expect(await repository().installedSchemaStatus(), PackSchemaStatus.compatible);
     expect(await repository().isPackInstalled(), isTrue);
   });
 
   for (final (schema, status) in [
-    ('1', PackSchemaStatus.outdated),
-    ('3', PackSchemaStatus.newer),
+    ('${_current - 1}', PackSchemaStatus.outdated),
+    ('${_current + 1}', PackSchemaStatus.newer),
     (null, PackSchemaStatus.unreadable),
   ]) {
     test('schema_version $schema needs re-download as $status', () async {
