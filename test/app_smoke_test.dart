@@ -19,6 +19,7 @@ import 'package:mualimi/core/services/device_info_source.dart';
 import 'package:mualimi/core/services/device_snapshot.dart';
 import 'package:mualimi/features/content_manager/presentation/constants/grade_ordinals.dart';
 import 'package:mualimi/features/curriculum_tutor/presentation/routes/tutor_args.dart';
+import 'package:mualimi/features/lesson/presentation/widgets/lesson_hub_strings.dart';
 import 'package:mualimi/features/onboarding/presentation/controllers/splash_timing.dart';
 import 'package:mualimi/features/onboarding/presentation/widgets/grade_strings.dart';
 
@@ -128,7 +129,7 @@ void main() {
     await settle(tester);
     await tester.tap(find.text('طرق الشحن الكهربائي'));
     await settle(tester);
-    await tester.tap(find.text(AppStrings.askTutor));
+    await tester.tap(find.text(LessonHubStrings.askTutorTitle));
     await settle(tester);
   }
 
@@ -147,9 +148,9 @@ void main() {
 
     await tester.tap(find.text('طرق الشحن الكهربائي'));
     await settle(tester);
-    expect(find.text(AppStrings.askTutor), findsOneWidget);
+    expect(find.text(LessonHubStrings.askTutorTitle), findsOneWidget);
 
-    await tester.tap(find.text(AppStrings.askTutor));
+    await tester.tap(find.text(LessonHubStrings.askTutorTitle));
     await settle(tester);
     // The lesson is pre-selected and the chat is ready to take a question.
     expect(find.text(AppStrings.askHint), findsOneWidget);

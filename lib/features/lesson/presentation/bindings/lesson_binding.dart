@@ -1,6 +1,5 @@
 import 'package:get/get.dart';
 
-import '../../../../core/services/connectivity_service.dart';
 import '../../../../core/services/database_service.dart';
 import '../../../../core/services/settings_service.dart';
 import '../../data/datasources/lesson_local_data_source.dart';
@@ -52,9 +51,8 @@ class LessonBinding extends Bindings {
 
     Get.lazyPut(() => LessonController(
           Get.find<GetLessonUseCase>(),
-          Get.find<GetLastSectionUseCase>(),
-          Get.find<SaveLessonProgressUseCase>(),
-          Get.find<ConnectivityService>(),
+          Get.find<GetKeyTermsUseCase>(),
+          Get.find<IsLessonTutorEnabledUseCase>(),
         ));
     Get.lazyPut(() => KeyTermsController(
           Get.find<GetKeyTermsUseCase>(),
