@@ -31,26 +31,37 @@ const homeContinueLesson = ContinueLesson(
 );
 
 class FakeSubjectsRepository implements SubjectsRepository {
-  FakeSubjectsRepository(this.subjects);
+  FakeSubjectsRepository(this.subjects, {this.units = const {}});
   final List<Subject> subjects;
+  final Map<String, List<SubjectUnit>> units;
+
+  /// When set, every read fails with it.
+  Failure? failure;
 
   @override
-  Future<Either<Failure, List<Subject>>> getSubjects() async => Right(subjects);
+  Future<Either<Failure, List<Subject>>> getSubjects() async =>
+      failure != null ? Left(failure!) : Right(subjects);
 
   @override
   Future<Either<Failure, Subject>> getSubject(String id) async =>
-      Right(subjects.firstWhere((s) => s.id == id));
+      failure != null ? Left(failure!) : Right(subjects.firstWhere((s) => s.id == id));
 
   @override
-  Future<Either<Failure, List<SubjectUnit>>> getUnits(String subjectId) async => const Right([]);
+  Future<Either<Failure, List<SubjectUnit>>> getUnits(String subjectId) async =>
+      failure != null ? Left(failure!) : Right(units[subjectId] ?? const []);
 }
 
 class FakeContinueLessonRepository implements ContinueLessonRepository {
-  FakeContinueLessonRepository(this.lesson);
+  FakeContinueLessonRepository(this.lesson, {this.lastOpenedBySubject = const {}});
   ContinueLesson? lesson;
+  Map<String, String> lastOpenedBySubject;
 
   @override
   Future<Either<Failure, ContinueLesson?>> getContinueLesson() async => Right(lesson);
+
+  @override
+  Future<Either<Failure, String?>> getLastOpenedLessonId(String subjectId) async =>
+      Right(lastOpenedBySubject[subjectId]);
 }
 
 class FakeStudentRepository implements StudentRepository {

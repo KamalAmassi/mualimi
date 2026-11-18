@@ -11,9 +11,15 @@ class ContinueLessonRepositoryImpl implements ContinueLessonRepository {
   final SubjectsLocalDataSource _local;
 
   @override
-  Future<Either<Failure, ContinueLesson?>> getContinueLesson() async {
+  Future<Either<Failure, ContinueLesson?>> getContinueLesson() => _guard(_local.continueLesson);
+
+  @override
+  Future<Either<Failure, String?>> getLastOpenedLessonId(String subjectId) =>
+      _guard(() => _local.lastOpenedLessonId(subjectId));
+
+  Future<Either<Failure, T>> _guard<T>(Future<T> Function() read) async {
     try {
-      return Right(await _local.continueLesson());
+      return Right(await read());
     } on DatabaseException catch (e) {
       return Left(DatabaseFailure(e.message));
     }

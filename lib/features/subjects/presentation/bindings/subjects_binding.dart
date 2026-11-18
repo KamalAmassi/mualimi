@@ -13,6 +13,7 @@ import '../../domain/repositories/network_status_repository.dart';
 import '../../domain/repositories/student_repository.dart';
 import '../../domain/repositories/subjects_repository.dart';
 import '../../domain/usecases/get_continue_lesson_usecase.dart';
+import '../../domain/usecases/get_last_opened_lesson_usecase.dart';
 import '../../domain/usecases/get_subject_detail_usecase.dart';
 import '../../domain/usecases/get_subjects_usecase.dart';
 import '../../domain/usecases/watch_online_usecase.dart';
@@ -50,6 +51,11 @@ class SubjectsBinding extends Bindings {
       ),
       fenix: true,
     );
-    Get.lazyPut(() => SubjectController(Get.find<GetSubjectDetailUseCase>()));
+    Get.lazyPut(() => GetLastOpenedLessonUseCase(Get.find<ContinueLessonRepository>()), fenix: true);
+    Get.lazyPut(() => SubjectController(
+          Get.find<GetSubjectDetailUseCase>(),
+          Get.find<GetLastOpenedLessonUseCase>(),
+          Get.find<WatchStudentUseCase>(),
+        ));
   }
 }

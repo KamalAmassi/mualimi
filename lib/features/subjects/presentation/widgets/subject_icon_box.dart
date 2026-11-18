@@ -12,12 +12,16 @@ class SubjectIconBox extends StatelessWidget {
     this.size = HomeDimens.iconBox,
     this.radius = HomeDimens.iconBoxRadius,
     this.iconSize = AppSizes.iconMd,
+    this.background,
   });
 
   final String subjectId;
   final double size;
   final double radius;
   final double iconSize;
+
+  /// Defaults to a light tint of the subject colour.
+  final Color? background;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +32,7 @@ class SubjectIconBox extends StatelessWidget {
       height: size,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: color.withValues(alpha: HomeDimens.iconTintAlpha),
+        color: background ?? color.withValues(alpha: HomeDimens.iconTintAlpha),
         borderRadius: BorderRadius.circular(radius),
       ),
       child: visual.glyph != null
