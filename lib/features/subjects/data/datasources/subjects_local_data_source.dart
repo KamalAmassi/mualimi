@@ -4,6 +4,7 @@ import '../../../../core/db/content/content_database.dart';
 import '../../../../core/error/exceptions.dart' as app;
 import '../../../../core/services/database_service.dart';
 import '../../domain/entities/subject_unit.dart';
+import '../models/continue_lesson_model.dart';
 import '../models/lesson_summary_model.dart';
 import '../models/subject_model.dart';
 
@@ -45,6 +46,33 @@ class SubjectsLocalDataSource {
           ],
         ),
     ];
+  }
+
+  /// Newest progress row whose lesson is still in the installed pack; a pack
+  /// update can drop lessons that user.db still remembers.
+  Future<ContinueLessonModel?> continueLesson() async {
+    final user = _databases.user;
+    final progress = await (user.selectOnly(user.lessonProgress)
+          ..addColumns([user.lessonProgress.lessonId])
+          ..orderBy([OrderingTerm.desc(user.lessonProgress.updatedAt)]))
+        .map((row) => row.read(user.lessonProgress.lessonId)!)
+        .get();
+    if (progress.isEmpty) return null;
+    final db = _content();
+    final rows = await (db.select(db.lessons).join([
+      innerJoin(db.units, db.units.id.equalsExp(db.lessons.unitId)),
+      innerJoin(db.subjects, db.subjects.id.equalsExp(db.lessons.subjectId)),
+    ])
+          ..where(db.lessons.id.isIn(progress)))
+        .get();
+    final byLesson = {for (final r in rows) r.readTable(db.lessons).id: r};
+    for (final lessonId in progress) {
+      final row = byLesson[lessonId];
+      if (row == null) continue;
+      return ContinueLessonModel.fromRows(
+          row.readTable(db.lessons), row.readTable(db.subjects), row.readTable(db.units));
+    }
+    return null;
   }
 
   ContentDatabase _content() {

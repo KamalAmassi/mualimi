@@ -11,7 +11,7 @@ class DownloadParams {
   /// A content pack: the zip plus its extracted copy must fit at once.
   factory DownloadParams.pack(PackInfo pack) => DownloadParams._(
         [(pack.asArtifact, ArtifactKind.pack)],
-        pack.size * 2 + Limits.downloadMarginBytes,
+        pack.requiredFreeBytes,
         ModelSourceKind.network,
         null,
       );

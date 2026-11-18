@@ -8,22 +8,22 @@ import 'package:mualimi/core/constants/app_files.dart';
 import 'package:mualimi/core/constants/app_strings.dart';
 import 'package:mualimi/core/db/content/seed/dev_seed_loader.dart';
 import 'package:mualimi/core/db/content/seed/dev_seed_science_g9.dart';
-import 'package:mualimi/core/routes/app_pages.dart';
 import 'package:mualimi/core/routes/app_routes.dart';
 import 'package:mualimi/features/content_manager/domain/entities/download_phase.dart';
 import 'package:mualimi/features/content_manager/domain/entities/download_progress.dart';
+import 'package:mualimi/features/content_manager/presentation/constants/download_strings.dart';
+import 'package:mualimi/features/content_manager/presentation/constants/grade_ordinals.dart';
+import 'package:mualimi/features/onboarding/presentation/widgets/grade_strings.dart';
 import 'package:mualimi/features/shell/presentation/controllers/shell_controller.dart';
 
 import 'journey_harness.dart';
 
-const _grade9 = '${AppStrings.gradePrefix} 9';
-
 Future<void> _walkToDownload(Journey j) async {
   await j.tester.enterText(find.byType(TextField), 'سلمى');
   await j.tapText(AppStrings.next);
-  expect(find.text(_grade9), findsOneWidget);
-  await j.tapText(_grade9);
-  await j.tapText(AppStrings.next, last: true);
+  expect(find.text(GradeOrdinals.of(9)), findsOneWidget);
+  await j.tapText(GradeOrdinals.of(9));
+  await j.tapText(GradeStrings.downloadLabel(9));
 }
 
 void main() {
@@ -38,8 +38,8 @@ void main() {
       await j.tapText(AppStrings.next);
       expect(Get.currentRoute, AppRoutes.grade);
 
-      await j.tapText(_grade9);
-      await j.tapText(AppStrings.next, last: true);
+      await j.tapText(GradeOrdinals.of(9));
+      await j.tapText(GradeStrings.downloadLabel(9));
 
       expect(Get.currentRoute, AppRoutes.shell);
       expect(find.text(DevSeedScienceG9.subjectName), findsOneWidget, reason: 'Home tab');
@@ -60,15 +60,6 @@ void main() {
               as Map<String, dynamic>;
       expect(settings['onboarding_done'], isTrue);
       expect(j.download.jobs, 1);
-    });
-
-    journeyTest('after the download there is no /diagnostic route, so it goes to /shell',
-        (j) async {
-      expect(AppPages.pages.any((p) => p.name == '/diagnostic'), isFalse,
-          reason: 'gap_filling is not built yet; the flow must fall back to /shell');
-      await j.boot();
-      await _walkToDownload(j);
-      expect(Get.currentRoute, AppRoutes.shell);
     });
 
     journeyTest('an empty name keeps the student on welcome', (j) async {
@@ -123,9 +114,9 @@ void main() {
     journeyTest('no-space retry continues into the shell once space is free', (j) async {
       await j.boot();
       await _walkToDownload(j);
-      expect(find.text(AppStrings.downloadNoSpace), findsOneWidget);
+      expect(find.text(DownloadStrings.noSpaceTitle), findsOneWidget);
       j.download.script = completedScript;
-      await j.tapText(AppStrings.retry);
+      await j.tapText(DownloadStrings.checkAgain);
       expect(Get.currentRoute, AppRoutes.shell);
       expect(j.atStackRoot, isTrue);
     }, script: noSpaceScript);

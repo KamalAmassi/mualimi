@@ -7,6 +7,8 @@ import 'package:mualimi/features/content_manager/data/datasources/pack_install_h
 import 'package:mualimi/features/content_manager/data/datasources/pack_installer.dart';
 import 'package:path/path.dart' as p;
 
+import 'helpers/content_db_fixture.dart';
+
 /// Temp-folder host that records close/open/version calls in order.
 class _FakeHost implements PackInstallHost {
   _FakeHost(this.root);
@@ -41,13 +43,23 @@ void main() {
   late File zip;
 
   String read(String rel) => File(p.join(host.packsDir.path, rel)).readAsStringSync();
+  String dbMarker() => contentDbMarker(host.contentDbFile.path);
   bool exists(String rel) =>
       FileSystemEntity.typeSync(p.join(host.packsDir.path, rel)) !=
       FileSystemEntityType.notFound;
 
-  File writeZip(Map<String, String> files) {
+  List<int> packDb({String? schema = '2'}) {
+    final path = p.join(root.path, 'fixture.db');
+    final bytes = writeContentDb(path, schemaVersion: schema, marker: 'new-db').readAsBytesSync();
+    File(path).deleteSync();
+    return bytes;
+  }
+
+  File writeZip(Map<String, Object> files) {
     final archive = Archive();
-    files.forEach((name, text) => archive.addFile(ArchiveFile.string(name, text)));
+    files.forEach((name, data) => archive.addFile(data is List<int>
+        ? ArchiveFile.bytes(name, data)
+        : ArchiveFile.string(name, data as String)));
     return File(p.join(host.packsDir.path, 'pack.zip'))
       ..writeAsBytesSync(ZipEncoder().encode(archive));
   }
@@ -56,7 +68,7 @@ void main() {
     root = Directory.systemTemp.createTempSync('pack_installer_');
     host = _FakeHost(root);
     Directory(p.join(host.pdfDir.path)).createSync(recursive: true);
-    host.contentDbFile.writeAsStringSync('old-db');
+    writeContentDb(host.contentDbFile.path, schemaVersion: '2', marker: 'old-db');
     File(p.join(host.pdfDir.path, 'old.pdf')).writeAsStringSync('old-pdf');
     userDb = File(p.join(root.path, 'user.db'))..writeAsStringSync('user-data');
   });
@@ -70,10 +82,10 @@ void main() {
   }
 
   test('success swaps db and pdf, writes version, cleans up', () async {
-    zip = writeZip({'content.db': 'new-db', 'pdf/new.pdf': 'new-pdf'});
+    zip = writeZip({'content.db': packDb(), 'pdf/new.pdf': 'new-pdf'});
     await PackInstaller.withHost(host).install(zip, 2);
 
-    expect(read('content.db'), 'new-db');
+    expect(dbMarker(), 'new-db');
     expect(read('pdf/new.pdf'), 'new-pdf');
     expect(exists('pdf/old.pdf'), isFalse);
     expect(host.version, 2);
@@ -88,7 +100,7 @@ void main() {
     await expectLater(
         PackInstaller.withHost(host).install(zip, 2), throwsA(isA<ManifestException>()));
 
-    expect(read('content.db'), 'old-db');
+    expect(dbMarker(), 'old-db');
     expect(read('pdf/old.pdf'), 'old-pdf');
     expect(host.version, 1);
     expect(host.events, isEmpty); // never closed
@@ -96,7 +108,7 @@ void main() {
   });
 
   test('rename failure during swap rolls everything back', () async {
-    zip = writeZip({'content.db': 'new-db', 'pdf/new.pdf': 'new-pdf'});
+    zip = writeZip({'content.db': packDb(), 'pdf/new.pdf': 'new-pdf'});
     final installer = PackInstaller.withHost(host, rename: (e, newPath) async {
       if (e.path.contains('staging') && newPath == host.pdfDir.path) {
         throw const FileSystemException('simulated rename failure');
@@ -105,7 +117,7 @@ void main() {
     });
     await expectLater(installer.install(zip, 2), throwsA(isA<FileSystemException>()));
 
-    expect(read('content.db'), 'old-db');
+    expect(dbMarker(), 'old-db');
     expect(read('pdf/old.pdf'), 'old-pdf');
     expect(exists('pdf/new.pdf'), isFalse);
     expect(exists('content.db.bak'), isFalse);
@@ -116,22 +128,22 @@ void main() {
   });
 
   test('version write failure restores old files and old version', () async {
-    zip = writeZip({'content.db': 'new-db'});
+    zip = writeZip({'content.db': packDb()});
     final failing = _ThrowingVersionHost(root);
     await expectLater(
         PackInstaller.withHost(failing).install(zip, 2), throwsA(isA<StateError>()));
 
-    expect(read('content.db'), 'old-db');
+    expect(dbMarker(), 'old-db');
     expect(failing.version, 1);
     expect(failing.events.last, 'open');
     expectCleaned();
   });
 
   test('pack without pdf/ leaves existing pdf/ untouched', () async {
-    zip = writeZip({'content.db': 'new-db'});
+    zip = writeZip({'content.db': packDb()});
     await PackInstaller.withHost(host).install(zip, 2);
 
-    expect(read('content.db'), 'new-db');
+    expect(dbMarker(), 'new-db');
     expect(read('pdf/old.pdf'), 'old-pdf');
     expect(host.version, 2);
     expectCleaned();
@@ -140,13 +152,44 @@ void main() {
   test('stale content.db.bak from an earlier crash does not block install', () async {
     File(p.join(host.packsDir.path, 'content.db.bak')).writeAsStringSync('stale');
     Directory(p.join(host.packsDir.path, 'pdf.bak')).createSync();
-    zip = writeZip({'content.db': 'new-db', 'pdf/new.pdf': 'new-pdf'});
+    zip = writeZip({'content.db': packDb(), 'pdf/new.pdf': 'new-pdf'});
     await PackInstaller.withHost(host).install(zip, 3);
 
-    expect(read('content.db'), 'new-db');
+    expect(dbMarker(), 'new-db');
     expect(host.version, 3);
     expect(exists('content.db.bak'), isFalse);
     expect(exists('pdf.bak'), isFalse);
+    expectCleaned();
+  });
+
+  for (final (label, schema) in [
+    ('older', '1'),
+    ('newer', '3'),
+    ('missing', null),
+    ('non-numeric', 'two'),
+  ]) {
+    test('$label schema_version is rejected and old content is kept', () async {
+      zip = writeZip({'content.db': packDb(schema: schema), 'pdf/new.pdf': 'new-pdf'});
+      await expectLater(
+          PackInstaller.withHost(host).install(zip, 2), throwsA(isA<ManifestException>()));
+
+      expect(dbMarker(), 'old-db');
+      expect(read('pdf/old.pdf'), 'old-pdf');
+      expect(exists('pdf/new.pdf'), isFalse);
+      expect(host.version, 1);
+      expect(host.events, isEmpty);
+      expectCleaned();
+    });
+  }
+
+  test('content.db that is not a database is rejected', () async {
+    zip = writeZip({'content.db': 'not-a-database'});
+    await expectLater(
+        PackInstaller.withHost(host).install(zip, 2), throwsA(isA<ManifestException>()));
+
+    expect(dbMarker(), 'old-db');
+    expect(host.version, 1);
+    expect(host.events, isEmpty);
     expectCleaned();
   });
 }

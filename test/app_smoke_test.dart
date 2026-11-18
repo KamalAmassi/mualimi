@@ -17,8 +17,10 @@ import 'package:mualimi/core/db/content/content_database.dart';
 import 'package:mualimi/core/db/content/seed/dev_seed_science_g9.dart';
 import 'package:mualimi/core/services/device_info_source.dart';
 import 'package:mualimi/core/services/device_snapshot.dart';
+import 'package:mualimi/features/content_manager/presentation/constants/grade_ordinals.dart';
 import 'package:mualimi/features/curriculum_tutor/presentation/routes/tutor_args.dart';
 import 'package:mualimi/features/onboarding/presentation/controllers/splash_timing.dart';
+import 'package:mualimi/features/onboarding/presentation/widgets/grade_strings.dart';
 
 class _WifiConnectivity extends Fake implements Connectivity {
   @override
@@ -82,12 +84,11 @@ void main() {
     await tester.enterText(find.byType(TextField), 'سلمى');
     await tester.tap(find.text(AppStrings.next));
     await settle(tester, rounds: 12); // let the route animation finish
-    expect(find.text('${AppStrings.gradePrefix} 9'), findsOneWidget);
+    expect(find.text(GradeOrdinals.of(9)), findsOneWidget);
 
-    await tester.tap(find.text('${AppStrings.gradePrefix} 9'));
+    await tester.tap(find.text(GradeOrdinals.of(9)));
     await tester.pump();
-    // The welcome page is still in the stack under the grade page.
-    await tester.tap(find.text(AppStrings.next).last);
+    await tester.tap(find.text(GradeStrings.downloadLabel(9)));
     await settle(tester);
 
     // The test HTTP client refuses every request, so the manifest can't load:
@@ -132,7 +133,7 @@ void main() {
   }
 
   testWidgets(
-      'returning student: splash -> shell -> subject -> lesson -> tutor route',
+      'returning student: splash -> shell -> subject -> lesson -> tutor',
       (tester) async {
     await bootReturningStudent(tester);
     expect(find.text('العلوم والحياة'), findsOneWidget,
@@ -154,7 +155,9 @@ void main() {
     expect(find.text(AppStrings.askHint), findsOneWidget);
     expect(find.text(AppStrings.lessonLabel), findsOneWidget);
     expect(Get.currentRoute, AppRoutes.tutor);
-    expect(find.byIcon(LucideIcons.arrowRight), findsOneWidget, reason: 'back button');
+    expect(find.byIcon(LucideIcons.arrowRight), findsOneWidget,
+        reason: 'the tutor opens full screen with a back button');
+    expect(find.byType(NavigationBar), findsNothing);
   });
 
   testWidgets(

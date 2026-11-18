@@ -12,6 +12,7 @@ import '../../data/datasources/manifest_local_data_source.dart';
 import '../../data/datasources/manifest_remote_data_source.dart';
 import '../../data/datasources/network_model_source.dart';
 import '../../data/datasources/pack_installer.dart';
+import '../../data/datasources/sqlite_pack_schema_source.dart';
 import '../../data/repositories/artifact_repository_impl.dart';
 import '../../data/repositories/installed_content_repository_impl.dart';
 import '../../data/repositories/manifest_repository_impl.dart';
@@ -49,7 +50,8 @@ class ContentManagerBinding extends Bindings {
       fenix: true,
     );
     Get.lazyPut<InstalledContentRepository>(
-      () => InstalledContentRepositoryImpl(settings, databases),
+      () => InstalledContentRepositoryImpl(
+          settings, databases, const SqlitePackSchemaSource(), paths.contentDbFile),
       fenix: true,
     );
     Get.lazyPut<ArtifactRepository>(

@@ -195,10 +195,13 @@ class Journey {
 
   /// Taps whichever back control the current page shows.
   Future<void> back() async {
-    final appBarBack = find.byType(BackButton);
-    final target = appBarBack.evaluate().isNotEmpty
-        ? appBarBack
-        : find.byIcon(LucideIcons.arrowRight).last;
+    final candidates = [
+      find.byType(BackButton),
+      find.byIcon(Icons.close),
+      find.byIcon(LucideIcons.arrowRight),
+      find.byIcon(Icons.chevron_right),
+    ];
+    final target = candidates.firstWhere((f) => f.evaluate().isNotEmpty).first;
     await tester.tap(target);
     await settle();
   }

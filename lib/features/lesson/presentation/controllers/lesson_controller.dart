@@ -53,7 +53,7 @@ class LessonController extends GetxController {
 
   void openKeyTerms() => Get.toNamed<void>(AppRoutes.keyTermsOf(lessonId));
 
-  /// Opens the tutor on top of this lesson; disabled in the UI when the
+  /// Opens the tutor on top of the lesson; disabled in the UI when the
   /// lesson's subject has `tutorEnabled == false`.
   void askTutor() {
     final l = lesson.value;
