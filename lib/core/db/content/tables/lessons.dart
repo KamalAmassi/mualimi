@@ -11,6 +11,10 @@ class Lessons extends Table {
   TextColumn get videoChaptersJson => text().nullable()();
   IntColumn get bookPagesFrom => integer().nullable()();
   IntColumn get bookPagesTo => integer().nullable()();
+  IntColumn get pdfPageFrom => integer().nullable()();
+  IntColumn get pdfPageTo => integer().nullable()();
+  TextColumn get printedPageFrom => text().nullable()();
+  TextColumn get printedPageTo => text().nullable()();
   TextColumn get pdfFile => text().nullable()();
   BoolColumn get tutorEnabled => boolean().withDefault(const Constant(true))();
 

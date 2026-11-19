@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:drift/drift.dart' show driftRuntimeOptions;
+import 'package:sqlite3/sqlite3.dart' as sqlite;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mualimi/core/bindings/initial_binding.dart';
 import 'package:mualimi/core/constants/app_files.dart';
@@ -98,6 +99,22 @@ void main() {
       await Future<void>.delayed(const Duration(milliseconds: 50));
       await start(installDevSeed: true);
       expect(contentDb().lastModifiedSync(), before);
+    });
+
+    test('a pack from an older schema is deleted and rebuilt', () async {
+      contentDb().parent.createSync(recursive: true);
+      final old = sqlite.sqlite3.open(contentDb().path);
+      old.execute('CREATE TABLE pack_meta (key TEXT PRIMARY KEY, value TEXT)');
+      old.execute("INSERT INTO pack_meta VALUES ('schema_version', '2')");
+      old.close();
+      await start(installDevSeed: true);
+      final rebuilt =
+          sqlite.sqlite3.open(contentDb().path, mode: sqlite.OpenMode.readOnly);
+      final version = rebuilt
+          .select("SELECT value FROM pack_meta WHERE key = 'schema_version'")
+          .first['value'];
+      rebuilt.close();
+      expect(version, '3');
     });
   });
 }
