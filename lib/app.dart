@@ -28,11 +28,8 @@ class MualimiApp extends StatelessWidget {
           locale: const Locale('ar'),
           supportedLocales: const [Locale('ar')],
           localizationsDelegates: GlobalMaterialLocalizations.delegates,
-          builder: (context, child) => MediaQuery(
-            data: MediaQuery.of(context)
-                .copyWith(textScaler: TextScaler.linear(settings.fontScale.value)),
-            child: Directionality(textDirection: TextDirection.rtl, child: child!),
-          ),
+          builder: (context, child) =>
+              Directionality(textDirection: TextDirection.rtl, child: child!),
         ));
   }
 }
