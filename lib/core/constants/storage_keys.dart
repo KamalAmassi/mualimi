@@ -7,7 +7,6 @@ abstract final class StorageKeys {
   static const fontScale = 'font_scale';
   static const onboardingDone = 'onboarding_done';
   static const installedPackVersion = 'installed_pack_version';
-  static const installedModelVersion = 'installed_model_version';
   static const installedModelFile = 'installed_model_file';
   static const installedEmbeddingFile = 'installed_embedding_file';
 }

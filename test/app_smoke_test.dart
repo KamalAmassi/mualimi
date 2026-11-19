@@ -48,7 +48,29 @@ Future<void> settle(WidgetTester tester, {int rounds = 12}) async {
   }
 }
 
-Future<void> boot(WidgetTester tester, Directory root) async {
+/// Pumps until [finder] matches instead of waiting a fixed time, so a slow
+/// machine only makes the test longer, never flaky. A final pump lets the
+/// route transition finish before the next tap.
+Future<void> settleUntil(
+  WidgetTester tester,
+  Finder finder, {
+  String? what,
+  Duration timeout = const Duration(seconds: 20),
+}) async {
+  final clock = Stopwatch()..start();
+  while (finder.evaluate().isEmpty) {
+    if (clock.elapsed > timeout) {
+      fail('Timed out after ${timeout.inSeconds}s waiting for '
+          '${what ?? finder.describeMatch(Plurality.one)}');
+    }
+    await tester
+        .runAsync(() => Future<void>.delayed(const Duration(milliseconds: 40)));
+    await tester.pump(const Duration(milliseconds: 40));
+  }
+  await tester.pump(const Duration(milliseconds: 400));
+}
+
+Future<void> boot(WidgetTester tester, Directory root, {Finder? until}) async {
   final binding = await tester.runAsync(() => InitialBinding.create(
         rootOverride: root,
         connectivityPlugin: _WifiConnectivity(),
@@ -56,7 +78,11 @@ Future<void> boot(WidgetTester tester, Directory root) async {
       ));
   await tester.pumpWidget(MualimiApp(initialBinding: binding!));
   await tester.pump(SplashTiming.minDisplay);
-  await settle(tester);
+  if (until == null) {
+    await settle(tester);
+  } else {
+    await settleUntil(tester, until, what: 'the first screen after the splash');
+  }
 }
 
 void main() {
@@ -77,22 +103,23 @@ void main() {
 
   testWidgets('first run walks splash -> welcome -> grade -> download',
       (tester) async {
-    await boot(tester, root);
+    await boot(tester, root, until: find.byType(TextField));
     expect(find.byType(TextField), findsOneWidget,
         reason: 'splash should go to welcome');
 
     await tester.enterText(find.byType(TextField), 'سلمى');
     await tester.tap(find.text(AppStrings.next));
-    await settle(tester, rounds: 12); // let the route animation finish
+    await settleUntil(tester, find.text(GradeOrdinals.of(9)),
+        what: 'the grade screen');
     expect(find.text(GradeOrdinals.of(9)), findsOneWidget);
 
     await tester.tap(find.text(GradeOrdinals.of(9)));
     await tester.pump();
     await tester.tap(find.text(GradeStrings.downloadLabel(9)));
-    await settle(tester);
-
     // The test HTTP client refuses every request, so the manifest can't load:
     // the download screen must land on its failed state, not crash.
+    await settleUntil(tester, find.text(AppStrings.downloadFailed),
+        what: 'the failed download screen');
     expect(find.text(AppStrings.downloadFailed), findsOneWidget);
     expect(find.text(AppStrings.retry), findsOneWidget);
   });
@@ -120,16 +147,19 @@ void main() {
       'grade': 9,
       'student_name': 'سلمى',
     }));
-    await boot(tester, root);
+    await boot(tester, root, until: find.text('العلوم والحياة'));
   }
 
   Future<void> openTutorFromLesson(WidgetTester tester) async {
     await tester.tap(find.text('العلوم والحياة'));
-    await settle(tester);
+    await settleUntil(tester, find.text('طرق الشحن الكهربائي'),
+        what: 'the subject page');
     await tester.tap(find.text('طرق الشحن الكهربائي'));
-    await settle(tester);
+    await settleUntil(tester, find.text(AppStrings.askTutor),
+        what: 'the lesson page');
     await tester.tap(find.text(AppStrings.askTutor));
-    await settle(tester);
+    await settleUntil(tester, find.text(AppStrings.askHint),
+        what: 'the tutor chat');
   }
 
   testWidgets(
@@ -140,17 +170,18 @@ void main() {
         reason: 'splash should go to the shell');
 
     await tester.tap(find.text('العلوم والحياة'));
-    await settle(tester);
-    expect(find.text('الكهرباء الساكنة'), findsOneWidget);
+    await settleUntil(tester, find.text('الكهرباء الساكنة'),
+        what: 'the subject page');
     expect(find.text('طرق الشحن الكهربائي'), findsOneWidget,
         reason: 'first unit starts expanded');
 
     await tester.tap(find.text('طرق الشحن الكهربائي'));
-    await settle(tester);
-    expect(find.text(AppStrings.askTutor), findsOneWidget);
+    await settleUntil(tester, find.text(AppStrings.askTutor),
+        what: 'the lesson page');
 
     await tester.tap(find.text(AppStrings.askTutor));
-    await settle(tester);
+    await settleUntil(tester, find.text(AppStrings.askHint),
+        what: 'the tutor chat');
     // The lesson is pre-selected and the chat is ready to take a question.
     expect(find.text(AppStrings.askHint), findsOneWidget);
     expect(find.text(AppStrings.lessonLabel), findsOneWidget);
@@ -189,7 +220,8 @@ void main() {
 
     await tester.enterText(find.byType(TextField), 'لماذا ينفرج ورقتا الكشاف؟');
     await tester.testTextInput.receiveAction(TextInputAction.done);
-    await settle(tester);
+    await settleUntil(tester, find.text(AppStrings.pendingBadge),
+        what: 'the queued-question badge');
 
     expect(find.text(AppStrings.pendingBadge), findsOneWidget);
     expect(find.text(AppStrings.nearestPassages), findsOneWidget);
