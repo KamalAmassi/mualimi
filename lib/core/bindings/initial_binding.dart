@@ -34,18 +34,22 @@ class InitialBinding extends Bindings {
 
   SettingsService get settings => _settings;
 
-  /// The optional parameters are test seams; [installDevSeed] is for debug builds.
+  /// The optional parameters are test seams; [installDevSeed] is for debug
+  /// builds. [beforeContentOpen] runs once, before the content DB is opened.
   static Future<InitialBinding> create({
     Directory? rootOverride,
     Connectivity? connectivityPlugin,
     DeviceInfoSource? deviceInfo,
     bool installDevSeed = false,
+    Future<void> Function(AppPathsService paths, SettingsService settings)?
+        beforeContentOpen,
   }) async {
     final paths = await AppPathsService(rootOverride: rootOverride).init();
     final settings = await SettingsService(paths.settingsFile).init();
     final device = await DeviceCapabilityService(source: deviceInfo).init();
     final connectivity =
         await ConnectivityService(connectivity: connectivityPlugin).init();
+    await beforeContentOpen?.call(paths, settings);
     final databases = await DatabaseService(paths).init();
     if (installDevSeed) {
       await DevSeedLoader.installIfMissing(paths, settings, databases);
