@@ -2,16 +2,16 @@ import 'dart:io';
 import 'dart:isolate';
 
 import 'package:archive/archive_io.dart';
-import 'package:path/path.dart' as p;
 
-import '../../../../core/constants/app_files.dart';
 import '../../../../core/db/content/content_database.dart';
 import '../../../../core/error/exceptions.dart';
 import '../../../../core/services/app_paths_service.dart';
 import '../../../../core/services/database_service.dart';
 import '../../../../core/services/settings_service.dart';
 import 'core_pack_install_host.dart';
+import 'pack_install_files.dart';
 import 'pack_install_host.dart';
+import 'pack_install_journal.dart';
 import 'pack_schema_source.dart';
 import 'sqlite_pack_schema_source.dart';
 
@@ -36,34 +36,41 @@ class PackInstaller {
     PackRename rename = _defaultRename,
     PackSchemaSource schemas = const SqlitePackSchemaSource(),
   })  : _rename = rename,
-        _schemas = schemas;
-
-  static const _bakSuffix = '.bak';
+        _schemas = schemas,
+        _files = PackInstallFiles(_host);
 
   final PackInstallHost _host;
+  final PackInstallFiles _files;
   final PackRename _rename;
   final PackSchemaSource _schemas;
 
   Future<void> install(File zip, int version) async {
-    final staging = Directory(p.join(_host.packsDir.path, 'staging'));
-    var ok = false;
+    final staging = _files.staging;
+    var ok = false, journaled = false;
     try {
       await _deleteIfExists(staging);
       await staging.create(recursive: true);
       await Isolate.run(() => extractFileToDisk(zip.path, staging.path));
-      final newDb = File(p.join(staging.path, AppFiles.contentDb));
+      final newDb = _files.stagedDb;
       if (!await newDb.exists()) {
         throw const ManifestException('pack has no content.db');
       }
       await _ensureSchema(newDb);
-      final newPdf = Directory(p.join(staging.path, AppFiles.pdfDir));
-      await _swap(newDb, await newPdf.exists() ? newPdf : null, version);
+      final newPdf = await _files.stagedPdf.exists() ? _files.stagedPdf : null;
+      await PackInstallJournal(
+        from: _host.installedVersion,
+        to: version,
+        swapsPdf: newPdf != null,
+      ).writeTo(_files.journal, _files.journalTemp);
+      journaled = true;
+      await _swap(newDb, newPdf, version);
       ok = true;
     } finally {
       if (ok) {
-        await _deleteQuietly(File('${_host.contentDbFile.path}$_bakSuffix'));
-        await _deleteQuietly(Directory('${_host.pdfDir.path}$_bakSuffix'));
+        await _deleteQuietly(_files.dbBackup);
+        await _deleteQuietly(_files.pdfBackup);
       }
+      if (journaled) await _deleteQuietly(_files.journal);
       await _deleteQuietly(staging);
       await _deleteQuietly(zip);
     }
@@ -81,9 +88,9 @@ class PackInstaller {
   /// version, and rolls back on any error. Always reopens the DB.
   Future<void> _swap(File newDb, Directory? newPdf, int version) async {
     final db = _host.contentDbFile;
-    final dbBak = File('${db.path}$_bakSuffix');
+    final dbBak = _files.dbBackup;
     final pdf = _host.pdfDir;
-    final pdfBak = Directory('${pdf.path}$_bakSuffix');
+    final pdfBak = _files.pdfBackup;
     final oldVersion = _host.installedVersion;
     var dbBacked = false, dbPlaced = false, pdfBacked = false, pdfPlaced = false;
     var versionTried = false;
@@ -136,7 +143,7 @@ class PackInstaller {
     try {
       await _rename(backup, target.path);
     } catch (_) {
-      // Backup stays as <name>.bak; a startup recovery step can restore it.
+      // Backup stays as <name>.bak; PackRecovery restores it at next launch.
     }
   }
 
