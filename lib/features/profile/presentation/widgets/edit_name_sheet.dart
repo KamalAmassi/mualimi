@@ -1,13 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../core/widgets/app_bottom_sheet.dart';
-import '../../../../core/widgets/primary_button.dart';
 import '../controllers/profile_controller.dart';
+import 'profile_sheet_button.dart';
+import 'profile_sheet_dimens.dart';
+import 'profile_sheet_header.dart';
+import 'profile_sheet_strings.dart';
+import 'profile_strings.dart';
 
-Future<void> showEditNameSheet(ProfileController controller) =>
-    showAppBottomSheet<void>(EditNameSheet(controller: controller));
+Future<void> showEditNameSheet(ProfileController controller) {
+  controller.nameInvalid.value = false;
+  return showAppBottomSheet<void>(EditNameSheet(controller: controller));
+}
 
 class EditNameSheet extends StatefulWidget {
   const EditNameSheet({super.key, required this.controller});
@@ -34,16 +41,59 @@ class _EditNameSheetState extends State<EditNameSheet> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(mainAxisSize: MainAxisSize.min, children: [
-      Obx(() => TextField(
-            controller: _field,
-            decoration: InputDecoration(
-              hintText: AppStrings.studentNameHint,
-              errorText: widget.controller.nameInvalid.value ? AppStrings.studentNameInvalid : null,
+    final c = context.colors;
+    OutlineInputBorder border(Color color) => OutlineInputBorder(
+          borderRadius: BorderRadius.circular(ProfileSheetDimens.fieldRadius),
+          borderSide: BorderSide(color: color, width: ProfileSheetDimens.fieldBorder),
+        );
+    return Flexible(
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: ProfileSheetDimens.blockGap,
+          children: [
+            const ProfileSheetHeader(title: ProfileStrings.editName),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: ProfileSheetDimens.fieldGap,
+              children: [
+                Text(ProfileSheetStrings.yourName,
+                    style: TextStyle(
+                        fontSize: ProfileSheetDimens.labelFontSize,
+                        fontWeight: FontWeight.w600,
+                        color: c.textPrimary)),
+                Obx(() => TextField(
+                      controller: _field,
+                      onSubmitted: (_) => _save(),
+                      style: TextStyle(
+                          fontSize: ProfileSheetDimens.fieldFontSize, color: c.textPrimary),
+                      decoration: InputDecoration(
+                        hintText: AppStrings.studentNameHint,
+                        errorText: widget.controller.nameInvalid.value
+                            ? AppStrings.studentNameInvalid
+                            : null,
+                        filled: true,
+                        fillColor: c.surface,
+                        constraints:
+                            const BoxConstraints(minHeight: ProfileSheetDimens.fieldHeight),
+                        contentPadding: const EdgeInsets.symmetric(
+                            horizontal: ProfileSheetDimens.fieldPaddingH),
+                        enabledBorder: border(c.primary),
+                        focusedBorder: border(c.primary),
+                        errorBorder: border(c.error),
+                        focusedErrorBorder: border(c.error),
+                      ),
+                    )),
+                Text(ProfileSheetStrings.nameNote,
+                    style: TextStyle(
+                        fontSize: ProfileSheetDimens.fieldNoteFontSize, color: c.textSecondary)),
+              ],
             ),
-          )),
-      const SizedBox(height: 16),
-      PrimaryButton(label: AppStrings.save, onPressed: _save),
-    ]);
+            ProfileSheetButton(label: AppStrings.save, onPressed: _save),
+          ],
+        ),
+      ),
+    );
   }
 }

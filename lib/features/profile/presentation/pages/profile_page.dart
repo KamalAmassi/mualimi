@@ -3,6 +3,7 @@ import 'package:get/get.dart';
 import 'package:lucide_icons_flutter/lucide_icons.dart';
 
 import '../controllers/profile_controller.dart';
+import '../widgets/about_sheet.dart';
 import '../widgets/change_grade_sheet.dart';
 import '../widgets/edit_name_sheet.dart';
 import '../widgets/profile_action_pill.dart';
@@ -74,11 +75,12 @@ class ProfilePage extends GetView<ProfileController> {
                   ),
                 ]),
                 _sectionGap,
-                const ProfileSection(title: ProfileStrings.aboutSection, children: [
+                ProfileSection(title: ProfileStrings.aboutSection, children: [
                   ProfileSettingRow(
                     icon: LucideIcons.info,
                     title: ProfileStrings.about,
                     subtitle: ProfileStrings.aboutSubtitle,
+                    onTap: () => showAboutSheet(controller),
                   ),
                 ]),
               ]),
