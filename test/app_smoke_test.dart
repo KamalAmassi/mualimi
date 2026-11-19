@@ -154,6 +154,7 @@ void main() {
     // The lesson is pre-selected and the chat is ready to take a question.
     expect(find.text(AppStrings.askHint), findsOneWidget);
     expect(find.text(AppStrings.lessonLabel), findsOneWidget);
+    expect(Get.currentRoute, AppRoutes.tutor);
     expect(find.byIcon(LucideIcons.arrowRight), findsOneWidget,
         reason: 'the tutor opens full screen with a back button');
     expect(find.byType(NavigationBar), findsNothing);

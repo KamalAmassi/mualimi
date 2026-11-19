@@ -30,12 +30,21 @@ void main() {
   driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
 
   group('DevSeedLoader.isEnabled', () {
-    test('needs both a debug build and the DEV_SEED flag', () {
-      expect(DevSeedLoader.isEnabled(debugMode: true, flagSet: true), isTrue);
-      expect(DevSeedLoader.isEnabled(debugMode: true, flagSet: false), isFalse);
-      expect(DevSeedLoader.isEnabled(debugMode: false, flagSet: true), isFalse);
+    test('is allowed in debug and profile builds when the flag is set', () {
       expect(
-          DevSeedLoader.isEnabled(debugMode: false, flagSet: false), isFalse);
+          DevSeedLoader.isEnabled(releaseMode: false, flagSet: true), isTrue);
+    });
+
+    test('is blocked in release builds even when the flag is set', () {
+      expect(
+          DevSeedLoader.isEnabled(releaseMode: true, flagSet: true), isFalse);
+    });
+
+    test('is off without the flag in any build mode', () {
+      expect(
+          DevSeedLoader.isEnabled(releaseMode: false, flagSet: false), isFalse);
+      expect(
+          DevSeedLoader.isEnabled(releaseMode: true, flagSet: false), isFalse);
     });
 
     test('is off by default when the flag is not passed', () {
