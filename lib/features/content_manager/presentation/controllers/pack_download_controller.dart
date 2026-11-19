@@ -37,6 +37,10 @@ class PackDownloadController extends DownloadControllerBase {
   /// Set when a newer pack is offered for the installed grade.
   final offeredPack = Rxn<PackInfo>();
 
+  /// The pack the current (or last) job downloads; null until it is resolved,
+  /// when it can't be resolved, and after a cancel.
+  final pack = Rxn<PackInfo>();
+
   /// The grade the current (or last) job was started for.
   int? _jobGrade;
   Worker? _gradeWatcher;
@@ -80,9 +84,15 @@ class PackDownloadController extends DownloadControllerBase {
 
   @override
   Future<DownloadParams?> buildParams() async {
+    final resolved = await _resolvePack();
+    pack.value = resolved;
+    return resolved == null ? null : DownloadParams.pack(resolved);
+  }
+
+  Future<PackInfo?> _resolvePack() async {
     final grade = _settings.grade.value;
     final offered = offeredPack.value;
-    if (offered != null && offered.grade == grade) return DownloadParams.pack(offered);
+    if (offered != null && offered.grade == grade) return offered;
 
     if (grade == null) {
       failWith(const NotFoundFailure('no grade selected'));
@@ -95,14 +105,17 @@ class PackDownloadController extends DownloadControllerBase {
         return null;
       },
       (manifest) {
-        final pack = manifest.packFor(grade);
-        if (pack == null) {
-          failWith(const NotFoundFailure('no pack for this grade'));
-          return null;
-        }
-        return DownloadParams.pack(pack);
+        final found = manifest.packFor(grade);
+        if (found == null) failWith(const NotFoundFailure('no pack for this grade'));
+        return found;
       },
     );
+  }
+
+  @override
+  Future<void> cancel() async {
+    pack.value = null;
+    await super.cancel();
   }
 
   @override

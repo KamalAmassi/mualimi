@@ -47,10 +47,14 @@ abstract class DownloadControllerBase extends GetxController {
   final totalBytes = 0.obs;
   final failure = Rxn<Failure>();
 
+  /// Why the download is paused or waiting; null while it isn't.
+  final pauseReason = Rxn<PauseReason>();
+
   late final NetworkResumePolicy _net = NetworkResumePolicy(
     connectivity,
     ui: ui,
     failure: failure,
+    reason: pauseReason,
     jobAlive: () => _jobAlive,
     pauseJob: _pause.call,
     resumeJob: _resume.call,
@@ -61,9 +65,6 @@ abstract class DownloadControllerBase extends GetxController {
 
   /// A job stream exists that may still be paused or resumed.
   bool _jobAlive = false;
-
-  /// Why the download is paused or waiting; null while it isn't.
-  PauseReason? get pauseReason => _net.reason;
 
   @override
   void onInit() {
@@ -104,7 +105,7 @@ abstract class DownloadControllerBase extends GetxController {
       final params = await buildParams();
       if (params == null) {
         // A network failure while offline already shows the waiting state.
-        if (_net.reason != PauseReason.network) ui.value = DownloadUiState.failed;
+        if (pauseReason.value != PauseReason.network) ui.value = DownloadUiState.failed;
         return;
       }
       failure.value = null;
@@ -150,12 +151,16 @@ abstract class DownloadControllerBase extends GetxController {
     // The job pausing for the mobile prompt must not hide the prompt.
     if (p.phase == DownloadPhase.paused && ui.value == DownloadUiState.awaitingNetworkChoice) return;
     ui.value = p.phase.uiState;
-    if (p.phase == DownloadPhase.completed) onCompleted();
+    if (p.phase == DownloadPhase.completed) {
+      _net.clear();
+      onCompleted();
+    }
   }
 
   void _fail(Failure f) {
     failure.value = f;
     if (_net.absorbs(f)) return;
+    _net.clear();
     ui.value = f is NotEnoughSpaceFailure ? DownloadUiState.noSpace : DownloadUiState.failed;
   }
 

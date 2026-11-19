@@ -20,6 +20,7 @@ class NetworkResumePolicy {
     this._connectivity, {
     required Rx<DownloadUiState> ui,
     required Rxn<Failure> failure,
+    required Rxn<PauseReason> reason,
     required bool Function() jobAlive,
     required Future<bool> Function() pauseJob,
     required Future<bool> Function() resumeJob,
@@ -27,6 +28,7 @@ class NetworkResumePolicy {
     Duration debounce = DownloadTimings.networkDebounce,
   })  : _ui = ui,
         _failure = failure,
+        _reason = reason,
         _jobAlive = jobAlive,
         _pauseJob = pauseJob,
         _resumeJob = resumeJob,
@@ -36,6 +38,9 @@ class NetworkResumePolicy {
   final ConnectivityService _connectivity;
   final Rx<DownloadUiState> _ui;
   final Rxn<Failure> _failure;
+
+  /// Null while the download isn't paused or waiting.
+  final Rxn<PauseReason> _reason;
   final bool Function() _jobAlive;
   final Future<bool> Function() _pauseJob;
   final Future<bool> Function() _resumeJob;
@@ -44,10 +49,6 @@ class NetworkResumePolicy {
   Worker? _worker;
   Timer? _timer;
   bool _mobileApproved = false;
-  PauseReason? _reason;
-
-  /// Null while the download isn't paused or waiting.
-  PauseReason? get reason => _reason;
 
   bool get _needsMobileApproval => _connectivity.isOnMobile && !_mobileApproved;
 
@@ -76,7 +77,7 @@ class NetworkResumePolicy {
   bool _shouldResume(DownloadUiState state) {
     if (!_connectivity.isOnline) return false;
     if (state == DownloadUiState.waitingForWifi) return _connectivity.isOnWifi;
-    return _reason == PauseReason.network &&
+    return _reason.value == PauseReason.network &&
         (state == DownloadUiState.paused || state == DownloadUiState.awaitingNetworkChoice);
   }
 
@@ -97,31 +98,31 @@ class NetworkResumePolicy {
 
   Future<void> pauseByUser() async {
     clear();
-    _reason = PauseReason.user;
+    _reason.value = PauseReason.user;
     if (await _pauseJob()) {
       _ui.value = DownloadUiState.paused;
     } else {
-      _reason = null;
+      _reason.value = null;
     }
   }
 
   /// True when [f] was a network failure turned into a paused state.
   bool absorbs(Failure f) {
     if (f is! NetworkFailure) return false;
-    if (_reason == PauseReason.user) return true; // stays paused for the user
-    if (_connectivity.isOnline && _reason != PauseReason.network) return false;
+    if (_reason.value == PauseReason.user) return true; // stays paused for the user
+    if (_connectivity.isOnline && _reason.value != PauseReason.network) return false;
     _waitForNetwork();
     return true;
   }
 
   /// Forgets the pause reason and any scheduled resume.
   void clear() {
-    _reason = null;
+    _reason.value = null;
     _timer?.cancel();
   }
 
   void _waitForNetwork() {
-    _reason = PauseReason.network;
+    _reason.value = PauseReason.network;
     _ui.value = DownloadUiState.paused;
   }
 
@@ -131,7 +132,7 @@ class NetworkResumePolicy {
   }
 
   void _askMobile() {
-    _reason = PauseReason.network;
+    _reason.value = PauseReason.network;
     _ui.value = DownloadUiState.awaitingNetworkChoice;
     unawaited(_pauseJob());
   }
