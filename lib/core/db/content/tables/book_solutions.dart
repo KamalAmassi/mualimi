@@ -6,6 +6,6 @@ class BookSolutions extends Table {
   TextColumn get lessonId => text()();
   IntColumn get number => integer()();
   TextColumn get question => text()();
-  IntColumn get page => integer()();
+  TextColumn get page => text()();
   TextColumn get solution => text()();
 }

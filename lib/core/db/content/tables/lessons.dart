@@ -13,8 +13,8 @@ class Lessons extends Table {
   IntColumn get bookPagesTo => integer().nullable()();
   IntColumn get pdfPageFrom => integer().nullable()();
   IntColumn get pdfPageTo => integer().nullable()();
-  IntColumn get printedPageFrom => integer().nullable()();
-  IntColumn get printedPageTo => integer().nullable()();
+  TextColumn get printedPageFrom => text().nullable()();
+  TextColumn get printedPageTo => text().nullable()();
   TextColumn get pdfFile => text().nullable()();
   BoolColumn get tutorEnabled => boolean().withDefault(const Constant(true))();
 

@@ -154,6 +154,9 @@ abstract final class DevSeedScienceG9 {
         );
       }
     });
+    // A read-only open never migrates, so a pack must already carry its schema version.
+    await db.customStatement(
+        'PRAGMA user_version = ${ContentDatabase.packSchemaVersion}');
   }
 
   static LessonsCompanion _lesson(
@@ -166,8 +169,8 @@ abstract final class DevSeedScienceG9 {
         sortOrder: Value(order),
         bookPagesFrom: Value(from),
         bookPagesTo: Value(to),
-        printedPageFrom: Value(from),
-        printedPageTo: Value(to),
+        printedPageFrom: Value('$from'),
+        printedPageTo: Value('$to'),
         pdfPageFrom: Value(DevSeedPackPages.pdfPageOf(from)),
         pdfPageTo: Value(DevSeedPackPages.pdfPageOf(to)),
         videoChaptersJson:

@@ -26,6 +26,16 @@ void main() {
     expect(DateTime.tryParse(meta['built_at'] ?? ''), isNotNull);
   });
 
+  test('PRAGMA user_version equals the schema version and pack_meta', () async {
+    final version = (await db.customSelect('PRAGMA user_version').getSingle())
+        .read<int>('user_version');
+    final meta = {
+      for (final r in await db.select(db.packMeta).get()) r.key: r.value
+    };
+    expect(version, ContentDatabase.packSchemaVersion);
+    expect(meta['schema_version'], '$version');
+  });
+
   test('every chunk page and lesson range agrees with pack_pages', () async {
     final pages = {
       for (final p in await db.select(db.packPages).get())
@@ -36,8 +46,8 @@ void main() {
     }
     for (final l in await db.select(db.lessons).get()) {
       if (l.pdfPageFrom == null) continue;
-      expect(pages[l.pdfPageFrom], '${l.printedPageFrom}');
-      expect(pages[l.pdfPageTo], '${l.printedPageTo}');
+      expect(pages[l.pdfPageFrom], l.printedPageFrom);
+      expect(pages[l.pdfPageTo], l.printedPageTo);
     }
   });
 
