@@ -58,6 +58,51 @@ void main() {
     test('check again button', () => expect(DownloadStrings.checkAgain, only(r'</svg>([^<]+)</button>')));
   });
 
+  group('Failed strings match the design HTML', () {
+    final failed = _html('DownloadFailed');
+    String only(String pattern) {
+      final matches = RegExp(pattern).allMatches(failed).toList();
+      expect(matches, hasLength(1), reason: pattern);
+      return matches.single.group(1)!;
+    }
+
+    final rows = RegExp(
+      r'font-size: 15px; font-weight: 600[^"]*">([^<]+)</div><div style="font-size: 12px; color: #[0-9A-F]+">([^<]+)</div>',
+    ).allMatches(failed).toList();
+
+    test('status title', () {
+      expect(DownloadStrings.integrityTitle, only(r'font-size: 19px; font-weight: 700">([^<]+)</div>'));
+    });
+
+    test('status body', () {
+      expect(DownloadStrings.integrityBody, only(r'line-height: 1.75; color: #605B7D">([^<]+)</div>'));
+    });
+
+    test('checklist rows', () {
+      expect(rows, hasLength(3));
+      expect([for (final r in rows) (r.group(1), r.group(2))], [
+        (DownloadStrings.spaceCheckStep, DownloadStrings.spaceCheckDone),
+        (DownloadStrings.contentStep, DownloadStrings.contentDone),
+        (DownloadStrings.integrityStep, DownloadStrings.integrityMismatch),
+      ]);
+    });
+
+    test('redownload button', () => expect(DownloadStrings.redownload, only(r'</svg>([^<]+)</button>')));
+
+    test('generic body is exactly the approved wording', () {
+      const expected = [
+        0x062A, 0x062D, 0x0642, 0x0642, 0x0020, 0x0645, 0x0646, 0x0020, 0x0627, 0x062A, 0x0635, 0x0627, //
+        0x0644, 0x0643, 0x0020, 0x0628, 0x0627, 0x0644, 0x0625, 0x0646, 0x062A, 0x0631, 0x0646, 0x062A, //
+        0x0020, 0x062B, 0x0645, 0x0020, 0x062D, 0x0627, 0x0648, 0x0644, 0x0020, 0x0645, 0x0631, 0x0629, //
+        0x0020, 0x0623, 0x062E, 0x0631, 0x0649, 0x002E, 0x0020, 0x0633, 0x064A, 0x0643, 0x0645, 0x0644, //
+        0x0020, 0x0627, 0x0644, 0x062A, 0x0646, 0x0632, 0x064A, 0x0644, 0x0020, 0x0645, 0x0646, 0x0020, //
+        0x062D, 0x064A, 0x062B, 0x0020, 0x062A, 0x0648, 0x0642, 0x0641, 0x002E,
+      ];
+      expect(DownloadStrings.failedBody.runes.toList(), expected);
+      expect(DownloadStrings.failedBody.length, 69);
+    });
+  });
+
   test('every DownloadIcons path appears in the design HTML', () {
     for (final p in [
       DownloadIcons.chevron,
