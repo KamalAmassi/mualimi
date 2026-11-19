@@ -20,6 +20,14 @@ abstract final class Limits {
   static const int maxPartRedownloads = 3;
   static const int copyBufferBytes = 4 * 1024 * 1024;
 
+  // Gap filling
+  static const int weakSkillThreshold = 60;
+  static const int diagnosticQuestionsPerSkill = 2;
+  static const int diagnosticMaxQuestionsPerSubject = 15;
+  static const int learningPathSize = 3;
+  static const int reviewQuestionsPerSkill = 2;
+  static const int secondsPerDiagnosticQuestion = 30;
+
   // Misc
   static const int nameMaxLength = 30;
   static const int historyMax = 200;

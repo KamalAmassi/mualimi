@@ -3934,6 +3934,980 @@ class PackPagesCompanion extends UpdateCompanion<PackPageRow> {
   }
 }
 
+class $SkillsTable extends Skills with TableInfo<$SkillsTable, SkillRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SkillsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+      'id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _subjectIdMeta =
+      const VerificationMeta('subjectId');
+  @override
+  late final GeneratedColumn<String> subjectId = GeneratedColumn<String>(
+      'subject_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _gradeMeta = const VerificationMeta('grade');
+  @override
+  late final GeneratedColumn<int> grade = GeneratedColumn<int>(
+      'grade', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+      'title', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _summaryMeta =
+      const VerificationMeta('summary');
+  @override
+  late final GeneratedColumn<String> summary = GeneratedColumn<String>(
+      'summary', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _miniLessonMeta =
+      const VerificationMeta('miniLesson');
+  @override
+  late final GeneratedColumn<String> miniLesson = GeneratedColumn<String>(
+      'mini_lesson', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _sourcePrintedPageMeta =
+      const VerificationMeta('sourcePrintedPage');
+  @override
+  late final GeneratedColumn<String> sourcePrintedPage =
+      GeneratedColumn<String>('source_printed_page', aliasedName, true,
+          type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, subjectId, grade, title, summary, miniLesson, sourcePrintedPage];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'skills';
+  @override
+  VerificationContext validateIntegrity(Insertable<SkillRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('subject_id')) {
+      context.handle(_subjectIdMeta,
+          subjectId.isAcceptableOrUnknown(data['subject_id']!, _subjectIdMeta));
+    } else if (isInserting) {
+      context.missing(_subjectIdMeta);
+    }
+    if (data.containsKey('grade')) {
+      context.handle(
+          _gradeMeta, grade.isAcceptableOrUnknown(data['grade']!, _gradeMeta));
+    } else if (isInserting) {
+      context.missing(_gradeMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+          _titleMeta, title.isAcceptableOrUnknown(data['title']!, _titleMeta));
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('summary')) {
+      context.handle(_summaryMeta,
+          summary.isAcceptableOrUnknown(data['summary']!, _summaryMeta));
+    } else if (isInserting) {
+      context.missing(_summaryMeta);
+    }
+    if (data.containsKey('mini_lesson')) {
+      context.handle(
+          _miniLessonMeta,
+          miniLesson.isAcceptableOrUnknown(
+              data['mini_lesson']!, _miniLessonMeta));
+    } else if (isInserting) {
+      context.missing(_miniLessonMeta);
+    }
+    if (data.containsKey('source_printed_page')) {
+      context.handle(
+          _sourcePrintedPageMeta,
+          sourcePrintedPage.isAcceptableOrUnknown(
+              data['source_printed_page']!, _sourcePrintedPageMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  SkillRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SkillRow(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}id'])!,
+      subjectId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}subject_id'])!,
+      grade: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}grade'])!,
+      title: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}title'])!,
+      summary: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}summary'])!,
+      miniLesson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}mini_lesson'])!,
+      sourcePrintedPage: attachedDatabase.typeMapping.read(
+          DriftSqlType.string, data['${effectivePrefix}source_printed_page']),
+    );
+  }
+
+  @override
+  $SkillsTable createAlias(String alias) {
+    return $SkillsTable(attachedDatabase, alias);
+  }
+}
+
+class SkillRow extends DataClass implements Insertable<SkillRow> {
+  final String id;
+  final String subjectId;
+  final int grade;
+  final String title;
+  final String summary;
+  final String miniLesson;
+  final String? sourcePrintedPage;
+  const SkillRow(
+      {required this.id,
+      required this.subjectId,
+      required this.grade,
+      required this.title,
+      required this.summary,
+      required this.miniLesson,
+      this.sourcePrintedPage});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['subject_id'] = Variable<String>(subjectId);
+    map['grade'] = Variable<int>(grade);
+    map['title'] = Variable<String>(title);
+    map['summary'] = Variable<String>(summary);
+    map['mini_lesson'] = Variable<String>(miniLesson);
+    if (!nullToAbsent || sourcePrintedPage != null) {
+      map['source_printed_page'] = Variable<String>(sourcePrintedPage);
+    }
+    return map;
+  }
+
+  SkillsCompanion toCompanion(bool nullToAbsent) {
+    return SkillsCompanion(
+      id: Value(id),
+      subjectId: Value(subjectId),
+      grade: Value(grade),
+      title: Value(title),
+      summary: Value(summary),
+      miniLesson: Value(miniLesson),
+      sourcePrintedPage: sourcePrintedPage == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sourcePrintedPage),
+    );
+  }
+
+  factory SkillRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SkillRow(
+      id: serializer.fromJson<String>(json['id']),
+      subjectId: serializer.fromJson<String>(json['subjectId']),
+      grade: serializer.fromJson<int>(json['grade']),
+      title: serializer.fromJson<String>(json['title']),
+      summary: serializer.fromJson<String>(json['summary']),
+      miniLesson: serializer.fromJson<String>(json['miniLesson']),
+      sourcePrintedPage:
+          serializer.fromJson<String?>(json['sourcePrintedPage']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'subjectId': serializer.toJson<String>(subjectId),
+      'grade': serializer.toJson<int>(grade),
+      'title': serializer.toJson<String>(title),
+      'summary': serializer.toJson<String>(summary),
+      'miniLesson': serializer.toJson<String>(miniLesson),
+      'sourcePrintedPage': serializer.toJson<String?>(sourcePrintedPage),
+    };
+  }
+
+  SkillRow copyWith(
+          {String? id,
+          String? subjectId,
+          int? grade,
+          String? title,
+          String? summary,
+          String? miniLesson,
+          Value<String?> sourcePrintedPage = const Value.absent()}) =>
+      SkillRow(
+        id: id ?? this.id,
+        subjectId: subjectId ?? this.subjectId,
+        grade: grade ?? this.grade,
+        title: title ?? this.title,
+        summary: summary ?? this.summary,
+        miniLesson: miniLesson ?? this.miniLesson,
+        sourcePrintedPage: sourcePrintedPage.present
+            ? sourcePrintedPage.value
+            : this.sourcePrintedPage,
+      );
+  SkillRow copyWithCompanion(SkillsCompanion data) {
+    return SkillRow(
+      id: data.id.present ? data.id.value : this.id,
+      subjectId: data.subjectId.present ? data.subjectId.value : this.subjectId,
+      grade: data.grade.present ? data.grade.value : this.grade,
+      title: data.title.present ? data.title.value : this.title,
+      summary: data.summary.present ? data.summary.value : this.summary,
+      miniLesson:
+          data.miniLesson.present ? data.miniLesson.value : this.miniLesson,
+      sourcePrintedPage: data.sourcePrintedPage.present
+          ? data.sourcePrintedPage.value
+          : this.sourcePrintedPage,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SkillRow(')
+          ..write('id: $id, ')
+          ..write('subjectId: $subjectId, ')
+          ..write('grade: $grade, ')
+          ..write('title: $title, ')
+          ..write('summary: $summary, ')
+          ..write('miniLesson: $miniLesson, ')
+          ..write('sourcePrintedPage: $sourcePrintedPage')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id, subjectId, grade, title, summary, miniLesson, sourcePrintedPage);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SkillRow &&
+          other.id == this.id &&
+          other.subjectId == this.subjectId &&
+          other.grade == this.grade &&
+          other.title == this.title &&
+          other.summary == this.summary &&
+          other.miniLesson == this.miniLesson &&
+          other.sourcePrintedPage == this.sourcePrintedPage);
+}
+
+class SkillsCompanion extends UpdateCompanion<SkillRow> {
+  final Value<String> id;
+  final Value<String> subjectId;
+  final Value<int> grade;
+  final Value<String> title;
+  final Value<String> summary;
+  final Value<String> miniLesson;
+  final Value<String?> sourcePrintedPage;
+  final Value<int> rowid;
+  const SkillsCompanion({
+    this.id = const Value.absent(),
+    this.subjectId = const Value.absent(),
+    this.grade = const Value.absent(),
+    this.title = const Value.absent(),
+    this.summary = const Value.absent(),
+    this.miniLesson = const Value.absent(),
+    this.sourcePrintedPage = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  SkillsCompanion.insert({
+    required String id,
+    required String subjectId,
+    required int grade,
+    required String title,
+    required String summary,
+    required String miniLesson,
+    this.sourcePrintedPage = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : id = Value(id),
+        subjectId = Value(subjectId),
+        grade = Value(grade),
+        title = Value(title),
+        summary = Value(summary),
+        miniLesson = Value(miniLesson);
+  static Insertable<SkillRow> custom({
+    Expression<String>? id,
+    Expression<String>? subjectId,
+    Expression<int>? grade,
+    Expression<String>? title,
+    Expression<String>? summary,
+    Expression<String>? miniLesson,
+    Expression<String>? sourcePrintedPage,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (subjectId != null) 'subject_id': subjectId,
+      if (grade != null) 'grade': grade,
+      if (title != null) 'title': title,
+      if (summary != null) 'summary': summary,
+      if (miniLesson != null) 'mini_lesson': miniLesson,
+      if (sourcePrintedPage != null) 'source_printed_page': sourcePrintedPage,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  SkillsCompanion copyWith(
+      {Value<String>? id,
+      Value<String>? subjectId,
+      Value<int>? grade,
+      Value<String>? title,
+      Value<String>? summary,
+      Value<String>? miniLesson,
+      Value<String?>? sourcePrintedPage,
+      Value<int>? rowid}) {
+    return SkillsCompanion(
+      id: id ?? this.id,
+      subjectId: subjectId ?? this.subjectId,
+      grade: grade ?? this.grade,
+      title: title ?? this.title,
+      summary: summary ?? this.summary,
+      miniLesson: miniLesson ?? this.miniLesson,
+      sourcePrintedPage: sourcePrintedPage ?? this.sourcePrintedPage,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (subjectId.present) {
+      map['subject_id'] = Variable<String>(subjectId.value);
+    }
+    if (grade.present) {
+      map['grade'] = Variable<int>(grade.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (summary.present) {
+      map['summary'] = Variable<String>(summary.value);
+    }
+    if (miniLesson.present) {
+      map['mini_lesson'] = Variable<String>(miniLesson.value);
+    }
+    if (sourcePrintedPage.present) {
+      map['source_printed_page'] = Variable<String>(sourcePrintedPage.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SkillsCompanion(')
+          ..write('id: $id, ')
+          ..write('subjectId: $subjectId, ')
+          ..write('grade: $grade, ')
+          ..write('title: $title, ')
+          ..write('summary: $summary, ')
+          ..write('miniLesson: $miniLesson, ')
+          ..write('sourcePrintedPage: $sourcePrintedPage, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $LessonPrerequisitesTable extends LessonPrerequisites
+    with TableInfo<$LessonPrerequisitesTable, LessonPrerequisiteRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $LessonPrerequisitesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _lessonIdMeta =
+      const VerificationMeta('lessonId');
+  @override
+  late final GeneratedColumn<String> lessonId = GeneratedColumn<String>(
+      'lesson_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _skillIdMeta =
+      const VerificationMeta('skillId');
+  @override
+  late final GeneratedColumn<String> skillId = GeneratedColumn<String>(
+      'skill_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns => [lessonId, skillId];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'lesson_prerequisites';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<LessonPrerequisiteRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('lesson_id')) {
+      context.handle(_lessonIdMeta,
+          lessonId.isAcceptableOrUnknown(data['lesson_id']!, _lessonIdMeta));
+    } else if (isInserting) {
+      context.missing(_lessonIdMeta);
+    }
+    if (data.containsKey('skill_id')) {
+      context.handle(_skillIdMeta,
+          skillId.isAcceptableOrUnknown(data['skill_id']!, _skillIdMeta));
+    } else if (isInserting) {
+      context.missing(_skillIdMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {lessonId, skillId};
+  @override
+  LessonPrerequisiteRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return LessonPrerequisiteRow(
+      lessonId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}lesson_id'])!,
+      skillId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}skill_id'])!,
+    );
+  }
+
+  @override
+  $LessonPrerequisitesTable createAlias(String alias) {
+    return $LessonPrerequisitesTable(attachedDatabase, alias);
+  }
+}
+
+class LessonPrerequisiteRow extends DataClass
+    implements Insertable<LessonPrerequisiteRow> {
+  final String lessonId;
+  final String skillId;
+  const LessonPrerequisiteRow({required this.lessonId, required this.skillId});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['lesson_id'] = Variable<String>(lessonId);
+    map['skill_id'] = Variable<String>(skillId);
+    return map;
+  }
+
+  LessonPrerequisitesCompanion toCompanion(bool nullToAbsent) {
+    return LessonPrerequisitesCompanion(
+      lessonId: Value(lessonId),
+      skillId: Value(skillId),
+    );
+  }
+
+  factory LessonPrerequisiteRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return LessonPrerequisiteRow(
+      lessonId: serializer.fromJson<String>(json['lessonId']),
+      skillId: serializer.fromJson<String>(json['skillId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'lessonId': serializer.toJson<String>(lessonId),
+      'skillId': serializer.toJson<String>(skillId),
+    };
+  }
+
+  LessonPrerequisiteRow copyWith({String? lessonId, String? skillId}) =>
+      LessonPrerequisiteRow(
+        lessonId: lessonId ?? this.lessonId,
+        skillId: skillId ?? this.skillId,
+      );
+  LessonPrerequisiteRow copyWithCompanion(LessonPrerequisitesCompanion data) {
+    return LessonPrerequisiteRow(
+      lessonId: data.lessonId.present ? data.lessonId.value : this.lessonId,
+      skillId: data.skillId.present ? data.skillId.value : this.skillId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LessonPrerequisiteRow(')
+          ..write('lessonId: $lessonId, ')
+          ..write('skillId: $skillId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(lessonId, skillId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is LessonPrerequisiteRow &&
+          other.lessonId == this.lessonId &&
+          other.skillId == this.skillId);
+}
+
+class LessonPrerequisitesCompanion
+    extends UpdateCompanion<LessonPrerequisiteRow> {
+  final Value<String> lessonId;
+  final Value<String> skillId;
+  final Value<int> rowid;
+  const LessonPrerequisitesCompanion({
+    this.lessonId = const Value.absent(),
+    this.skillId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  LessonPrerequisitesCompanion.insert({
+    required String lessonId,
+    required String skillId,
+    this.rowid = const Value.absent(),
+  })  : lessonId = Value(lessonId),
+        skillId = Value(skillId);
+  static Insertable<LessonPrerequisiteRow> custom({
+    Expression<String>? lessonId,
+    Expression<String>? skillId,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (lessonId != null) 'lesson_id': lessonId,
+      if (skillId != null) 'skill_id': skillId,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  LessonPrerequisitesCompanion copyWith(
+      {Value<String>? lessonId, Value<String>? skillId, Value<int>? rowid}) {
+    return LessonPrerequisitesCompanion(
+      lessonId: lessonId ?? this.lessonId,
+      skillId: skillId ?? this.skillId,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (lessonId.present) {
+      map['lesson_id'] = Variable<String>(lessonId.value);
+    }
+    if (skillId.present) {
+      map['skill_id'] = Variable<String>(skillId.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('LessonPrerequisitesCompanion(')
+          ..write('lessonId: $lessonId, ')
+          ..write('skillId: $skillId, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $DiagnosticQuestionsTable extends DiagnosticQuestions
+    with TableInfo<$DiagnosticQuestionsTable, DiagnosticQuestionRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DiagnosticQuestionsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _skillIdMeta =
+      const VerificationMeta('skillId');
+  @override
+  late final GeneratedColumn<String> skillId = GeneratedColumn<String>(
+      'skill_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _promptMeta = const VerificationMeta('prompt');
+  @override
+  late final GeneratedColumn<String> prompt = GeneratedColumn<String>(
+      'prompt', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _choicesJsonMeta =
+      const VerificationMeta('choicesJson');
+  @override
+  late final GeneratedColumn<String> choicesJson = GeneratedColumn<String>(
+      'choices_json', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _answerIndexMeta =
+      const VerificationMeta('answerIndex');
+  @override
+  late final GeneratedColumn<int> answerIndex = GeneratedColumn<int>(
+      'answer_index', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _explanationMeta =
+      const VerificationMeta('explanation');
+  @override
+  late final GeneratedColumn<String> explanation = GeneratedColumn<String>(
+      'explanation', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _kindMeta = const VerificationMeta('kind');
+  @override
+  late final GeneratedColumn<String> kind = GeneratedColumn<String>(
+      'kind', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, skillId, prompt, choicesJson, answerIndex, explanation, kind];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'diagnostic_questions';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<DiagnosticQuestionRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('skill_id')) {
+      context.handle(_skillIdMeta,
+          skillId.isAcceptableOrUnknown(data['skill_id']!, _skillIdMeta));
+    } else if (isInserting) {
+      context.missing(_skillIdMeta);
+    }
+    if (data.containsKey('prompt')) {
+      context.handle(_promptMeta,
+          prompt.isAcceptableOrUnknown(data['prompt']!, _promptMeta));
+    } else if (isInserting) {
+      context.missing(_promptMeta);
+    }
+    if (data.containsKey('choices_json')) {
+      context.handle(
+          _choicesJsonMeta,
+          choicesJson.isAcceptableOrUnknown(
+              data['choices_json']!, _choicesJsonMeta));
+    } else if (isInserting) {
+      context.missing(_choicesJsonMeta);
+    }
+    if (data.containsKey('answer_index')) {
+      context.handle(
+          _answerIndexMeta,
+          answerIndex.isAcceptableOrUnknown(
+              data['answer_index']!, _answerIndexMeta));
+    } else if (isInserting) {
+      context.missing(_answerIndexMeta);
+    }
+    if (data.containsKey('explanation')) {
+      context.handle(
+          _explanationMeta,
+          explanation.isAcceptableOrUnknown(
+              data['explanation']!, _explanationMeta));
+    } else if (isInserting) {
+      context.missing(_explanationMeta);
+    }
+    if (data.containsKey('kind')) {
+      context.handle(
+          _kindMeta, kind.isAcceptableOrUnknown(data['kind']!, _kindMeta));
+    } else if (isInserting) {
+      context.missing(_kindMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  DiagnosticQuestionRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DiagnosticQuestionRow(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      skillId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}skill_id'])!,
+      prompt: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}prompt'])!,
+      choicesJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}choices_json'])!,
+      answerIndex: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}answer_index'])!,
+      explanation: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}explanation'])!,
+      kind: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}kind'])!,
+    );
+  }
+
+  @override
+  $DiagnosticQuestionsTable createAlias(String alias) {
+    return $DiagnosticQuestionsTable(attachedDatabase, alias);
+  }
+}
+
+class DiagnosticQuestionRow extends DataClass
+    implements Insertable<DiagnosticQuestionRow> {
+  final int id;
+  final String skillId;
+  final String prompt;
+  final String choicesJson;
+  final int answerIndex;
+  final String explanation;
+
+  /// `diagnostic` or `review`.
+  final String kind;
+  const DiagnosticQuestionRow(
+      {required this.id,
+      required this.skillId,
+      required this.prompt,
+      required this.choicesJson,
+      required this.answerIndex,
+      required this.explanation,
+      required this.kind});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['skill_id'] = Variable<String>(skillId);
+    map['prompt'] = Variable<String>(prompt);
+    map['choices_json'] = Variable<String>(choicesJson);
+    map['answer_index'] = Variable<int>(answerIndex);
+    map['explanation'] = Variable<String>(explanation);
+    map['kind'] = Variable<String>(kind);
+    return map;
+  }
+
+  DiagnosticQuestionsCompanion toCompanion(bool nullToAbsent) {
+    return DiagnosticQuestionsCompanion(
+      id: Value(id),
+      skillId: Value(skillId),
+      prompt: Value(prompt),
+      choicesJson: Value(choicesJson),
+      answerIndex: Value(answerIndex),
+      explanation: Value(explanation),
+      kind: Value(kind),
+    );
+  }
+
+  factory DiagnosticQuestionRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DiagnosticQuestionRow(
+      id: serializer.fromJson<int>(json['id']),
+      skillId: serializer.fromJson<String>(json['skillId']),
+      prompt: serializer.fromJson<String>(json['prompt']),
+      choicesJson: serializer.fromJson<String>(json['choicesJson']),
+      answerIndex: serializer.fromJson<int>(json['answerIndex']),
+      explanation: serializer.fromJson<String>(json['explanation']),
+      kind: serializer.fromJson<String>(json['kind']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'skillId': serializer.toJson<String>(skillId),
+      'prompt': serializer.toJson<String>(prompt),
+      'choicesJson': serializer.toJson<String>(choicesJson),
+      'answerIndex': serializer.toJson<int>(answerIndex),
+      'explanation': serializer.toJson<String>(explanation),
+      'kind': serializer.toJson<String>(kind),
+    };
+  }
+
+  DiagnosticQuestionRow copyWith(
+          {int? id,
+          String? skillId,
+          String? prompt,
+          String? choicesJson,
+          int? answerIndex,
+          String? explanation,
+          String? kind}) =>
+      DiagnosticQuestionRow(
+        id: id ?? this.id,
+        skillId: skillId ?? this.skillId,
+        prompt: prompt ?? this.prompt,
+        choicesJson: choicesJson ?? this.choicesJson,
+        answerIndex: answerIndex ?? this.answerIndex,
+        explanation: explanation ?? this.explanation,
+        kind: kind ?? this.kind,
+      );
+  DiagnosticQuestionRow copyWithCompanion(DiagnosticQuestionsCompanion data) {
+    return DiagnosticQuestionRow(
+      id: data.id.present ? data.id.value : this.id,
+      skillId: data.skillId.present ? data.skillId.value : this.skillId,
+      prompt: data.prompt.present ? data.prompt.value : this.prompt,
+      choicesJson:
+          data.choicesJson.present ? data.choicesJson.value : this.choicesJson,
+      answerIndex:
+          data.answerIndex.present ? data.answerIndex.value : this.answerIndex,
+      explanation:
+          data.explanation.present ? data.explanation.value : this.explanation,
+      kind: data.kind.present ? data.kind.value : this.kind,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DiagnosticQuestionRow(')
+          ..write('id: $id, ')
+          ..write('skillId: $skillId, ')
+          ..write('prompt: $prompt, ')
+          ..write('choicesJson: $choicesJson, ')
+          ..write('answerIndex: $answerIndex, ')
+          ..write('explanation: $explanation, ')
+          ..write('kind: $kind')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id, skillId, prompt, choicesJson, answerIndex, explanation, kind);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DiagnosticQuestionRow &&
+          other.id == this.id &&
+          other.skillId == this.skillId &&
+          other.prompt == this.prompt &&
+          other.choicesJson == this.choicesJson &&
+          other.answerIndex == this.answerIndex &&
+          other.explanation == this.explanation &&
+          other.kind == this.kind);
+}
+
+class DiagnosticQuestionsCompanion
+    extends UpdateCompanion<DiagnosticQuestionRow> {
+  final Value<int> id;
+  final Value<String> skillId;
+  final Value<String> prompt;
+  final Value<String> choicesJson;
+  final Value<int> answerIndex;
+  final Value<String> explanation;
+  final Value<String> kind;
+  const DiagnosticQuestionsCompanion({
+    this.id = const Value.absent(),
+    this.skillId = const Value.absent(),
+    this.prompt = const Value.absent(),
+    this.choicesJson = const Value.absent(),
+    this.answerIndex = const Value.absent(),
+    this.explanation = const Value.absent(),
+    this.kind = const Value.absent(),
+  });
+  DiagnosticQuestionsCompanion.insert({
+    this.id = const Value.absent(),
+    required String skillId,
+    required String prompt,
+    required String choicesJson,
+    required int answerIndex,
+    required String explanation,
+    required String kind,
+  })  : skillId = Value(skillId),
+        prompt = Value(prompt),
+        choicesJson = Value(choicesJson),
+        answerIndex = Value(answerIndex),
+        explanation = Value(explanation),
+        kind = Value(kind);
+  static Insertable<DiagnosticQuestionRow> custom({
+    Expression<int>? id,
+    Expression<String>? skillId,
+    Expression<String>? prompt,
+    Expression<String>? choicesJson,
+    Expression<int>? answerIndex,
+    Expression<String>? explanation,
+    Expression<String>? kind,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (skillId != null) 'skill_id': skillId,
+      if (prompt != null) 'prompt': prompt,
+      if (choicesJson != null) 'choices_json': choicesJson,
+      if (answerIndex != null) 'answer_index': answerIndex,
+      if (explanation != null) 'explanation': explanation,
+      if (kind != null) 'kind': kind,
+    });
+  }
+
+  DiagnosticQuestionsCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? skillId,
+      Value<String>? prompt,
+      Value<String>? choicesJson,
+      Value<int>? answerIndex,
+      Value<String>? explanation,
+      Value<String>? kind}) {
+    return DiagnosticQuestionsCompanion(
+      id: id ?? this.id,
+      skillId: skillId ?? this.skillId,
+      prompt: prompt ?? this.prompt,
+      choicesJson: choicesJson ?? this.choicesJson,
+      answerIndex: answerIndex ?? this.answerIndex,
+      explanation: explanation ?? this.explanation,
+      kind: kind ?? this.kind,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (skillId.present) {
+      map['skill_id'] = Variable<String>(skillId.value);
+    }
+    if (prompt.present) {
+      map['prompt'] = Variable<String>(prompt.value);
+    }
+    if (choicesJson.present) {
+      map['choices_json'] = Variable<String>(choicesJson.value);
+    }
+    if (answerIndex.present) {
+      map['answer_index'] = Variable<int>(answerIndex.value);
+    }
+    if (explanation.present) {
+      map['explanation'] = Variable<String>(explanation.value);
+    }
+    if (kind.present) {
+      map['kind'] = Variable<String>(kind.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DiagnosticQuestionsCompanion(')
+          ..write('id: $id, ')
+          ..write('skillId: $skillId, ')
+          ..write('prompt: $prompt, ')
+          ..write('choicesJson: $choicesJson, ')
+          ..write('answerIndex: $answerIndex, ')
+          ..write('explanation: $explanation, ')
+          ..write('kind: $kind')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$ContentDatabase extends GeneratedDatabase {
   _$ContentDatabase(QueryExecutor e) : super(e);
   $ContentDatabaseManager get managers => $ContentDatabaseManager(this);
@@ -3950,6 +4924,11 @@ abstract class _$ContentDatabase extends GeneratedDatabase {
   late final $QuestionBankTable questionBank = $QuestionBankTable(this);
   late final $PackMetaTable packMeta = $PackMetaTable(this);
   late final $PackPagesTable packPages = $PackPagesTable(this);
+  late final $SkillsTable skills = $SkillsTable(this);
+  late final $LessonPrerequisitesTable lessonPrerequisites =
+      $LessonPrerequisitesTable(this);
+  late final $DiagnosticQuestionsTable diagnosticQuestions =
+      $DiagnosticQuestionsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -3966,7 +4945,10 @@ abstract class _$ContentDatabase extends GeneratedDatabase {
         prebuiltAnswers,
         questionBank,
         packMeta,
-        packPages
+        packPages,
+        skills,
+        lessonPrerequisites,
+        diagnosticQuestions
       ];
 }
 
@@ -6106,6 +7088,552 @@ typedef $$PackPagesTableProcessedTableManager = ProcessedTableManager<
     ),
     PackPageRow,
     PrefetchHooks Function()>;
+typedef $$SkillsTableCreateCompanionBuilder = SkillsCompanion Function({
+  required String id,
+  required String subjectId,
+  required int grade,
+  required String title,
+  required String summary,
+  required String miniLesson,
+  Value<String?> sourcePrintedPage,
+  Value<int> rowid,
+});
+typedef $$SkillsTableUpdateCompanionBuilder = SkillsCompanion Function({
+  Value<String> id,
+  Value<String> subjectId,
+  Value<int> grade,
+  Value<String> title,
+  Value<String> summary,
+  Value<String> miniLesson,
+  Value<String?> sourcePrintedPage,
+  Value<int> rowid,
+});
+
+class $$SkillsTableFilterComposer
+    extends Composer<_$ContentDatabase, $SkillsTable> {
+  $$SkillsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get subjectId => $composableBuilder(
+      column: $table.subjectId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get grade => $composableBuilder(
+      column: $table.grade, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get summary => $composableBuilder(
+      column: $table.summary, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get miniLesson => $composableBuilder(
+      column: $table.miniLesson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get sourcePrintedPage => $composableBuilder(
+      column: $table.sourcePrintedPage,
+      builder: (column) => ColumnFilters(column));
+}
+
+class $$SkillsTableOrderingComposer
+    extends Composer<_$ContentDatabase, $SkillsTable> {
+  $$SkillsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get subjectId => $composableBuilder(
+      column: $table.subjectId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get grade => $composableBuilder(
+      column: $table.grade, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get title => $composableBuilder(
+      column: $table.title, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get summary => $composableBuilder(
+      column: $table.summary, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get miniLesson => $composableBuilder(
+      column: $table.miniLesson, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get sourcePrintedPage => $composableBuilder(
+      column: $table.sourcePrintedPage,
+      builder: (column) => ColumnOrderings(column));
+}
+
+class $$SkillsTableAnnotationComposer
+    extends Composer<_$ContentDatabase, $SkillsTable> {
+  $$SkillsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get subjectId =>
+      $composableBuilder(column: $table.subjectId, builder: (column) => column);
+
+  GeneratedColumn<int> get grade =>
+      $composableBuilder(column: $table.grade, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get summary =>
+      $composableBuilder(column: $table.summary, builder: (column) => column);
+
+  GeneratedColumn<String> get miniLesson => $composableBuilder(
+      column: $table.miniLesson, builder: (column) => column);
+
+  GeneratedColumn<String> get sourcePrintedPage => $composableBuilder(
+      column: $table.sourcePrintedPage, builder: (column) => column);
+}
+
+class $$SkillsTableTableManager extends RootTableManager<
+    _$ContentDatabase,
+    $SkillsTable,
+    SkillRow,
+    $$SkillsTableFilterComposer,
+    $$SkillsTableOrderingComposer,
+    $$SkillsTableAnnotationComposer,
+    $$SkillsTableCreateCompanionBuilder,
+    $$SkillsTableUpdateCompanionBuilder,
+    (SkillRow, BaseReferences<_$ContentDatabase, $SkillsTable, SkillRow>),
+    SkillRow,
+    PrefetchHooks Function()> {
+  $$SkillsTableTableManager(_$ContentDatabase db, $SkillsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SkillsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SkillsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SkillsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> id = const Value.absent(),
+            Value<String> subjectId = const Value.absent(),
+            Value<int> grade = const Value.absent(),
+            Value<String> title = const Value.absent(),
+            Value<String> summary = const Value.absent(),
+            Value<String> miniLesson = const Value.absent(),
+            Value<String?> sourcePrintedPage = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              SkillsCompanion(
+            id: id,
+            subjectId: subjectId,
+            grade: grade,
+            title: title,
+            summary: summary,
+            miniLesson: miniLesson,
+            sourcePrintedPage: sourcePrintedPage,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String id,
+            required String subjectId,
+            required int grade,
+            required String title,
+            required String summary,
+            required String miniLesson,
+            Value<String?> sourcePrintedPage = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              SkillsCompanion.insert(
+            id: id,
+            subjectId: subjectId,
+            grade: grade,
+            title: title,
+            summary: summary,
+            miniLesson: miniLesson,
+            sourcePrintedPage: sourcePrintedPage,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable<$SkillsTable, SkillRow>(table),
+                    BaseReferences<_$ContentDatabase, $SkillsTable, SkillRow>(
+                        db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$SkillsTableProcessedTableManager = ProcessedTableManager<
+    _$ContentDatabase,
+    $SkillsTable,
+    SkillRow,
+    $$SkillsTableFilterComposer,
+    $$SkillsTableOrderingComposer,
+    $$SkillsTableAnnotationComposer,
+    $$SkillsTableCreateCompanionBuilder,
+    $$SkillsTableUpdateCompanionBuilder,
+    (SkillRow, BaseReferences<_$ContentDatabase, $SkillsTable, SkillRow>),
+    SkillRow,
+    PrefetchHooks Function()>;
+typedef $$LessonPrerequisitesTableCreateCompanionBuilder
+    = LessonPrerequisitesCompanion Function({
+  required String lessonId,
+  required String skillId,
+  Value<int> rowid,
+});
+typedef $$LessonPrerequisitesTableUpdateCompanionBuilder
+    = LessonPrerequisitesCompanion Function({
+  Value<String> lessonId,
+  Value<String> skillId,
+  Value<int> rowid,
+});
+
+class $$LessonPrerequisitesTableFilterComposer
+    extends Composer<_$ContentDatabase, $LessonPrerequisitesTable> {
+  $$LessonPrerequisitesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get lessonId => $composableBuilder(
+      column: $table.lessonId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get skillId => $composableBuilder(
+      column: $table.skillId, builder: (column) => ColumnFilters(column));
+}
+
+class $$LessonPrerequisitesTableOrderingComposer
+    extends Composer<_$ContentDatabase, $LessonPrerequisitesTable> {
+  $$LessonPrerequisitesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get lessonId => $composableBuilder(
+      column: $table.lessonId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get skillId => $composableBuilder(
+      column: $table.skillId, builder: (column) => ColumnOrderings(column));
+}
+
+class $$LessonPrerequisitesTableAnnotationComposer
+    extends Composer<_$ContentDatabase, $LessonPrerequisitesTable> {
+  $$LessonPrerequisitesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get lessonId =>
+      $composableBuilder(column: $table.lessonId, builder: (column) => column);
+
+  GeneratedColumn<String> get skillId =>
+      $composableBuilder(column: $table.skillId, builder: (column) => column);
+}
+
+class $$LessonPrerequisitesTableTableManager extends RootTableManager<
+    _$ContentDatabase,
+    $LessonPrerequisitesTable,
+    LessonPrerequisiteRow,
+    $$LessonPrerequisitesTableFilterComposer,
+    $$LessonPrerequisitesTableOrderingComposer,
+    $$LessonPrerequisitesTableAnnotationComposer,
+    $$LessonPrerequisitesTableCreateCompanionBuilder,
+    $$LessonPrerequisitesTableUpdateCompanionBuilder,
+    (
+      LessonPrerequisiteRow,
+      BaseReferences<_$ContentDatabase, $LessonPrerequisitesTable,
+          LessonPrerequisiteRow>
+    ),
+    LessonPrerequisiteRow,
+    PrefetchHooks Function()> {
+  $$LessonPrerequisitesTableTableManager(
+      _$ContentDatabase db, $LessonPrerequisitesTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$LessonPrerequisitesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$LessonPrerequisitesTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$LessonPrerequisitesTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> lessonId = const Value.absent(),
+            Value<String> skillId = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              LessonPrerequisitesCompanion(
+            lessonId: lessonId,
+            skillId: skillId,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String lessonId,
+            required String skillId,
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              LessonPrerequisitesCompanion.insert(
+            lessonId: lessonId,
+            skillId: skillId,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable<$LessonPrerequisitesTable,
+                        LessonPrerequisiteRow>(table),
+                    BaseReferences<_$ContentDatabase, $LessonPrerequisitesTable,
+                        LessonPrerequisiteRow>(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$LessonPrerequisitesTableProcessedTableManager = ProcessedTableManager<
+    _$ContentDatabase,
+    $LessonPrerequisitesTable,
+    LessonPrerequisiteRow,
+    $$LessonPrerequisitesTableFilterComposer,
+    $$LessonPrerequisitesTableOrderingComposer,
+    $$LessonPrerequisitesTableAnnotationComposer,
+    $$LessonPrerequisitesTableCreateCompanionBuilder,
+    $$LessonPrerequisitesTableUpdateCompanionBuilder,
+    (
+      LessonPrerequisiteRow,
+      BaseReferences<_$ContentDatabase, $LessonPrerequisitesTable,
+          LessonPrerequisiteRow>
+    ),
+    LessonPrerequisiteRow,
+    PrefetchHooks Function()>;
+typedef $$DiagnosticQuestionsTableCreateCompanionBuilder
+    = DiagnosticQuestionsCompanion Function({
+  Value<int> id,
+  required String skillId,
+  required String prompt,
+  required String choicesJson,
+  required int answerIndex,
+  required String explanation,
+  required String kind,
+});
+typedef $$DiagnosticQuestionsTableUpdateCompanionBuilder
+    = DiagnosticQuestionsCompanion Function({
+  Value<int> id,
+  Value<String> skillId,
+  Value<String> prompt,
+  Value<String> choicesJson,
+  Value<int> answerIndex,
+  Value<String> explanation,
+  Value<String> kind,
+});
+
+class $$DiagnosticQuestionsTableFilterComposer
+    extends Composer<_$ContentDatabase, $DiagnosticQuestionsTable> {
+  $$DiagnosticQuestionsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get skillId => $composableBuilder(
+      column: $table.skillId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get prompt => $composableBuilder(
+      column: $table.prompt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get choicesJson => $composableBuilder(
+      column: $table.choicesJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get answerIndex => $composableBuilder(
+      column: $table.answerIndex, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get explanation => $composableBuilder(
+      column: $table.explanation, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get kind => $composableBuilder(
+      column: $table.kind, builder: (column) => ColumnFilters(column));
+}
+
+class $$DiagnosticQuestionsTableOrderingComposer
+    extends Composer<_$ContentDatabase, $DiagnosticQuestionsTable> {
+  $$DiagnosticQuestionsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get skillId => $composableBuilder(
+      column: $table.skillId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get prompt => $composableBuilder(
+      column: $table.prompt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get choicesJson => $composableBuilder(
+      column: $table.choicesJson, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get answerIndex => $composableBuilder(
+      column: $table.answerIndex, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get explanation => $composableBuilder(
+      column: $table.explanation, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get kind => $composableBuilder(
+      column: $table.kind, builder: (column) => ColumnOrderings(column));
+}
+
+class $$DiagnosticQuestionsTableAnnotationComposer
+    extends Composer<_$ContentDatabase, $DiagnosticQuestionsTable> {
+  $$DiagnosticQuestionsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get skillId =>
+      $composableBuilder(column: $table.skillId, builder: (column) => column);
+
+  GeneratedColumn<String> get prompt =>
+      $composableBuilder(column: $table.prompt, builder: (column) => column);
+
+  GeneratedColumn<String> get choicesJson => $composableBuilder(
+      column: $table.choicesJson, builder: (column) => column);
+
+  GeneratedColumn<int> get answerIndex => $composableBuilder(
+      column: $table.answerIndex, builder: (column) => column);
+
+  GeneratedColumn<String> get explanation => $composableBuilder(
+      column: $table.explanation, builder: (column) => column);
+
+  GeneratedColumn<String> get kind =>
+      $composableBuilder(column: $table.kind, builder: (column) => column);
+}
+
+class $$DiagnosticQuestionsTableTableManager extends RootTableManager<
+    _$ContentDatabase,
+    $DiagnosticQuestionsTable,
+    DiagnosticQuestionRow,
+    $$DiagnosticQuestionsTableFilterComposer,
+    $$DiagnosticQuestionsTableOrderingComposer,
+    $$DiagnosticQuestionsTableAnnotationComposer,
+    $$DiagnosticQuestionsTableCreateCompanionBuilder,
+    $$DiagnosticQuestionsTableUpdateCompanionBuilder,
+    (
+      DiagnosticQuestionRow,
+      BaseReferences<_$ContentDatabase, $DiagnosticQuestionsTable,
+          DiagnosticQuestionRow>
+    ),
+    DiagnosticQuestionRow,
+    PrefetchHooks Function()> {
+  $$DiagnosticQuestionsTableTableManager(
+      _$ContentDatabase db, $DiagnosticQuestionsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$DiagnosticQuestionsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$DiagnosticQuestionsTableOrderingComposer(
+                  $db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$DiagnosticQuestionsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> skillId = const Value.absent(),
+            Value<String> prompt = const Value.absent(),
+            Value<String> choicesJson = const Value.absent(),
+            Value<int> answerIndex = const Value.absent(),
+            Value<String> explanation = const Value.absent(),
+            Value<String> kind = const Value.absent(),
+          }) =>
+              DiagnosticQuestionsCompanion(
+            id: id,
+            skillId: skillId,
+            prompt: prompt,
+            choicesJson: choicesJson,
+            answerIndex: answerIndex,
+            explanation: explanation,
+            kind: kind,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String skillId,
+            required String prompt,
+            required String choicesJson,
+            required int answerIndex,
+            required String explanation,
+            required String kind,
+          }) =>
+              DiagnosticQuestionsCompanion.insert(
+            id: id,
+            skillId: skillId,
+            prompt: prompt,
+            choicesJson: choicesJson,
+            answerIndex: answerIndex,
+            explanation: explanation,
+            kind: kind,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable<$DiagnosticQuestionsTable,
+                        DiagnosticQuestionRow>(table),
+                    BaseReferences<_$ContentDatabase, $DiagnosticQuestionsTable,
+                        DiagnosticQuestionRow>(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$DiagnosticQuestionsTableProcessedTableManager = ProcessedTableManager<
+    _$ContentDatabase,
+    $DiagnosticQuestionsTable,
+    DiagnosticQuestionRow,
+    $$DiagnosticQuestionsTableFilterComposer,
+    $$DiagnosticQuestionsTableOrderingComposer,
+    $$DiagnosticQuestionsTableAnnotationComposer,
+    $$DiagnosticQuestionsTableCreateCompanionBuilder,
+    $$DiagnosticQuestionsTableUpdateCompanionBuilder,
+    (
+      DiagnosticQuestionRow,
+      BaseReferences<_$ContentDatabase, $DiagnosticQuestionsTable,
+          DiagnosticQuestionRow>
+    ),
+    DiagnosticQuestionRow,
+    PrefetchHooks Function()>;
 
 class $ContentDatabaseManager {
   final _$ContentDatabase _db;
@@ -6134,4 +7662,10 @@ class $ContentDatabaseManager {
       $$PackMetaTableTableManager(_db, _db.packMeta);
   $$PackPagesTableTableManager get packPages =>
       $$PackPagesTableTableManager(_db, _db.packPages);
+  $$SkillsTableTableManager get skills =>
+      $$SkillsTableTableManager(_db, _db.skills);
+  $$LessonPrerequisitesTableTableManager get lessonPrerequisites =>
+      $$LessonPrerequisitesTableTableManager(_db, _db.lessonPrerequisites);
+  $$DiagnosticQuestionsTableTableManager get diagnosticQuestions =>
+      $$DiagnosticQuestionsTableTableManager(_db, _db.diagnosticQuestions);
 }

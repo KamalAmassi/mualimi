@@ -6,7 +6,9 @@ import 'package:sqlite3/sqlite3.dart' as sqlite;
 
 import 'tables/book_solutions.dart';
 import 'tables/chunks.dart';
+import 'tables/diagnostic_questions.dart';
 import 'tables/key_terms.dart';
+import 'tables/lesson_prerequisites.dart';
 import 'tables/lessons.dart';
 import 'tables/pack_meta.dart';
 import 'tables/pack_pages.dart';
@@ -14,6 +16,7 @@ import 'tables/prebuilt_answers.dart';
 import 'tables/question_bank.dart';
 import 'tables/questions.dart';
 import 'tables/sections.dart';
+import 'tables/skills.dart';
 import 'tables/subjects.dart';
 import 'tables/units.dart';
 
@@ -35,6 +38,9 @@ part 'content_database.g.dart';
   QuestionBank,
   PackMeta,
   PackPages,
+  Skills,
+  LessonPrerequisites,
+  DiagnosticQuestions,
 ])
 class ContentDatabase extends _$ContentDatabase {
   ContentDatabase(super.e);
@@ -45,7 +51,7 @@ class ContentDatabase extends _$ContentDatabase {
             sqlite.sqlite3.open(file.path, mode: sqlite.OpenMode.readOnly)));
 
   /// The `pack_meta.schema_version` an installable pack must carry.
-  static const packSchemaVersion = 3;
+  static const packSchemaVersion = 4;
 
   @override
   int get schemaVersion => packSchemaVersion;
