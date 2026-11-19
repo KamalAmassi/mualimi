@@ -13,6 +13,7 @@ import '../../domain/usecases/get_diagnostic_plans_usecase.dart';
 import '../../domain/usecases/get_learning_path_usecase.dart';
 import '../../domain/usecases/save_diagnostic_answers_usecase.dart';
 import '../../domain/usecases/start_diagnostic_usecase.dart';
+import '../../domain/rules/diagnostic_resume.dart';
 import '../routes/diagnostic_args.dart';
 import '../routes/skill_review_args.dart';
 import 'diagnostic_stage.dart';
@@ -83,7 +84,11 @@ class DiagnosticController extends GetxController {
     _answers
       ..clear()
       ..addAll(session.answered);
-    if (!_moveToFirstUnanswered()) return finish();
+    final resume =
+        DiagnosticResume.firstUnanswered(plans, _answers.keys.toSet());
+    if (resume == null) return finish();
+    planIndex.value = resume.$1;
+    questionIndex.value = resume.$2;
     stage.value = DiagnosticStage.question;
   }
 
@@ -155,32 +160,11 @@ class DiagnosticController extends GetxController {
     ]));
   }
 
-  /// Resumes after the answers already given. False when everything is answered.
-  bool _moveToFirstUnanswered() {
-    for (final (p, plan) in plans.indexed) {
-      for (final (q, question) in plan.questions.indexed) {
-        if (_answers.containsKey(question.id)) continue;
-        planIndex.value = p;
-        questionIndex.value = q;
-        return true;
-      }
-    }
-    return false;
-  }
-
   Future<void> _dropStrengthened() async {
     final path = await _getPath(const NoParams());
     path.fold((_) {}, (found) {
       final weak = {for (final s in found.weakSkills) s.id};
-      results.assignAll([
-        for (final r in results)
-          SubjectDiagnosticResult(
-            subjectId: r.subjectId,
-            subjectName: r.subjectName,
-            strongSkillCount: r.strongSkillCount,
-            weakSkills: [for (final s in r.weakSkills) if (weak.contains(s.id)) s],
-          ),
-      ]);
+      results.assignAll([for (final r in results) r.onlyWeak(weak)]);
     });
   }
 }

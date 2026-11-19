@@ -45,7 +45,12 @@ class SkillTile extends StatelessWidget {
         if (actionLabel == null)
           Icon(LucideIcons.chevronLeft, size: AppSizes.iconMd, color: c.textSecondary)
         else
-          FilledButton.tonal(onPressed: onTap, child: Text(actionLabel!)),
+          FilledButton.tonal(
+            style: FilledButton.styleFrom(
+                minimumSize: const Size(0, AppSizes.buttonHeight)),
+            onPressed: onTap,
+            child: Text(actionLabel!),
+          ),
       ]),
     );
   }

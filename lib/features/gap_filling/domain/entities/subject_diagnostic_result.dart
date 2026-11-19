@@ -17,6 +17,18 @@ class SubjectDiagnosticResult extends Equatable {
   /// Skills that need review, most useful first.
   final List<Skill> weakSkills;
 
+  /// The same result keeping only the skills still in [weakSkillIds].
+  SubjectDiagnosticResult onlyWeak(Set<String> weakSkillIds) =>
+      SubjectDiagnosticResult(
+        subjectId: subjectId,
+        subjectName: subjectName,
+        strongSkillCount: strongSkillCount,
+        weakSkills: [
+          for (final s in weakSkills)
+            if (weakSkillIds.contains(s.id)) s
+        ],
+      );
+
   @override
   List<Object?> get props => [subjectId, subjectName, strongSkillCount, weakSkills];
 }
