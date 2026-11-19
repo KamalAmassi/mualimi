@@ -58,8 +58,6 @@ design/
 | ViewerSolutions | عارض: الحلول | lesson | |
 | Tutor | المحادثة | curriculum_tutor | تبويب 2 · streaming + زر إيقاف |
 | TutorEmpty | محادثة جديدة | curriculum_tutor | |
-| TutorSetup | قبل تنزيل الموديل | curriculum_tutor | model_download_card + تنبيه بيانات الجوال |
-| TutorLoading | تحميل الموديل في الذاكرة | curriculum_tutor | |
 | TutorMath | الرياضيات قريباً | curriculum_tutor | |
 | TutorWeakDevice | وضع البحث | curriculum_tutor | رام غير كافٍ ← عرض المقاطع بدون توليد |
 | LessonPicker | اختيار المادة والدرس | curriculum_tutor | lesson_picker_sheet |
@@ -70,7 +68,6 @@ design/
 | Profile | حسابي | profile | تبويب 3 · فيه مفتاح المظهر |
 | EditName | تعديل الاسم | profile | Bottom Sheet |
 | ChangeGrade | تغيير الصف | profile | Bottom Sheet |
-| DeleteModel | تأكيد الحذف | profile | Dialog |
 
 ## طلب جاهز لـ Claude Code
 
