@@ -6,6 +6,10 @@ import '../../features/curriculum_tutor/presentation/bindings/tutor_binding.dart
 import '../../features/curriculum_tutor/presentation/pages/saved_page.dart';
 import '../../features/curriculum_tutor/presentation/routes/tutor_route_binding.dart';
 import '../../features/curriculum_tutor/presentation/routes/tutor_route_page.dart';
+import '../../features/gap_filling/presentation/bindings/diagnostic_binding.dart';
+import '../../features/gap_filling/presentation/bindings/skill_review_binding.dart';
+import '../../features/gap_filling/presentation/pages/diagnostic_page.dart';
+import '../../features/gap_filling/presentation/pages/skill_review_page.dart';
 import '../../features/lesson/presentation/bindings/lesson_binding.dart';
 import '../../features/lesson/presentation/pages/key_terms_page.dart';
 import '../../features/lesson/presentation/pages/lesson_page.dart';
@@ -34,5 +38,7 @@ abstract final class AppPages {
     GetPage(name: AppRoutes.keyTerms, page: KeyTermsPage.new, binding: LessonBinding()),
     GetPage(name: AppRoutes.saved, page: SavedPage.new, binding: TutorBinding()),
     GetPage(name: AppRoutes.tutor, page: TutorRoutePage.new, binding: TutorRouteBinding()),
+    GetPage(name: AppRoutes.diagnostic, page: DiagnosticPage.new, binding: DiagnosticBinding()),
+    GetPage(name: AppRoutes.skillReview, page: SkillReviewPage.new, binding: SkillReviewBinding()),
   ];
 }
