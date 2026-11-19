@@ -1,7 +1,6 @@
 import 'dart:convert';
 
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mualimi/core/constants/limits.dart';
 import 'package:mualimi/core/error/exceptions.dart';
 import 'package:mualimi/features/content_manager/data/models/manifest_model.dart';
 
@@ -16,17 +15,7 @@ Map<String, dynamic> sample() => jsonDecode('''
       { "id": "science", "name": "العلوم والحياة", "tutorEnabled": true },
       { "id": "math", "name": "الرياضيات", "tutorEnabled": false }
     ]
-  }],
-  "model": {
-    "id": "gemma-4-e2b", "version": 1, "fileName": "gemma-4-E2B-it.litertlm",
-    "totalSize": 2583000000, "sha256": "def",
-    "parts": [
-      { "index": 1, "urls": ["https://b/1"], "size": 83000000, "sha256": "p1" },
-      { "index": 0, "urls": ["https://a/0", "https://m/0"], "size": 524288000, "sha256": "p0" }
-    ]
-  },
-  "embedding": { "id": "emb", "version": 1, "fileName": "e.tflite",
-                 "totalSize": 0, "sha256": "", "parts": [] }
+  }]
 }
 ''') as Map<String, dynamic>;
 
@@ -42,32 +31,6 @@ void main() {
     expect(pack.mirrors, ['https://b/pack.zip']);
     expect(pack.subjects.map((s) => s.id), ['science', 'math']);
     expect(pack.subjects.last.tutorEnabled, isFalse);
-  });
-
-  test('parses the model and orders its parts by index', () {
-    final model = ManifestModel.fromJson(sample()).model!;
-    expect(model.fileName, 'gemma-4-E2B-it.litertlm');
-    expect(model.parts.map((p) => p.index), [0, 1]);
-    expect(model.parts.first.urls, ['https://a/0', 'https://m/0']);
-    expect(model.largestPartSize, 524288000);
-  });
-
-  test('required free space is file + largest part + margin', () {
-    final model = ManifestModel.fromJson(sample()).model!;
-    expect(model.requiredFreeBytes, 2583000000 + 524288000 + Limits.downloadMarginBytes);
-  });
-
-  test('an embedding entry with no parts still parses', () {
-    expect(ManifestModel.fromJson(sample()).embedding!.parts, isEmpty);
-  });
-
-  test('model and embedding are optional', () {
-    final json = sample()
-      ..remove('model')
-      ..remove('embedding');
-    final m = ManifestModel.fromJson(json);
-    expect(m.model, isNull);
-    expect(m.embedding, isNull);
   });
 
   test('packFor matches grade and track', () {
@@ -103,12 +66,6 @@ void main() {
     test('wrong field type', () {
       final json = sample();
       (json['packs'] as List).first['grade'] = 'nine';
-      expect(() => ManifestModel.fromJson(json), throwsA(isA<ManifestException>()));
-    });
-
-    test('a part without urls', () {
-      final json = sample();
-      ((json['model'] as Map)['parts'] as List).first['urls'] = <String>[];
       expect(() => ManifestModel.fromJson(json), throwsA(isA<ManifestException>()));
     });
   });

@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
-import 'package:mualimi/core/constants/app_strings.dart';
 import 'package:mualimi/core/routes/app_routes.dart';
 import 'package:mualimi/core/theme/app_theme.dart';
 import 'package:mualimi/core/utils/byte_formatter.dart';
 import 'package:mualimi/features/profile/domain/entities/app_theme_mode.dart';
 import 'package:mualimi/features/profile/domain/entities/pack_update_check.dart';
 import 'package:mualimi/features/profile/presentation/pages/profile_page.dart';
+import 'package:mualimi/features/profile/presentation/widgets/about_sheet.dart';
+import 'package:mualimi/features/profile/presentation/widgets/change_grade_sheet.dart';
 import 'package:mualimi/features/profile/presentation/widgets/edit_name_sheet.dart';
 import 'package:mualimi/features/profile/presentation/widgets/profile_strings.dart';
 
@@ -120,15 +121,11 @@ void main() {
     expect(fixture.profiles.profile.themeMode, AppThemeMode.system);
   });
 
-  testWidgets('change grade opens the sheet, a grade goes to the download route',
-      (tester) async {
-    final fixture = await _pump(tester);
+  testWidgets('change opens the grade sheet', (tester) async {
+    await _pump(tester);
     await tester.tap(find.text(ProfileStrings.change));
     await tester.pumpAndSettle();
-    await tester.tap(find.text('${AppStrings.gradePrefix} 9'));
-    await tester.pumpAndSettle();
-    expect(fixture.profiles.profile.grade, 9);
-    expect(find.text('download'), findsOneWidget);
+    expect(find.byType(ChangeGradeSheet), findsOneWidget);
   });
 
   testWidgets('font row cycles the global scale and its label', (tester) async {
@@ -160,10 +157,10 @@ void main() {
     expect(fixture.updateSheetOpens, 1);
   });
 
-  testWidgets('about row does nothing yet', (tester) async {
+  testWidgets('about row opens the About sheet', (tester) async {
     await _pump(tester);
     await _tapVisible(tester, find.text(ProfileStrings.about));
-    expect(find.byType(BottomSheet), findsNothing);
+    expect(find.byType(AboutSheet), findsOneWidget);
     expect(find.text('download'), findsNothing);
   });
 

@@ -43,6 +43,7 @@ Work ONLY inside the features of your track. If a task needs a change in the oth
 ## Contracts between the two tracks (change only when both agree)
 - **Opening the tutor:** the tutor is opened from other features only through `AppRoutes.tutor` with `TutorArgs(subjectId, lessonId)`. It opens as a full screen on top of the current page, with a back button. The tutor tab in the shell stays as is.
 - **Pack schema:** `pack_meta` contains `schema_version`. Packs ship already at the schema the app expects; the app never migrates `content.db`. If a pack's schema is older than expected, the app treats it as needing an update and downloads it again.
+- The pack format is defined in `docs/pack-format.md`. Any change to it goes through a PR reviewed by both developers.
 - **Tutor → pack viewer:** "Open in pack" opens the lesson viewer route with `lessonId` and `pdfPage`.
 - **Prerequisites card:** `gap_filling` exposes `LessonPrerequisitesCard(lessonId)`. The lesson page only places it.
 - **Learning path on Home:** `gap_filling` exposes the "مسارك" widget. Home only places it.

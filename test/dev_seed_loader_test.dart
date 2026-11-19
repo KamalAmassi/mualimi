@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:drift/drift.dart' show driftRuntimeOptions;
+import 'package:sqlite3/sqlite3.dart' as sqlite;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mualimi/core/bindings/initial_binding.dart';
 import 'package:mualimi/core/constants/app_files.dart';
@@ -29,12 +30,21 @@ void main() {
   driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
 
   group('DevSeedLoader.isEnabled', () {
-    test('needs both a debug build and the DEV_SEED flag', () {
-      expect(DevSeedLoader.isEnabled(debugMode: true, flagSet: true), isTrue);
-      expect(DevSeedLoader.isEnabled(debugMode: true, flagSet: false), isFalse);
-      expect(DevSeedLoader.isEnabled(debugMode: false, flagSet: true), isFalse);
+    test('is allowed in debug and profile builds when the flag is set', () {
       expect(
-          DevSeedLoader.isEnabled(debugMode: false, flagSet: false), isFalse);
+          DevSeedLoader.isEnabled(releaseMode: false, flagSet: true), isTrue);
+    });
+
+    test('is blocked in release builds even when the flag is set', () {
+      expect(
+          DevSeedLoader.isEnabled(releaseMode: true, flagSet: true), isFalse);
+    });
+
+    test('is off without the flag in any build mode', () {
+      expect(
+          DevSeedLoader.isEnabled(releaseMode: false, flagSet: false), isFalse);
+      expect(
+          DevSeedLoader.isEnabled(releaseMode: true, flagSet: false), isFalse);
     });
 
     test('is off by default when the flag is not passed', () {
@@ -89,6 +99,22 @@ void main() {
       await Future<void>.delayed(const Duration(milliseconds: 50));
       await start(installDevSeed: true);
       expect(contentDb().lastModifiedSync(), before);
+    });
+
+    test('a pack from an older schema is deleted and rebuilt', () async {
+      contentDb().parent.createSync(recursive: true);
+      final old = sqlite.sqlite3.open(contentDb().path);
+      old.execute('CREATE TABLE pack_meta (key TEXT PRIMARY KEY, value TEXT)');
+      old.execute("INSERT INTO pack_meta VALUES ('schema_version', '2')");
+      old.close();
+      await start(installDevSeed: true);
+      final rebuilt =
+          sqlite.sqlite3.open(contentDb().path, mode: sqlite.OpenMode.readOnly);
+      final version = rebuilt
+          .select("SELECT value FROM pack_meta WHERE key = 'schema_version'")
+          .first['value'];
+      rebuilt.close();
+      expect(version, '3');
     });
   });
 }

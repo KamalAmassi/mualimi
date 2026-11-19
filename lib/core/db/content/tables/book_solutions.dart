@@ -5,6 +5,7 @@ class BookSolutions extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get lessonId => text()();
   IntColumn get number => integer()();
-  IntColumn get page => integer()();
+  TextColumn get question => text()();
+  TextColumn get page => text()();
   TextColumn get solution => text()();
 }

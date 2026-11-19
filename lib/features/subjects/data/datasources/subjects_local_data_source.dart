@@ -51,12 +51,7 @@ class SubjectsLocalDataSource {
   /// Newest progress row whose lesson is still in the installed pack; a pack
   /// update can drop lessons that user.db still remembers.
   Future<ContinueLessonModel?> continueLesson() async {
-    final user = _databases.user;
-    final progress = await (user.selectOnly(user.lessonProgress)
-          ..addColumns([user.lessonProgress.lessonId])
-          ..orderBy([OrderingTerm.desc(user.lessonProgress.updatedAt)]))
-        .map((row) => row.read(user.lessonProgress.lessonId)!)
-        .get();
+    final progress = await _openedLessonIds();
     if (progress.isEmpty) return null;
     final db = _content();
     final rows = await (db.select(db.lessons).join([
@@ -73,6 +68,32 @@ class SubjectsLocalDataSource {
           row.readTable(db.lessons), row.readTable(db.subjects), row.readTable(db.units));
     }
     return null;
+  }
+
+  /// Newest opened lesson of [subjectId] that is still in the installed pack.
+  Future<String?> lastOpenedLessonId(String subjectId) async {
+    final progress = await _openedLessonIds();
+    if (progress.isEmpty) return null;
+    final db = _content();
+    final inSubject = await (db.selectOnly(db.lessons)
+          ..addColumns([db.lessons.id])
+          ..where(db.lessons.id.isIn(progress) & db.lessons.subjectId.equals(subjectId)))
+        .map((row) => row.read(db.lessons.id)!)
+        .get();
+    for (final lessonId in progress) {
+      if (inSubject.contains(lessonId)) return lessonId;
+    }
+    return null;
+  }
+
+  /// Lesson ids from user.db, most recently opened first.
+  Future<List<String>> _openedLessonIds() {
+    final user = _databases.user;
+    return (user.selectOnly(user.lessonProgress)
+          ..addColumns([user.lessonProgress.lessonId])
+          ..orderBy([OrderingTerm.desc(user.lessonProgress.updatedAt)]))
+        .map((row) => row.read(user.lessonProgress.lessonId)!)
+        .get();
   }
 
   ContentDatabase _content() {

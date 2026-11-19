@@ -39,7 +39,7 @@ void main() {
     net(NetworkKind.offline);
     await settle();
     expect(c.ui.value, DownloadUiState.paused);
-    expect(c.pauseReason, PauseReason.network);
+    expect(c.pauseReason.value, PauseReason.network);
     expect(h.pause.calls, 1);
 
     net(NetworkKind.wifi);
@@ -49,7 +49,7 @@ void main() {
     await afterDebounce();
     expect(h.resume.calls, 1);
     expect(c.ui.value, DownloadUiState.downloading);
-    expect(c.pauseReason, isNull);
+    expect(c.pauseReason.value, isNull);
     expect(h.download.jobs, hasLength(1));
   });
 
@@ -61,7 +61,7 @@ void main() {
       await afterDebounce();
     }
     expect(c.ui.value, DownloadUiState.paused);
-    expect(c.pauseReason, PauseReason.user);
+    expect(c.pauseReason.value, PauseReason.user);
     expect(h.resume.calls, 0);
   });
 
@@ -70,7 +70,7 @@ void main() {
     net(NetworkKind.offline);
     await c.start();
     expect(c.ui.value, DownloadUiState.paused);
-    expect(c.pauseReason, PauseReason.network);
+    expect(c.pauseReason.value, PauseReason.network);
     expect(h.download.jobs, isEmpty);
 
     await c.startForCurrentGrade(); // re-entering /download: still one waiting job
@@ -124,7 +124,7 @@ void main() {
     h.download.emit(const DownloadProgress(phase: DownloadPhase.failed, failure: NetworkFailure()));
     await settle();
     expect(c.ui.value, DownloadUiState.paused);
-    expect(c.pauseReason, PauseReason.network);
+    expect(c.pauseReason.value, PauseReason.network);
 
     net(NetworkKind.wifi);
     await afterDebounce();

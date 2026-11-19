@@ -5,6 +5,8 @@ import '../content_database.dart';
 import 'dev_seed_charging_basics.dart';
 import 'dev_seed_charging_induction.dart';
 import 'dev_seed_force_lesson.dart';
+import 'dev_seed_lesson_bodies.dart';
+import 'dev_seed_pack_pages.dart';
 import 'dev_seed_prebuilt_answers.dart';
 import 'dev_seed_question_bank.dart';
 
@@ -21,8 +23,8 @@ abstract final class DevSeedScienceG9 {
   static const otherLessonTitle = 'القوة بين الشحنات الكهربائية';
   static const subjectName = 'العلوم والحياة';
 
-  static const _pdfOffset = 4;
-  static const _pdfFile = 'science-9.pdf';
+  static const _pdfFile = 'science.pdf';
+  static const _builtAt = '2026-11-18T00:00:00Z';
 
   static Future<void> insert(ContentDatabase db) async {
     await db.batch((b) {
@@ -58,13 +60,26 @@ abstract final class DevSeedScienceG9 {
           tutorEnabled: const Value(false),
         ),
       );
-      b.insert(
-        db.sections,
-        SectionsCompanion.insert(
-            lessonId: lessonId,
-            title: 'الشحن بالدلك',
-            body: chargingPassagesBasics[2].$2),
-      );
+      for (final (order, (title, body)) in chargingSections.indexed) {
+        b.insert(
+          db.sections,
+          SectionsCompanion.insert(
+              lessonId: lessonId,
+              title: title,
+              body: body,
+              sortOrder: Value(order)),
+        );
+      }
+      for (final (order, (title, body)) in forceSections.indexed) {
+        b.insert(
+          db.sections,
+          SectionsCompanion.insert(
+              lessonId: otherLessonId,
+              title: title,
+              body: body,
+              sortOrder: Value(order)),
+        );
+      }
       b.insert(
         db.keyTerms,
         KeyTermsCompanion.insert(
@@ -82,11 +97,17 @@ abstract final class DevSeedScienceG9 {
           answer: 'الحث',
         ),
       );
-      b.insert(
-        db.bookSolutions,
-        BookSolutionsCompanion.insert(
-            lessonId: lessonId, number: 1, page: 15, solution: 'الحث'),
-      );
+      for (final (number, question, page, solution) in chargingSolutions) {
+        b.insert(
+          db.bookSolutions,
+          BookSolutionsCompanion.insert(
+              lessonId: lessonId,
+              number: number,
+              question: question,
+              page: page,
+              solution: solution),
+        );
+      }
       for (final (kind, content) in chargingPrebuiltAnswers) {
         b.insert(
           db.prebuiltAnswers,
@@ -94,9 +115,23 @@ abstract final class DevSeedScienceG9 {
               lessonId: lessonId, kind: kind, content: content),
         );
       }
-      b.insert(db.packMeta, PackMetaCompanion.insert(key: 'grade', value: '9'));
-      b.insert(
-          db.packMeta, PackMetaCompanion.insert(key: 'version', value: '1'));
+      for (final (key, value) in [
+        ('schema_version', '${ContentDatabase.packSchemaVersion}'),
+        ('grade', '9'),
+        ('pack_version', '1'),
+        ('built_at', _builtAt),
+      ]) {
+        b.insert(db.packMeta, PackMetaCompanion.insert(key: key, value: value));
+      }
+      for (var pdf = 1; pdf <= DevSeedPackPages.lastPdfPage; pdf++) {
+        b.insert(
+          db.packPages,
+          PackPagesCompanion.insert(
+              subjectId: subjectId,
+              pdfPage: pdf,
+              printedPage: DevSeedPackPages.printedPageOf(pdf)),
+        );
+      }
     });
     await _insertPassages(db, lessonId, [
       ...chargingPassagesBasics,
@@ -119,6 +154,9 @@ abstract final class DevSeedScienceG9 {
         );
       }
     });
+    // A read-only open never migrates, so a pack must already carry its schema version.
+    await db.customStatement(
+        'PRAGMA user_version = ${ContentDatabase.packSchemaVersion}');
   }
 
   static LessonsCompanion _lesson(
@@ -131,6 +169,12 @@ abstract final class DevSeedScienceG9 {
         sortOrder: Value(order),
         bookPagesFrom: Value(from),
         bookPagesTo: Value(to),
+        printedPageFrom: Value('$from'),
+        printedPageTo: Value('$to'),
+        pdfPageFrom: Value(DevSeedPackPages.pdfPageOf(from)),
+        pdfPageTo: Value(DevSeedPackPages.pdfPageOf(to)),
+        videoChaptersJson:
+            id == lessonId ? const Value(chargingVideoChaptersJson) : const Value.absent(),
         pdfFile: const Value(_pdfFile),
       );
 
@@ -146,7 +190,7 @@ abstract final class DevSeedScienceG9 {
           ChunksCompanion.insert(
             lessonId: lesson,
             printedPage: printedPage,
-            pdfPage: int.parse(printedPage) + _pdfOffset,
+            pdfPage: DevSeedPackPages.pdfPageOf(int.parse(printedPage)),
             content: text,
             textNormalized: ArabicNormalizer.normalize(text),
           ),

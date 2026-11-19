@@ -9,6 +9,7 @@ import 'tables/chunks.dart';
 import 'tables/key_terms.dart';
 import 'tables/lessons.dart';
 import 'tables/pack_meta.dart';
+import 'tables/pack_pages.dart';
 import 'tables/prebuilt_answers.dart';
 import 'tables/question_bank.dart';
 import 'tables/questions.dart';
@@ -19,8 +20,8 @@ import 'tables/units.dart';
 part 'content_database.g.dart';
 
 /// Curriculum content. The app never writes to it: updating a pack replaces
-/// the whole file. Prebuilt pack files must set `PRAGMA user_version` to
-/// [schemaVersion] so opening read-only needs no migration.
+/// the whole file. Packs ship at [schemaVersion] and are never migrated; the
+/// format is defined in `docs/pack-format.md`.
 @DriftDatabase(tables: [
   Subjects,
   Units,
@@ -33,6 +34,7 @@ part 'content_database.g.dart';
   PrebuiltAnswers,
   QuestionBank,
   PackMeta,
+  PackPages,
 ])
 class ContentDatabase extends _$ContentDatabase {
   ContentDatabase(super.e);
@@ -43,7 +45,7 @@ class ContentDatabase extends _$ContentDatabase {
             sqlite.sqlite3.open(file.path, mode: sqlite.OpenMode.readOnly)));
 
   /// The `pack_meta.schema_version` an installable pack must carry.
-  static const packSchemaVersion = 2;
+  static const packSchemaVersion = 3;
 
   @override
   int get schemaVersion => packSchemaVersion;
@@ -54,26 +56,6 @@ class ContentDatabase extends _$ContentDatabase {
           await m.createAll();
           await _createChunkSearchIndex();
           await _createQuestionBankSearchIndex();
-        },
-        onUpgrade: (m, from, to) async {
-          if (from < 2) {
-            await m.alterTable(TableMigration(
-              chunks,
-              newColumns: [chunks.printedPage, chunks.pdfPage],
-              columnTransformer: {
-                chunks.printedPage:
-                    const CustomExpression('CAST(page AS TEXT)'),
-                chunks.pdfPage: const CustomExpression('page'),
-              },
-            ));
-            await customStatement('DROP TABLE IF EXISTS chunks_fts');
-            await _createChunkSearchIndex();
-            await customStatement(
-                "INSERT INTO chunks_fts(chunks_fts) VALUES('rebuild')");
-            await customStatement('DROP TABLE IF EXISTS chunk_vectors');
-            await m.createTable(questionBank);
-            await _createQuestionBankSearchIndex();
-          }
         },
       );
 

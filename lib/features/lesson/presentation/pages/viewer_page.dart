@@ -73,7 +73,11 @@ class ViewerPage extends GetView<ViewerController> {
   Widget _explanation() {
     final section = controller.currentSection;
     if (section != null) {
-      return ViewerSectionArticle(key: ValueKey(controller.sectionIndex.value), section: section);
+      return ViewerSectionArticle(
+        key: ValueKey(controller.sectionIndex.value),
+        section: section,
+        fontScale: controller.fontScale.value,
+      );
     }
     if (controller.loading.value) return const Center(child: CircularProgressIndicator());
     if (controller.lesson.value == null && controller.failure.value != null) {

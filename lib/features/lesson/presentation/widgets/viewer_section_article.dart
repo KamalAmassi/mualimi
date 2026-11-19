@@ -5,10 +5,14 @@ import '../../domain/entities/lesson_section.dart';
 import 'viewer_dimens.dart';
 
 /// One lesson section: its title and body, rendered as plain text.
+///
+/// [fontScale] enlarges the base sizes only; the device text scale is still
+/// applied on top by the ambient [TextScaler].
 class ViewerSectionArticle extends StatelessWidget {
-  const ViewerSectionArticle({super.key, required this.section});
+  const ViewerSectionArticle({super.key, required this.section, required this.fontScale});
 
   final LessonSection section;
+  final double fontScale;
 
   @override
   Widget build(BuildContext context) {
@@ -21,7 +25,7 @@ class ViewerSectionArticle extends StatelessWidget {
           Text(
             section.title,
             style: TextStyle(
-              fontSize: ViewerDimens.headingSize,
+              fontSize: ViewerDimens.headingSize * fontScale,
               fontWeight: FontWeight.w700,
               color: c.primary,
             ),
@@ -30,7 +34,7 @@ class ViewerSectionArticle extends StatelessWidget {
           Text(
             section.body,
             style: TextStyle(
-              fontSize: ViewerDimens.bodySize,
+              fontSize: ViewerDimens.bodySize * fontScale,
               height: ViewerDimens.bodyLineHeight,
               color: c.textPrimary,
             ),
