@@ -24,8 +24,8 @@ class SavedPage extends GetView<SavedController> {
       body: SafeArea(
         child: Column(children: [
           _Header(color: c),
-          Obx(() => _Controls(controller: controller)),
-          Expanded(child: Obx(() => _List(controller: controller))),
+          _Controls(controller: controller),
+          Expanded(child: _List(controller: controller)),
         ]),
       ),
     );
@@ -76,7 +76,9 @@ class _Controls extends StatelessWidget {
   final SavedController controller;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => Obx(() => _content(context));
+
+  Widget _content(BuildContext context) {
     final history = controller.showHistory.value;
     return Container(
       color: context.colors.surface,
@@ -105,7 +107,9 @@ class _List extends StatelessWidget {
   final SavedController controller;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context) => Obx(() => _content());
+
+  Widget _content() {
     if (controller.showHistory.value) {
       final groups = controller.historyGroups();
       if (groups.isEmpty) {
