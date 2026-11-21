@@ -37,4 +37,29 @@ void main() {
     final terms = await LessonLocalDataSource(_InMemoryDatabaseService(db)).keyTerms('l1');
     expect(terms.map((t) => t.term), ['first', 'second', 'third']);
   });
+
+  test('a lesson carries its subject name and unit title', () async {
+    await db.into(db.subjects).insert(SubjectsCompanion.insert(id: 's1', name: 'Science'));
+    await db.into(db.units).insert(UnitsCompanion.insert(id: 'u1', subjectId: 's1', title: 'Unit 2'));
+    await db.into(db.lessons).insert(LessonsCompanion.insert(
+          id: 'l1',
+          unitId: 'u1',
+          subjectId: 's1',
+          title: 'Charging',
+          bookPagesFrom: const Value(44),
+          bookPagesTo: const Value(49),
+        ));
+    final lesson = await LessonLocalDataSource(_InMemoryDatabaseService(db)).lesson('l1');
+    expect(lesson.subjectName, 'Science');
+    expect(lesson.unitTitle, 'Unit 2');
+    expect((lesson.bookPagesFrom, lesson.bookPagesTo), (44, 49));
+  });
+
+  test('a lesson without its unit or subject row still loads', () async {
+    await db.into(db.lessons).insert(
+        LessonsCompanion.insert(id: 'l1', unitId: 'u9', subjectId: 's9', title: 'Charging'));
+    final lesson = await LessonLocalDataSource(_InMemoryDatabaseService(db)).lesson('l1');
+    expect(lesson.subjectName, isNull);
+    expect(lesson.unitTitle, isNull);
+  });
 }

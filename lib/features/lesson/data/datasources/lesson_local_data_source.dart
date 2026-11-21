@@ -20,7 +20,12 @@ class LessonLocalDataSource {
           ..where((t) => t.lessonId.equals(id))
           ..orderBy([(t) => OrderingTerm.asc(t.sortOrder)]))
         .get();
-    return LessonModel.fromRows(row, sections);
+    final unit =
+        await (db.select(db.units)..where((t) => t.id.equals(row.unitId))).getSingleOrNull();
+    final subject = await (db.select(db.subjects)..where((t) => t.id.equals(row.subjectId)))
+        .getSingleOrNull();
+    return LessonModel.fromRows(row, sections,
+        subjectName: subject?.name, unitTitle: unit?.title);
   }
 
   Future<List<KeyTerm>> keyTerms(String lessonId) async {

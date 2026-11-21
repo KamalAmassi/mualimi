@@ -200,6 +200,7 @@ class Journey {
       find.byIcon(Icons.close),
       find.byIcon(LucideIcons.arrowRight),
       find.byIcon(Icons.chevron_right),
+      find.byIcon(LucideIcons.chevronRight),
     ];
     final target = candidates.firstWhere((f) => f.evaluate().isNotEmpty).first;
     await tester.tap(target);

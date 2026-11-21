@@ -14,9 +14,17 @@ class LessonModel extends Lesson {
     super.bookPagesFrom,
     super.bookPagesTo,
     super.pdfFile,
+    super.subjectName,
+    super.unitTitle,
   });
 
-  factory LessonModel.fromRows(LessonRow row, List<SectionRow> sections) => LessonModel(
+  factory LessonModel.fromRows(
+    LessonRow row,
+    List<SectionRow> sections, {
+    String? subjectName,
+    String? unitTitle,
+  }) =>
+      LessonModel(
         id: row.id,
         subjectId: row.subjectId,
         title: row.title,
@@ -26,6 +34,8 @@ class LessonModel extends Lesson {
         bookPagesFrom: row.bookPagesFrom,
         bookPagesTo: row.bookPagesTo,
         pdfFile: row.pdfFile,
+        subjectName: subjectName,
+        unitTitle: unitTitle,
         sections: [
           for (final s in sections) LessonSection(id: s.id, title: s.title, body: s.body),
         ],
