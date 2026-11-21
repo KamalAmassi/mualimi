@@ -6,6 +6,7 @@ import 'package:sqlite3/sqlite3.dart' as sqlite;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mualimi/core/bindings/initial_binding.dart';
 import 'package:mualimi/core/constants/app_files.dart';
+import 'package:mualimi/core/db/content/content_database.dart';
 import 'package:mualimi/core/db/content/seed/dev_seed_loader.dart';
 import 'package:mualimi/core/services/device_info_source.dart';
 import 'package:mualimi/core/services/device_snapshot.dart';
@@ -105,7 +106,8 @@ void main() {
       contentDb().parent.createSync(recursive: true);
       final old = sqlite.sqlite3.open(contentDb().path);
       old.execute('CREATE TABLE pack_meta (key TEXT PRIMARY KEY, value TEXT)');
-      old.execute("INSERT INTO pack_meta VALUES ('schema_version', '2')");
+      old.execute(
+          "INSERT INTO pack_meta VALUES ('schema_version', '${ContentDatabase.packSchemaVersion - 1}')");
       old.close();
       await start(installDevSeed: true);
       final rebuilt =
@@ -114,7 +116,7 @@ void main() {
           .select("SELECT value FROM pack_meta WHERE key = 'schema_version'")
           .first['value'];
       rebuilt.close();
-      expect(version, '3');
+      expect(version, '${ContentDatabase.packSchemaVersion}');
     });
   });
 }
