@@ -146,15 +146,37 @@ class Journey {
   final ScriptedDownload download;
 
   /// Drift's isolates and file IO don't advance under fake async, so each
-  /// step alternates real waiting with pumping.
-  Future<void> settle({int rounds = 12}) async {
-    for (var i = 0; i < rounds; i++) {
-      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 40)));
-      await tester.pump(const Duration(milliseconds: 40));
+  /// poll alternates a short real wait with a pump. Waits until [finder]
+  /// matches and, when given, [gone] no longer does.
+  Future<void> pumpUntil(
+    Finder finder, {
+    Finder? gone,
+    Duration timeout = const Duration(seconds: 10),
+  }) async {
+    await _pumpWhileWaiting(
+      () => finder.evaluate().isNotEmpty && (gone?.evaluate().isEmpty ?? true),
+      '$finder${gone == null ? '' : ' and $gone to disappear'}',
+      timeout,
+    );
+  }
+
+  Future<void> _pumpWhileWaiting(
+    bool Function() ready,
+    String description,
+    Duration timeout,
+  ) async {
+    final deadline = DateTime.now().add(timeout);
+    while (!ready()) {
+      if (DateTime.now().isAfter(deadline)) {
+        fail('Timed out after ${timeout.inSeconds}s waiting for $description '
+            '(route: ${Get.currentRoute})');
+      }
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
+      await tester.pump(const Duration(milliseconds: 20));
     }
   }
 
-  Future<void> boot({bool devSeed = false}) async {
+  Future<void> boot({bool devSeed = false, required Finder until}) async {
     Get.put<DownloadArtifactsUseCase>(download);
     Get.put<GetManifestUseCase>(_FakeManifest());
     Get.put<CheckPackUpdateUseCase>(_FakeCheckUpdate());
@@ -169,7 +191,7 @@ class Journey {
         ));
     await tester.pumpWidget(MualimiApp(initialBinding: binding!));
     await tester.pump(SplashTiming.minDisplay);
-    await settle();
+    await pumpUntil(until);
   }
 
   Future<void> installReturningStudent() async {
@@ -187,14 +209,15 @@ class Journey {
     }));
   }
 
-  Future<void> tapText(String text, {bool last = false}) async {
-    final finder = last ? find.text(text).last : find.text(text);
-    await tester.tap(finder);
-    await settle();
+  Future<void> tapText(String text, {required Finder until, Finder? gone}) async {
+    final target = find.text(text);
+    await pumpUntil(target.hitTestable());
+    await tester.tap(target);
+    await pumpUntil(until, gone: gone);
   }
 
   /// Taps whichever back control the current page shows.
-  Future<void> back() async {
+  Future<void> back({required Finder until, Finder? gone}) async {
     final candidates = [
       find.byType(BackButton),
       find.byIcon(Icons.close),
@@ -202,9 +225,25 @@ class Journey {
       find.byIcon(Icons.chevron_right),
       find.byIcon(LucideIcons.chevronRight),
     ];
-    final target = candidates.firstWhere((f) => f.evaluate().isNotEmpty).first;
-    await tester.tap(target);
-    await settle();
+    // The header control is the first match; later matches such as list
+    // chevrons may be on screen while the page is still sliding in.
+    Finder? ready() {
+      for (final f in candidates) {
+        if (f.evaluate().isNotEmpty && f.first.hitTestable().evaluate().isNotEmpty) {
+          return f.first;
+        }
+      }
+      return null;
+    }
+
+    await _pumpWhileWaiting(
+      () => ready() != null,
+      'a back control (${candidates.join(' | ')})',
+      const Duration(seconds: 10),
+    );
+    final picked = ready()!;
+    await tester.tap(picked);
+    await pumpUntil(until, gone: gone);
   }
 
   /// True when no page lies under the current one.

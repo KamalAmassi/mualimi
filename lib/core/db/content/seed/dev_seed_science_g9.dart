@@ -22,6 +22,7 @@ abstract final class DevSeedScienceG9 {
   static const lessonTitle = 'طرق الشحن الكهربائي';
   static const otherLessonTitle = 'القوة بين الشحنات الكهربائية';
   static const subjectName = 'العلوم والحياة';
+  static const chargingByInductionTerm = 'الشحن بالحث';
 
   static const _pdfFile = 'science.pdf';
   static const _builtAt = '2026-11-18T00:00:00Z';
@@ -84,7 +85,7 @@ abstract final class DevSeedScienceG9 {
         db.keyTerms,
         KeyTermsCompanion.insert(
             lessonId: lessonId,
-            term: 'الشحن بالحث',
+            term: chargingByInductionTerm,
             definition: 'شحن جسم دون ملامسة.'),
       );
       b.insert(
