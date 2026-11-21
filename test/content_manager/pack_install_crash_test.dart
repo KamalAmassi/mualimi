@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:archive/archive_io.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:mualimi/core/db/content/content_database.dart';
 import 'package:mualimi/features/content_manager/data/datasources/pack_installer.dart';
 import 'package:mualimi/features/content_manager/data/datasources/pack_recovery.dart';
 import 'package:path/path.dart' as p;
@@ -19,7 +20,8 @@ void main() {
 
   File writeZip() {
     final dbPath = p.join(root.path, 'fixture.db');
-    final db = writeContentDb(dbPath, schemaVersion: '2', marker: 'new-db');
+    final db = writeContentDb(dbPath,
+        schemaVersion: '${ContentDatabase.packSchemaVersion}', marker: 'new-db');
     final archive = Archive()
       ..addFile(ArchiveFile.bytes('content.db', db.readAsBytesSync()))
       ..addFile(ArchiveFile.string('pdf/new.pdf', 'new'));

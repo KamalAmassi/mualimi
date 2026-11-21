@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:mualimi/core/db/content/content_database.dart';
 import 'package:mualimi/features/content_manager/data/datasources/pack_install_files.dart';
 import 'package:mualimi/features/content_manager/data/datasources/pack_install_host.dart';
 import 'package:mualimi/features/content_manager/data/datasources/pack_install_journal.dart';
@@ -53,7 +54,8 @@ class TempPackInstallHost implements PackInstallHost {
       FileSystemEntity.typeSync(path(rel)) != FileSystemEntityType.notFound;
 
   void writeDb(String rel, String marker) =>
-      writeContentDb(path(rel), schemaVersion: '2', marker: marker);
+      writeContentDb(path(rel),
+          schemaVersion: '${ContentDatabase.packSchemaVersion}', marker: marker);
 
   String dbMarker([String rel = 'content.db']) => contentDbMarker(path(rel));
 
