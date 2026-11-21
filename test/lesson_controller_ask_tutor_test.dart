@@ -2,14 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get/get.dart';
 import 'package:mualimi/core/routes/app_routes.dart';
-import 'package:mualimi/core/services/connectivity_service.dart';
 import 'package:mualimi/features/curriculum_tutor/presentation/routes/tutor_args.dart';
 import 'package:mualimi/features/lesson/domain/entities/lesson.dart';
 import 'package:mualimi/features/lesson/domain/repositories/lesson_repository.dart';
-import 'package:mualimi/features/lesson/domain/usecases/get_last_section_usecase.dart';
+import 'package:mualimi/features/lesson/domain/usecases/get_key_terms_usecase.dart';
 import 'package:mualimi/features/lesson/domain/usecases/get_lesson_usecase.dart';
-import 'package:mualimi/features/lesson/domain/usecases/save_lesson_progress_usecase.dart';
+import 'package:mualimi/features/lesson/domain/usecases/is_lesson_tutor_enabled_usecase.dart';
 import 'package:mualimi/features/lesson/presentation/controllers/lesson_controller.dart';
+
+import 'lesson/viewer_fakes.dart';
 
 class _UnusedLessonRepository implements LessonRepository {
   @override
@@ -28,9 +29,8 @@ LessonController _controller() {
   final repository = _UnusedLessonRepository();
   return LessonController(
     GetLessonUseCase(repository),
-    GetLastSectionUseCase(repository),
-    SaveLessonProgressUseCase(repository),
-    ConnectivityService(),
+    GetKeyTermsUseCase(repository),
+    IsLessonTutorEnabledUseCase(FakeSubjectTutorRepository()),
   );
 }
 
@@ -57,7 +57,9 @@ void main() {
 
   testWidgets('askTutor opens the tutor route with the lesson subject and id', (tester) async {
     final captured = await _pumpApp(tester);
-    final controller = _controller()..lesson.value = _lesson;
+    final controller = _controller()
+      ..lesson.value = _lesson
+      ..tutorEnabled.value = true;
 
     controller.askTutor();
     await tester.pumpAndSettle();
@@ -69,6 +71,17 @@ void main() {
   testWidgets('askTutor does nothing while the lesson is not loaded', (tester) async {
     final captured = await _pumpApp(tester);
     final controller = _controller();
+
+    controller.askTutor();
+    await tester.pumpAndSettle();
+
+    expect(Get.currentRoute, '/');
+    expect(captured, isEmpty);
+  });
+
+  testWidgets('askTutor does nothing when the tutor is disabled', (tester) async {
+    final captured = await _pumpApp(tester);
+    final controller = _controller()..lesson.value = _lesson;
 
     controller.askTutor();
     await tester.pumpAndSettle();

@@ -7,6 +7,7 @@ import 'package:mualimi/core/routes/app_routes.dart';
 import 'package:mualimi/features/curriculum_tutor/presentation/controllers/tutor_controller.dart';
 import 'package:mualimi/features/curriculum_tutor/presentation/routes/tutor_args.dart';
 import 'package:mualimi/features/lesson/presentation/controllers/viewer_tab.dart';
+import 'package:mualimi/features/lesson/presentation/widgets/lesson_hub_strings.dart';
 import 'package:mualimi/features/shell/presentation/controllers/shell_controller.dart';
 
 import 'journey_harness.dart';
@@ -24,7 +25,7 @@ void main() {
       await _openLesson(j);
       expect(Get.currentRoute, AppRoutes.lessonOf(DevSeedScienceG9.lessonId));
 
-      await j.tapText(AppStrings.keyTerms);
+      await j.tapText('الشحن بالحث');
       expect(Get.currentRoute, AppRoutes.keyTermsOf(DevSeedScienceG9.lessonId));
 
       await j.back();
@@ -37,7 +38,7 @@ void main() {
 
     journeyTest('lesson -> viewer with its three tabs and back', (j) async {
       await _openLesson(j);
-      await j.tapText(AppStrings.viewer);
+      await j.tapText(LessonHubStrings.explanationTitle);
       expect(Get.currentRoute, startsWith('/viewer/'));
 
       for (final tab in ViewerTab.values) {
@@ -55,7 +56,7 @@ void main() {
       'Ask the tutor opens AppRoutes.tutor on top of the lesson; back returns to it',
       (j) async {
         await _openLesson(j);
-        await j.tapText(AppStrings.askTutor);
+        await j.tapText(LessonHubStrings.askTutorTitle);
 
         expect(Get.currentRoute, AppRoutes.tutor);
         expect(find.byIcon(LucideIcons.arrowRight), findsOneWidget, reason: 'back button');

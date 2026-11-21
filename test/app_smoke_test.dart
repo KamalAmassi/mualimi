@@ -19,6 +19,7 @@ import 'package:mualimi/core/services/device_info_source.dart';
 import 'package:mualimi/core/services/device_snapshot.dart';
 import 'package:mualimi/features/content_manager/presentation/constants/grade_ordinals.dart';
 import 'package:mualimi/features/curriculum_tutor/presentation/routes/tutor_args.dart';
+import 'package:mualimi/features/lesson/presentation/widgets/lesson_hub_strings.dart';
 import 'package:mualimi/features/onboarding/presentation/controllers/splash_timing.dart';
 import 'package:mualimi/features/onboarding/presentation/widgets/grade_strings.dart';
 
@@ -155,9 +156,9 @@ void main() {
     await settleUntil(tester, find.text('طرق الشحن الكهربائي'),
         what: 'the subject page');
     await tester.tap(find.text('طرق الشحن الكهربائي'));
-    await settleUntil(tester, find.text(AppStrings.askTutor),
+    await settleUntil(tester, find.text(LessonHubStrings.askTutorTitle),
         what: 'the lesson page');
-    await tester.tap(find.text(AppStrings.askTutor));
+    await tester.tap(find.text(LessonHubStrings.askTutorTitle));
     await settleUntil(tester, find.text(AppStrings.askHint),
         what: 'the tutor chat');
   }
@@ -176,10 +177,10 @@ void main() {
         reason: 'first unit starts expanded');
 
     await tester.tap(find.text('طرق الشحن الكهربائي'));
-    await settleUntil(tester, find.text(AppStrings.askTutor),
+    await settleUntil(tester, find.text(LessonHubStrings.askTutorTitle),
         what: 'the lesson page');
 
-    await tester.tap(find.text(AppStrings.askTutor));
+    await tester.tap(find.text(LessonHubStrings.askTutorTitle));
     await settleUntil(tester, find.text(AppStrings.askHint),
         what: 'the tutor chat');
     // The lesson is pre-selected and the chat is ready to take a question.

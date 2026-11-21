@@ -14,6 +14,8 @@ class Lesson extends Equatable {
     this.bookPagesFrom,
     this.bookPagesTo,
     this.pdfFile,
+    this.subjectName,
+    this.unitTitle,
   });
 
   final String id;
@@ -26,10 +28,12 @@ class Lesson extends Equatable {
   final int? bookPagesFrom;
   final int? bookPagesTo;
   final String? pdfFile;
+  final String? subjectName;
+  final String? unitTitle;
 
   @override
   List<Object?> get props => [
         id, subjectId, title, tutorEnabled, sections, videoUrl,
-        videoChaptersJson, bookPagesFrom, bookPagesTo, pdfFile,
+        videoChaptersJson, bookPagesFrom, bookPagesTo, pdfFile, subjectName, unitTitle,
       ];
 }
