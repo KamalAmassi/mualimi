@@ -114,7 +114,7 @@ void main() {
           .select("SELECT value FROM pack_meta WHERE key = 'schema_version'")
           .first['value'];
       rebuilt.close();
-      expect(version, '3');
+      expect(version, '4');
     });
   });
 }

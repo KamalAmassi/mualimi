@@ -10,6 +10,8 @@ abstract final class AppRoutes {
   static const keyTerms = '/key-terms/:lessonId';
   static const saved = '/saved';
   static const tutor = '/tutor';
+  static const diagnostic = '/diagnostic';
+  static const skillReview = '/skill-review';
 
   static String subjectOf(String id) => '/subject/$id';
   static String lessonOf(String id) => '/lesson/$id';

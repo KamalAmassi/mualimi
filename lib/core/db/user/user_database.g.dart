@@ -2778,6 +2778,625 @@ class DownloadsStateCompanion extends UpdateCompanion<DownloadStateRow> {
   }
 }
 
+class $SkillMasteryTable extends SkillMastery
+    with TableInfo<$SkillMasteryTable, SkillMasteryRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SkillMasteryTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _skillIdMeta =
+      const VerificationMeta('skillId');
+  @override
+  late final GeneratedColumn<String> skillId = GeneratedColumn<String>(
+      'skill_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _scoreMeta = const VerificationMeta('score');
+  @override
+  late final GeneratedColumn<int> score = GeneratedColumn<int>(
+      'score', aliasedName, false,
+      type: DriftSqlType.int, requiredDuringInsert: true);
+  static const VerificationMeta _sourceMeta = const VerificationMeta('source');
+  @override
+  late final GeneratedColumn<String> source = GeneratedColumn<String>(
+      'source', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _updatedAtMeta =
+      const VerificationMeta('updatedAt');
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+      'updated_at', aliasedName, false,
+      type: DriftSqlType.dateTime,
+      requiredDuringInsert: false,
+      defaultValue: currentDateAndTime);
+  @override
+  List<GeneratedColumn> get $columns => [skillId, score, source, updatedAt];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'skill_mastery';
+  @override
+  VerificationContext validateIntegrity(Insertable<SkillMasteryRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('skill_id')) {
+      context.handle(_skillIdMeta,
+          skillId.isAcceptableOrUnknown(data['skill_id']!, _skillIdMeta));
+    } else if (isInserting) {
+      context.missing(_skillIdMeta);
+    }
+    if (data.containsKey('score')) {
+      context.handle(
+          _scoreMeta, score.isAcceptableOrUnknown(data['score']!, _scoreMeta));
+    } else if (isInserting) {
+      context.missing(_scoreMeta);
+    }
+    if (data.containsKey('source')) {
+      context.handle(_sourceMeta,
+          source.isAcceptableOrUnknown(data['source']!, _sourceMeta));
+    } else if (isInserting) {
+      context.missing(_sourceMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(_updatedAtMeta,
+          updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {skillId};
+  @override
+  SkillMasteryRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SkillMasteryRow(
+      skillId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}skill_id'])!,
+      score: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}score'])!,
+      source: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}source'])!,
+      updatedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}updated_at'])!,
+    );
+  }
+
+  @override
+  $SkillMasteryTable createAlias(String alias) {
+    return $SkillMasteryTable(attachedDatabase, alias);
+  }
+}
+
+class SkillMasteryRow extends DataClass implements Insertable<SkillMasteryRow> {
+  final String skillId;
+  final int score;
+
+  /// `diagnostic` or `review`.
+  final String source;
+  final DateTime updatedAt;
+  const SkillMasteryRow(
+      {required this.skillId,
+      required this.score,
+      required this.source,
+      required this.updatedAt});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['skill_id'] = Variable<String>(skillId);
+    map['score'] = Variable<int>(score);
+    map['source'] = Variable<String>(source);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    return map;
+  }
+
+  SkillMasteryCompanion toCompanion(bool nullToAbsent) {
+    return SkillMasteryCompanion(
+      skillId: Value(skillId),
+      score: Value(score),
+      source: Value(source),
+      updatedAt: Value(updatedAt),
+    );
+  }
+
+  factory SkillMasteryRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SkillMasteryRow(
+      skillId: serializer.fromJson<String>(json['skillId']),
+      score: serializer.fromJson<int>(json['score']),
+      source: serializer.fromJson<String>(json['source']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'skillId': serializer.toJson<String>(skillId),
+      'score': serializer.toJson<int>(score),
+      'source': serializer.toJson<String>(source),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+    };
+  }
+
+  SkillMasteryRow copyWith(
+          {String? skillId, int? score, String? source, DateTime? updatedAt}) =>
+      SkillMasteryRow(
+        skillId: skillId ?? this.skillId,
+        score: score ?? this.score,
+        source: source ?? this.source,
+        updatedAt: updatedAt ?? this.updatedAt,
+      );
+  SkillMasteryRow copyWithCompanion(SkillMasteryCompanion data) {
+    return SkillMasteryRow(
+      skillId: data.skillId.present ? data.skillId.value : this.skillId,
+      score: data.score.present ? data.score.value : this.score,
+      source: data.source.present ? data.source.value : this.source,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SkillMasteryRow(')
+          ..write('skillId: $skillId, ')
+          ..write('score: $score, ')
+          ..write('source: $source, ')
+          ..write('updatedAt: $updatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(skillId, score, source, updatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SkillMasteryRow &&
+          other.skillId == this.skillId &&
+          other.score == this.score &&
+          other.source == this.source &&
+          other.updatedAt == this.updatedAt);
+}
+
+class SkillMasteryCompanion extends UpdateCompanion<SkillMasteryRow> {
+  final Value<String> skillId;
+  final Value<int> score;
+  final Value<String> source;
+  final Value<DateTime> updatedAt;
+  final Value<int> rowid;
+  const SkillMasteryCompanion({
+    this.skillId = const Value.absent(),
+    this.score = const Value.absent(),
+    this.source = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  SkillMasteryCompanion.insert({
+    required String skillId,
+    required int score,
+    required String source,
+    this.updatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  })  : skillId = Value(skillId),
+        score = Value(score),
+        source = Value(source);
+  static Insertable<SkillMasteryRow> custom({
+    Expression<String>? skillId,
+    Expression<int>? score,
+    Expression<String>? source,
+    Expression<DateTime>? updatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (skillId != null) 'skill_id': skillId,
+      if (score != null) 'score': score,
+      if (source != null) 'source': source,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  SkillMasteryCompanion copyWith(
+      {Value<String>? skillId,
+      Value<int>? score,
+      Value<String>? source,
+      Value<DateTime>? updatedAt,
+      Value<int>? rowid}) {
+    return SkillMasteryCompanion(
+      skillId: skillId ?? this.skillId,
+      score: score ?? this.score,
+      source: source ?? this.source,
+      updatedAt: updatedAt ?? this.updatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (skillId.present) {
+      map['skill_id'] = Variable<String>(skillId.value);
+    }
+    if (score.present) {
+      map['score'] = Variable<int>(score.value);
+    }
+    if (source.present) {
+      map['source'] = Variable<String>(source.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SkillMasteryCompanion(')
+          ..write('skillId: $skillId, ')
+          ..write('score: $score, ')
+          ..write('source: $source, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $DiagnosticAttemptsTable extends DiagnosticAttempts
+    with TableInfo<$DiagnosticAttemptsTable, DiagnosticAttemptRow> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $DiagnosticAttemptsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+      'id', aliasedName, false,
+      hasAutoIncrement: true,
+      type: DriftSqlType.int,
+      requiredDuringInsert: false,
+      defaultConstraints:
+          GeneratedColumn.constraintIsAlways('PRIMARY KEY AUTOINCREMENT'));
+  static const VerificationMeta _subjectIdMeta =
+      const VerificationMeta('subjectId');
+  @override
+  late final GeneratedColumn<String> subjectId = GeneratedColumn<String>(
+      'subject_id', aliasedName, false,
+      type: DriftSqlType.string, requiredDuringInsert: true);
+  static const VerificationMeta _startedAtMeta =
+      const VerificationMeta('startedAt');
+  @override
+  late final GeneratedColumn<DateTime> startedAt = GeneratedColumn<DateTime>(
+      'started_at', aliasedName, false,
+      type: DriftSqlType.dateTime, requiredDuringInsert: true);
+  static const VerificationMeta _finishedAtMeta =
+      const VerificationMeta('finishedAt');
+  @override
+  late final GeneratedColumn<DateTime> finishedAt = GeneratedColumn<DateTime>(
+      'finished_at', aliasedName, true,
+      type: DriftSqlType.dateTime, requiredDuringInsert: false);
+  static const VerificationMeta _answersJsonMeta =
+      const VerificationMeta('answersJson');
+  @override
+  late final GeneratedColumn<String> answersJson = GeneratedColumn<String>(
+      'answers_json', aliasedName, false,
+      type: DriftSqlType.string,
+      requiredDuringInsert: false,
+      defaultValue: const Constant('[]'));
+  static const VerificationMeta _resultJsonMeta =
+      const VerificationMeta('resultJson');
+  @override
+  late final GeneratedColumn<String> resultJson = GeneratedColumn<String>(
+      'result_json', aliasedName, true,
+      type: DriftSqlType.string, requiredDuringInsert: false);
+  @override
+  List<GeneratedColumn> get $columns =>
+      [id, subjectId, startedAt, finishedAt, answersJson, resultJson];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'diagnostic_attempts';
+  @override
+  VerificationContext validateIntegrity(
+      Insertable<DiagnosticAttemptRow> instance,
+      {bool isInserting = false}) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('subject_id')) {
+      context.handle(_subjectIdMeta,
+          subjectId.isAcceptableOrUnknown(data['subject_id']!, _subjectIdMeta));
+    } else if (isInserting) {
+      context.missing(_subjectIdMeta);
+    }
+    if (data.containsKey('started_at')) {
+      context.handle(_startedAtMeta,
+          startedAt.isAcceptableOrUnknown(data['started_at']!, _startedAtMeta));
+    } else if (isInserting) {
+      context.missing(_startedAtMeta);
+    }
+    if (data.containsKey('finished_at')) {
+      context.handle(
+          _finishedAtMeta,
+          finishedAt.isAcceptableOrUnknown(
+              data['finished_at']!, _finishedAtMeta));
+    }
+    if (data.containsKey('answers_json')) {
+      context.handle(
+          _answersJsonMeta,
+          answersJson.isAcceptableOrUnknown(
+              data['answers_json']!, _answersJsonMeta));
+    }
+    if (data.containsKey('result_json')) {
+      context.handle(
+          _resultJsonMeta,
+          resultJson.isAcceptableOrUnknown(
+              data['result_json']!, _resultJsonMeta));
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  DiagnosticAttemptRow map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return DiagnosticAttemptRow(
+      id: attachedDatabase.typeMapping
+          .read(DriftSqlType.int, data['${effectivePrefix}id'])!,
+      subjectId: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}subject_id'])!,
+      startedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}started_at'])!,
+      finishedAt: attachedDatabase.typeMapping
+          .read(DriftSqlType.dateTime, data['${effectivePrefix}finished_at']),
+      answersJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}answers_json'])!,
+      resultJson: attachedDatabase.typeMapping
+          .read(DriftSqlType.string, data['${effectivePrefix}result_json']),
+    );
+  }
+
+  @override
+  $DiagnosticAttemptsTable createAlias(String alias) {
+    return $DiagnosticAttemptsTable(attachedDatabase, alias);
+  }
+}
+
+class DiagnosticAttemptRow extends DataClass
+    implements Insertable<DiagnosticAttemptRow> {
+  final int id;
+  final String subjectId;
+  final DateTime startedAt;
+  final DateTime? finishedAt;
+  final String answersJson;
+  final String? resultJson;
+  const DiagnosticAttemptRow(
+      {required this.id,
+      required this.subjectId,
+      required this.startedAt,
+      this.finishedAt,
+      required this.answersJson,
+      this.resultJson});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['subject_id'] = Variable<String>(subjectId);
+    map['started_at'] = Variable<DateTime>(startedAt);
+    if (!nullToAbsent || finishedAt != null) {
+      map['finished_at'] = Variable<DateTime>(finishedAt);
+    }
+    map['answers_json'] = Variable<String>(answersJson);
+    if (!nullToAbsent || resultJson != null) {
+      map['result_json'] = Variable<String>(resultJson);
+    }
+    return map;
+  }
+
+  DiagnosticAttemptsCompanion toCompanion(bool nullToAbsent) {
+    return DiagnosticAttemptsCompanion(
+      id: Value(id),
+      subjectId: Value(subjectId),
+      startedAt: Value(startedAt),
+      finishedAt: finishedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(finishedAt),
+      answersJson: Value(answersJson),
+      resultJson: resultJson == null && nullToAbsent
+          ? const Value.absent()
+          : Value(resultJson),
+    );
+  }
+
+  factory DiagnosticAttemptRow.fromJson(Map<String, dynamic> json,
+      {ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return DiagnosticAttemptRow(
+      id: serializer.fromJson<int>(json['id']),
+      subjectId: serializer.fromJson<String>(json['subjectId']),
+      startedAt: serializer.fromJson<DateTime>(json['startedAt']),
+      finishedAt: serializer.fromJson<DateTime?>(json['finishedAt']),
+      answersJson: serializer.fromJson<String>(json['answersJson']),
+      resultJson: serializer.fromJson<String?>(json['resultJson']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'subjectId': serializer.toJson<String>(subjectId),
+      'startedAt': serializer.toJson<DateTime>(startedAt),
+      'finishedAt': serializer.toJson<DateTime?>(finishedAt),
+      'answersJson': serializer.toJson<String>(answersJson),
+      'resultJson': serializer.toJson<String?>(resultJson),
+    };
+  }
+
+  DiagnosticAttemptRow copyWith(
+          {int? id,
+          String? subjectId,
+          DateTime? startedAt,
+          Value<DateTime?> finishedAt = const Value.absent(),
+          String? answersJson,
+          Value<String?> resultJson = const Value.absent()}) =>
+      DiagnosticAttemptRow(
+        id: id ?? this.id,
+        subjectId: subjectId ?? this.subjectId,
+        startedAt: startedAt ?? this.startedAt,
+        finishedAt: finishedAt.present ? finishedAt.value : this.finishedAt,
+        answersJson: answersJson ?? this.answersJson,
+        resultJson: resultJson.present ? resultJson.value : this.resultJson,
+      );
+  DiagnosticAttemptRow copyWithCompanion(DiagnosticAttemptsCompanion data) {
+    return DiagnosticAttemptRow(
+      id: data.id.present ? data.id.value : this.id,
+      subjectId: data.subjectId.present ? data.subjectId.value : this.subjectId,
+      startedAt: data.startedAt.present ? data.startedAt.value : this.startedAt,
+      finishedAt:
+          data.finishedAt.present ? data.finishedAt.value : this.finishedAt,
+      answersJson:
+          data.answersJson.present ? data.answersJson.value : this.answersJson,
+      resultJson:
+          data.resultJson.present ? data.resultJson.value : this.resultJson,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DiagnosticAttemptRow(')
+          ..write('id: $id, ')
+          ..write('subjectId: $subjectId, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('finishedAt: $finishedAt, ')
+          ..write('answersJson: $answersJson, ')
+          ..write('resultJson: $resultJson')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+      id, subjectId, startedAt, finishedAt, answersJson, resultJson);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is DiagnosticAttemptRow &&
+          other.id == this.id &&
+          other.subjectId == this.subjectId &&
+          other.startedAt == this.startedAt &&
+          other.finishedAt == this.finishedAt &&
+          other.answersJson == this.answersJson &&
+          other.resultJson == this.resultJson);
+}
+
+class DiagnosticAttemptsCompanion
+    extends UpdateCompanion<DiagnosticAttemptRow> {
+  final Value<int> id;
+  final Value<String> subjectId;
+  final Value<DateTime> startedAt;
+  final Value<DateTime?> finishedAt;
+  final Value<String> answersJson;
+  final Value<String?> resultJson;
+  const DiagnosticAttemptsCompanion({
+    this.id = const Value.absent(),
+    this.subjectId = const Value.absent(),
+    this.startedAt = const Value.absent(),
+    this.finishedAt = const Value.absent(),
+    this.answersJson = const Value.absent(),
+    this.resultJson = const Value.absent(),
+  });
+  DiagnosticAttemptsCompanion.insert({
+    this.id = const Value.absent(),
+    required String subjectId,
+    required DateTime startedAt,
+    this.finishedAt = const Value.absent(),
+    this.answersJson = const Value.absent(),
+    this.resultJson = const Value.absent(),
+  })  : subjectId = Value(subjectId),
+        startedAt = Value(startedAt);
+  static Insertable<DiagnosticAttemptRow> custom({
+    Expression<int>? id,
+    Expression<String>? subjectId,
+    Expression<DateTime>? startedAt,
+    Expression<DateTime>? finishedAt,
+    Expression<String>? answersJson,
+    Expression<String>? resultJson,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (subjectId != null) 'subject_id': subjectId,
+      if (startedAt != null) 'started_at': startedAt,
+      if (finishedAt != null) 'finished_at': finishedAt,
+      if (answersJson != null) 'answers_json': answersJson,
+      if (resultJson != null) 'result_json': resultJson,
+    });
+  }
+
+  DiagnosticAttemptsCompanion copyWith(
+      {Value<int>? id,
+      Value<String>? subjectId,
+      Value<DateTime>? startedAt,
+      Value<DateTime?>? finishedAt,
+      Value<String>? answersJson,
+      Value<String?>? resultJson}) {
+    return DiagnosticAttemptsCompanion(
+      id: id ?? this.id,
+      subjectId: subjectId ?? this.subjectId,
+      startedAt: startedAt ?? this.startedAt,
+      finishedAt: finishedAt ?? this.finishedAt,
+      answersJson: answersJson ?? this.answersJson,
+      resultJson: resultJson ?? this.resultJson,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (subjectId.present) {
+      map['subject_id'] = Variable<String>(subjectId.value);
+    }
+    if (startedAt.present) {
+      map['started_at'] = Variable<DateTime>(startedAt.value);
+    }
+    if (finishedAt.present) {
+      map['finished_at'] = Variable<DateTime>(finishedAt.value);
+    }
+    if (answersJson.present) {
+      map['answers_json'] = Variable<String>(answersJson.value);
+    }
+    if (resultJson.present) {
+      map['result_json'] = Variable<String>(resultJson.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('DiagnosticAttemptsCompanion(')
+          ..write('id: $id, ')
+          ..write('subjectId: $subjectId, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('finishedAt: $finishedAt, ')
+          ..write('answersJson: $answersJson, ')
+          ..write('resultJson: $resultJson')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$UserDatabase extends GeneratedDatabase {
   _$UserDatabase(QueryExecutor e) : super(e);
   $UserDatabaseManager get managers => $UserDatabaseManager(this);
@@ -2790,6 +3409,9 @@ abstract class _$UserDatabase extends GeneratedDatabase {
       $PendingQuestionsTable(this);
   late final $TutorUsageTable tutorUsage = $TutorUsageTable(this);
   late final $DownloadsStateTable downloadsState = $DownloadsStateTable(this);
+  late final $SkillMasteryTable skillMastery = $SkillMasteryTable(this);
+  late final $DiagnosticAttemptsTable diagnosticAttempts =
+      $DiagnosticAttemptsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -2801,7 +3423,9 @@ abstract class _$UserDatabase extends GeneratedDatabase {
         pendingReports,
         pendingQuestions,
         tutorUsage,
-        downloadsState
+        downloadsState,
+        skillMastery,
+        diagnosticAttempts
       ];
 }
 
@@ -4267,6 +4891,359 @@ typedef $$DownloadsStateTableProcessedTableManager = ProcessedTableManager<
     ),
     DownloadStateRow,
     PrefetchHooks Function()>;
+typedef $$SkillMasteryTableCreateCompanionBuilder = SkillMasteryCompanion
+    Function({
+  required String skillId,
+  required int score,
+  required String source,
+  Value<DateTime> updatedAt,
+  Value<int> rowid,
+});
+typedef $$SkillMasteryTableUpdateCompanionBuilder = SkillMasteryCompanion
+    Function({
+  Value<String> skillId,
+  Value<int> score,
+  Value<String> source,
+  Value<DateTime> updatedAt,
+  Value<int> rowid,
+});
+
+class $$SkillMasteryTableFilterComposer
+    extends Composer<_$UserDatabase, $SkillMasteryTable> {
+  $$SkillMasteryTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get skillId => $composableBuilder(
+      column: $table.skillId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<int> get score => $composableBuilder(
+      column: $table.score, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get source => $composableBuilder(
+      column: $table.source, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnFilters(column));
+}
+
+class $$SkillMasteryTableOrderingComposer
+    extends Composer<_$UserDatabase, $SkillMasteryTable> {
+  $$SkillMasteryTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get skillId => $composableBuilder(
+      column: $table.skillId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<int> get score => $composableBuilder(
+      column: $table.score, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get source => $composableBuilder(
+      column: $table.source, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+      column: $table.updatedAt, builder: (column) => ColumnOrderings(column));
+}
+
+class $$SkillMasteryTableAnnotationComposer
+    extends Composer<_$UserDatabase, $SkillMasteryTable> {
+  $$SkillMasteryTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get skillId =>
+      $composableBuilder(column: $table.skillId, builder: (column) => column);
+
+  GeneratedColumn<int> get score =>
+      $composableBuilder(column: $table.score, builder: (column) => column);
+
+  GeneratedColumn<String> get source =>
+      $composableBuilder(column: $table.source, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+}
+
+class $$SkillMasteryTableTableManager extends RootTableManager<
+    _$UserDatabase,
+    $SkillMasteryTable,
+    SkillMasteryRow,
+    $$SkillMasteryTableFilterComposer,
+    $$SkillMasteryTableOrderingComposer,
+    $$SkillMasteryTableAnnotationComposer,
+    $$SkillMasteryTableCreateCompanionBuilder,
+    $$SkillMasteryTableUpdateCompanionBuilder,
+    (
+      SkillMasteryRow,
+      BaseReferences<_$UserDatabase, $SkillMasteryTable, SkillMasteryRow>
+    ),
+    SkillMasteryRow,
+    PrefetchHooks Function()> {
+  $$SkillMasteryTableTableManager(_$UserDatabase db, $SkillMasteryTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$SkillMasteryTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$SkillMasteryTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$SkillMasteryTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> skillId = const Value.absent(),
+            Value<int> score = const Value.absent(),
+            Value<String> source = const Value.absent(),
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              SkillMasteryCompanion(
+            skillId: skillId,
+            score: score,
+            source: source,
+            updatedAt: updatedAt,
+            rowid: rowid,
+          ),
+          createCompanionCallback: ({
+            required String skillId,
+            required int score,
+            required String source,
+            Value<DateTime> updatedAt = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) =>
+              SkillMasteryCompanion.insert(
+            skillId: skillId,
+            score: score,
+            source: source,
+            updatedAt: updatedAt,
+            rowid: rowid,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable<$SkillMasteryTable, SkillMasteryRow>(table),
+                    BaseReferences<_$UserDatabase, $SkillMasteryTable,
+                        SkillMasteryRow>(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$SkillMasteryTableProcessedTableManager = ProcessedTableManager<
+    _$UserDatabase,
+    $SkillMasteryTable,
+    SkillMasteryRow,
+    $$SkillMasteryTableFilterComposer,
+    $$SkillMasteryTableOrderingComposer,
+    $$SkillMasteryTableAnnotationComposer,
+    $$SkillMasteryTableCreateCompanionBuilder,
+    $$SkillMasteryTableUpdateCompanionBuilder,
+    (
+      SkillMasteryRow,
+      BaseReferences<_$UserDatabase, $SkillMasteryTable, SkillMasteryRow>
+    ),
+    SkillMasteryRow,
+    PrefetchHooks Function()>;
+typedef $$DiagnosticAttemptsTableCreateCompanionBuilder
+    = DiagnosticAttemptsCompanion Function({
+  Value<int> id,
+  required String subjectId,
+  required DateTime startedAt,
+  Value<DateTime?> finishedAt,
+  Value<String> answersJson,
+  Value<String?> resultJson,
+});
+typedef $$DiagnosticAttemptsTableUpdateCompanionBuilder
+    = DiagnosticAttemptsCompanion Function({
+  Value<int> id,
+  Value<String> subjectId,
+  Value<DateTime> startedAt,
+  Value<DateTime?> finishedAt,
+  Value<String> answersJson,
+  Value<String?> resultJson,
+});
+
+class $$DiagnosticAttemptsTableFilterComposer
+    extends Composer<_$UserDatabase, $DiagnosticAttemptsTable> {
+  $$DiagnosticAttemptsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get subjectId => $composableBuilder(
+      column: $table.subjectId, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get startedAt => $composableBuilder(
+      column: $table.startedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<DateTime> get finishedAt => $composableBuilder(
+      column: $table.finishedAt, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get answersJson => $composableBuilder(
+      column: $table.answersJson, builder: (column) => ColumnFilters(column));
+
+  ColumnFilters<String> get resultJson => $composableBuilder(
+      column: $table.resultJson, builder: (column) => ColumnFilters(column));
+}
+
+class $$DiagnosticAttemptsTableOrderingComposer
+    extends Composer<_$UserDatabase, $DiagnosticAttemptsTable> {
+  $$DiagnosticAttemptsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+      column: $table.id, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get subjectId => $composableBuilder(
+      column: $table.subjectId, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get startedAt => $composableBuilder(
+      column: $table.startedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<DateTime> get finishedAt => $composableBuilder(
+      column: $table.finishedAt, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get answersJson => $composableBuilder(
+      column: $table.answersJson, builder: (column) => ColumnOrderings(column));
+
+  ColumnOrderings<String> get resultJson => $composableBuilder(
+      column: $table.resultJson, builder: (column) => ColumnOrderings(column));
+}
+
+class $$DiagnosticAttemptsTableAnnotationComposer
+    extends Composer<_$UserDatabase, $DiagnosticAttemptsTable> {
+  $$DiagnosticAttemptsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get subjectId =>
+      $composableBuilder(column: $table.subjectId, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get startedAt =>
+      $composableBuilder(column: $table.startedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get finishedAt => $composableBuilder(
+      column: $table.finishedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get answersJson => $composableBuilder(
+      column: $table.answersJson, builder: (column) => column);
+
+  GeneratedColumn<String> get resultJson => $composableBuilder(
+      column: $table.resultJson, builder: (column) => column);
+}
+
+class $$DiagnosticAttemptsTableTableManager extends RootTableManager<
+    _$UserDatabase,
+    $DiagnosticAttemptsTable,
+    DiagnosticAttemptRow,
+    $$DiagnosticAttemptsTableFilterComposer,
+    $$DiagnosticAttemptsTableOrderingComposer,
+    $$DiagnosticAttemptsTableAnnotationComposer,
+    $$DiagnosticAttemptsTableCreateCompanionBuilder,
+    $$DiagnosticAttemptsTableUpdateCompanionBuilder,
+    (
+      DiagnosticAttemptRow,
+      BaseReferences<_$UserDatabase, $DiagnosticAttemptsTable,
+          DiagnosticAttemptRow>
+    ),
+    DiagnosticAttemptRow,
+    PrefetchHooks Function()> {
+  $$DiagnosticAttemptsTableTableManager(
+      _$UserDatabase db, $DiagnosticAttemptsTable table)
+      : super(TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$DiagnosticAttemptsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$DiagnosticAttemptsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$DiagnosticAttemptsTableAnnotationComposer(
+                  $db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            Value<String> subjectId = const Value.absent(),
+            Value<DateTime> startedAt = const Value.absent(),
+            Value<DateTime?> finishedAt = const Value.absent(),
+            Value<String> answersJson = const Value.absent(),
+            Value<String?> resultJson = const Value.absent(),
+          }) =>
+              DiagnosticAttemptsCompanion(
+            id: id,
+            subjectId: subjectId,
+            startedAt: startedAt,
+            finishedAt: finishedAt,
+            answersJson: answersJson,
+            resultJson: resultJson,
+          ),
+          createCompanionCallback: ({
+            Value<int> id = const Value.absent(),
+            required String subjectId,
+            required DateTime startedAt,
+            Value<DateTime?> finishedAt = const Value.absent(),
+            Value<String> answersJson = const Value.absent(),
+            Value<String?> resultJson = const Value.absent(),
+          }) =>
+              DiagnosticAttemptsCompanion.insert(
+            id: id,
+            subjectId: subjectId,
+            startedAt: startedAt,
+            finishedAt: finishedAt,
+            answersJson: answersJson,
+            resultJson: resultJson,
+          ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (
+                    e.readTable<$DiagnosticAttemptsTable, DiagnosticAttemptRow>(
+                        table),
+                    BaseReferences<_$UserDatabase, $DiagnosticAttemptsTable,
+                        DiagnosticAttemptRow>(db, table, e)
+                  ))
+              .toList(),
+          prefetchHooksCallback: null,
+        ));
+}
+
+typedef $$DiagnosticAttemptsTableProcessedTableManager = ProcessedTableManager<
+    _$UserDatabase,
+    $DiagnosticAttemptsTable,
+    DiagnosticAttemptRow,
+    $$DiagnosticAttemptsTableFilterComposer,
+    $$DiagnosticAttemptsTableOrderingComposer,
+    $$DiagnosticAttemptsTableAnnotationComposer,
+    $$DiagnosticAttemptsTableCreateCompanionBuilder,
+    $$DiagnosticAttemptsTableUpdateCompanionBuilder,
+    (
+      DiagnosticAttemptRow,
+      BaseReferences<_$UserDatabase, $DiagnosticAttemptsTable,
+          DiagnosticAttemptRow>
+    ),
+    DiagnosticAttemptRow,
+    PrefetchHooks Function()>;
 
 class $UserDatabaseManager {
   final _$UserDatabase _db;
@@ -4285,4 +5262,8 @@ class $UserDatabaseManager {
       $$TutorUsageTableTableManager(_db, _db.tutorUsage);
   $$DownloadsStateTableTableManager get downloadsState =>
       $$DownloadsStateTableTableManager(_db, _db.downloadsState);
+  $$SkillMasteryTableTableManager get skillMastery =>
+      $$SkillMasteryTableTableManager(_db, _db.skillMastery);
+  $$DiagnosticAttemptsTableTableManager get diagnosticAttempts =>
+      $$DiagnosticAttemptsTableTableManager(_db, _db.diagnosticAttempts);
 }

@@ -5,6 +5,7 @@ import '../content_database.dart';
 import 'dev_seed_charging_basics.dart';
 import 'dev_seed_charging_induction.dart';
 import 'dev_seed_force_lesson.dart';
+import 'dev_seed_gap_filling.dart';
 import 'dev_seed_lesson_bodies.dart';
 import 'dev_seed_pack_pages.dart';
 import 'dev_seed_prebuilt_answers.dart';
@@ -154,6 +155,7 @@ abstract final class DevSeedScienceG9 {
         );
       }
     });
+    await DevSeedGapFilling.insert(db);
     // A read-only open never migrates, so a pack must already carry its schema version.
     await db.customStatement(
         'PRAGMA user_version = ${ContentDatabase.packSchemaVersion}');
