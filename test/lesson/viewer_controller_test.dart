@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:get/get.dart';
 
 import 'viewer_fakes.dart';
 
@@ -97,5 +98,16 @@ void main() {
     expect(prefs.fontScale, 1.3);
     await controller.cycleFontScale();
     expect(prefs.fontScale, 1.0);
+  });
+
+  test('a retry after another page opened reloads the same lesson', () async {
+    addTearDown(() => Get.parameters = {});
+    Get.parameters = {'lessonId': viewerLessonId, 'tab': 'pdf'};
+    final lessons = FakeViewerLessonRepository();
+    final controller = viewerController(lessons);
+    await controller.load();
+    Get.parameters = {};
+    await controller.load();
+    expect(lessons.requested, [viewerLessonId, viewerLessonId]);
   });
 }

@@ -45,7 +45,9 @@ class ViewerController extends GetxController {
   final tutorEnabled = false.obs;
   final fontScale = 1.0.obs;
 
-  String get lessonId => Get.parameters['lessonId'] ?? '';
+  /// Read once, on first use while this page is on top: `Get.parameters`
+  /// follows the newest route and is not restored on back.
+  late final String lessonId = Get.parameters['lessonId'] ?? '';
 
   List<LessonSection> get sections => lesson.value?.sections ?? const [];
   LessonSection? get currentSection => sections.isEmpty ? null : sections[sectionIndex.value];

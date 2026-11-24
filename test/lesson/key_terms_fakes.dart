@@ -25,10 +25,13 @@ class FakeKeyTermsRepository implements LessonRepository {
   final List<KeyTerm> terms;
   final Failure? termsFailure;
   final Failure? lessonFailure;
+  final requested = <String>[];
 
   @override
-  Future<Either<Failure, List<KeyTerm>>> getKeyTerms(String lessonId) async =>
-      termsFailure == null ? Right(terms) : Left(termsFailure!);
+  Future<Either<Failure, List<KeyTerm>>> getKeyTerms(String lessonId) async {
+    requested.add(lessonId);
+    return termsFailure == null ? Right(terms) : Left(termsFailure!);
+  }
 
   @override
   Future<Either<Failure, Lesson>> getLesson(String id) async => lessonFailure == null

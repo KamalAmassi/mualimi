@@ -38,10 +38,13 @@ class FakeViewerLessonRepository implements LessonRepository {
   int lastSection;
   bool fails;
   final saved = <(String, int)>[];
+  final requested = <String>[];
 
   @override
-  Future<Either<Failure, Lesson>> getLesson(String id) async =>
-      fails ? const Left(DatabaseFailure('broken')) : Right(lesson);
+  Future<Either<Failure, Lesson>> getLesson(String id) async {
+    requested.add(id);
+    return fails ? const Left(DatabaseFailure('broken')) : Right(lesson);
+  }
 
   @override
   Future<Either<Failure, List<BookSolution>>> getSolutions(String lessonId) async =>

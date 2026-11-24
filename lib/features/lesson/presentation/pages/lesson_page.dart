@@ -10,6 +10,7 @@ import '../widgets/lesson_ask_tutor_bar.dart';
 import '../widgets/lesson_files_section.dart';
 import '../widgets/lesson_hub_dimens.dart';
 import '../widgets/lesson_hub_header.dart';
+import '../widgets/lesson_hub_strings.dart';
 import '../widgets/lesson_key_terms_preview.dart';
 import '../widgets/lesson_tutor_unavailable_bar.dart';
 import '../widgets/viewer_strings.dart';
@@ -61,12 +62,17 @@ class LessonPage extends GetView<LessonController> {
     ];
     return Column(children: [
       Expanded(
-        child: ListView.separated(
-          padding: LessonHubDimens.bodyPadding,
-          itemCount: sections.length,
-          separatorBuilder: (_, __) => const SizedBox(height: LessonHubDimens.sectionGap),
-          itemBuilder: (_, i) => sections[i],
-        ),
+        child: controller.hasContent
+            ? ListView.separated(
+                padding: LessonHubDimens.bodyPadding,
+                itemCount: sections.length,
+                separatorBuilder: (_, __) => const SizedBox(height: LessonHubDimens.sectionGap),
+                itemBuilder: (_, i) => sections[i],
+              )
+            : const StateMessage(
+                icon: Icons.menu_book_outlined,
+                title: LessonHubStrings.emptyTitle,
+              ),
       ),
       SafeArea(
         top: false,

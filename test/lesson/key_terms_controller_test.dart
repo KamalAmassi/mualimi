@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:get/get.dart';
 import 'package:mualimi/core/error/failures.dart';
 
 import 'key_terms_fakes.dart';
@@ -76,5 +77,16 @@ void main() {
     expect(controller.failure.value, const DatabaseFailure());
     expect(controller.lessonTitle.value, isNull);
     expect(controller.loading.value, isFalse);
+  });
+
+  test('a reload after another page opened keeps the same lesson', () async {
+    addTearDown(() => Get.parameters = {});
+    Get.parameters = {'lessonId': 'lesson-1'};
+    final repository = FakeKeyTermsRepository();
+    final controller = keyTermsController(repository);
+    await controller.load();
+    Get.parameters = {};
+    await controller.load();
+    expect(repository.requested, ['lesson-1', 'lesson-1']);
   });
 }

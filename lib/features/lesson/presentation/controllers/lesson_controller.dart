@@ -25,9 +25,14 @@ class LessonController extends GetxController {
   final loading = true.obs;
   final tutorEnabled = false.obs;
 
-  String get lessonId => Get.parameters['id'] ?? '';
+  /// Read once, on first use while this page is on top: `Get.parameters`
+  /// follows the newest route and is not restored on back.
+  late final String lessonId = Get.parameters['id'] ?? '';
 
   bool get hasPdf => lesson.value?.pdfFile?.isNotEmpty ?? false;
+
+  bool get hasContent =>
+      hasPdf || (lesson.value?.sections.isNotEmpty ?? false) || keyTerms.isNotEmpty;
 
   /// The printed pages the lesson covers in the book.
   String? get pageRange {

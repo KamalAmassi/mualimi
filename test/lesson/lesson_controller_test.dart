@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:get/get.dart';
 import 'package:mualimi/features/lesson/presentation/widgets/lesson_hub_strings.dart';
 
 import 'lesson_hub_fakes.dart';
@@ -77,4 +78,27 @@ void main() {
       expect(controller.tutorEnabled.value, expected);
     });
   }
+
+  test('the lesson id survives another page replacing the route parameters', () async {
+    addTearDown(() => Get.parameters = {});
+    Get.parameters = {'id': hubLessonId};
+    final controller = lessonController(FakeHubLessonRepository());
+    await controller.load();
+    Get.parameters = {'lessonId': hubLessonId, 'tab': 'explanation'};
+    expect(controller.lessonId, hubLessonId);
+  });
+
+  test('has content with a PDF, sections or key terms, and none without all three', () async {
+    for (final (lessons, expected) in [
+      (FakeHubLessonRepository(lesson: hubLesson(sections: 0), terms: const []), true),
+      (FakeHubLessonRepository(lesson: hubLesson(pdfFile: null), terms: const []), true),
+      (FakeHubLessonRepository(lesson: hubLesson(pdfFile: null, sections: 0)), true),
+      (FakeHubLessonRepository(lesson: hubLesson(pdfFile: '', sections: 0), terms: const []),
+          false),
+    ]) {
+      final controller = lessonController(lessons);
+      await controller.load();
+      expect(controller.hasContent, expected);
+    }
+  });
 }

@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:mualimi/core/constants/app_strings.dart';
 import 'package:mualimi/core/routes/app_routes.dart';
 import 'package:mualimi/core/theme/app_theme.dart';
+import 'package:mualimi/core/widgets/state_message.dart';
 import 'package:mualimi/features/curriculum_tutor/presentation/routes/tutor_args.dart';
 import 'package:mualimi/features/lesson/domain/entities/key_term.dart';
 import 'package:mualimi/features/lesson/presentation/pages/lesson_page.dart';
@@ -104,6 +105,43 @@ void main() {
     await _tapAndSettle(tester, find.text(LessonHubStrings.explanationTitle));
     expect(_opened, [AppRoutes.viewerOf(hubLessonId, tab: 'explanation')]);
   });
+
+  testWidgets('the PDF card still opens after returning from another page', (tester) async {
+    await _pump(tester, FakeHubLessonRepository());
+    for (final label in [LessonHubStrings.explanationTitle, 'Term 1']) {
+      await _tapAndSettle(tester, find.text(label));
+      Get.back<void>();
+      await tester.pumpAndSettle();
+    }
+    await _tapAndSettle(tester, find.text(LessonHubStrings.pdfTitle));
+    expect(_opened, [
+      AppRoutes.viewerOf(hubLessonId, tab: 'explanation'),
+      AppRoutes.keyTermsOf(hubLessonId),
+      AppRoutes.viewerOf(hubLessonId, tab: 'pdf'),
+    ]);
+  });
+
+  testWidgets('a lesson with no PDF, sections or key terms shows the empty state',
+      (tester) async {
+    await _pump(tester,
+        FakeHubLessonRepository(lesson: hubLesson(pdfFile: null, sections: 0), terms: const []));
+    expect(find.text(LessonHubStrings.emptyTitle), findsOneWidget);
+    expect(find.byType(StateMessage), findsOneWidget);
+    expect(find.text(LessonHubStrings.filesTitle), findsNothing);
+    expect(find.text(LessonHubStrings.askTutorTitle), findsOneWidget);
+  });
+
+  for (final (name, repository) in [
+    ('a PDF', () => FakeHubLessonRepository(lesson: hubLesson(sections: 0), terms: const [])),
+    ('sections', () => FakeHubLessonRepository(lesson: hubLesson(pdfFile: null), terms: const [])),
+    ('key terms', () => FakeHubLessonRepository(lesson: hubLesson(pdfFile: null, sections: 0))),
+  ]) {
+    testWidgets('a lesson with only $name hides the empty state', (tester) async {
+      await _pump(tester, repository());
+      expect(find.text(LessonHubStrings.emptyTitle), findsNothing);
+      expect(find.byType(StateMessage), findsNothing);
+    });
+  }
 
   for (final file in [null, '']) {
     testWidgets('a lesson without a PDF (${file ?? 'null'}) hides the PDF card', (tester) async {
