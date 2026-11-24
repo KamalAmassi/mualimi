@@ -53,6 +53,8 @@ class LessonBinding extends Bindings {
           Get.find<GetLessonUseCase>(),
           Get.find<GetKeyTermsUseCase>(),
           Get.find<IsLessonTutorEnabledUseCase>(),
+          Get.find<GetLastSectionUseCase>(),
+          Get.find<SaveLessonProgressUseCase>(),
         ));
     Get.lazyPut(() => KeyTermsController(
           Get.find<GetKeyTermsUseCase>(),

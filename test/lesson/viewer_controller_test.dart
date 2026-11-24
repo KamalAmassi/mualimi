@@ -6,20 +6,33 @@ import 'viewer_fakes.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  test('opens at the saved section without saving progress', () async {
+  test('opens at the saved section and records it as last opened', () async {
     final lessons = FakeViewerLessonRepository(lastSection: 2);
     final controller = viewerController(lessons);
     await controller.load();
     expect(controller.sectionIndex.value, 2);
     expect(controller.currentSection?.title, 'Section 3');
     expect(controller.loading.value, isFalse);
-    expect(lessons.saved, isEmpty);
+    expect(lessons.saved, [(viewerLessonId, 2)]);
   });
 
   test('a saved section past the end opens at the last section', () async {
-    final controller = viewerController(FakeViewerLessonRepository(lastSection: 9));
+    final lessons = FakeViewerLessonRepository(lastSection: 9);
+    final controller = viewerController(lessons);
     await controller.load();
     expect(controller.sectionIndex.value, 3);
+    expect(lessons.saved, [(viewerLessonId, 3)]);
+  });
+
+  test('a failed progress save on open leaves the lesson loaded', () async {
+    final lessons = FakeViewerLessonRepository(lastSection: 1, saveFails: true);
+    final controller = viewerController(lessons);
+    await controller.load();
+    await pumpEventQueue();
+    expect(controller.sectionIndex.value, 1);
+    expect(controller.lesson.value, isNotNull);
+    expect(controller.failure.value, isNull);
+    expect(controller.loading.value, isFalse);
   });
 
   test('previous and next stay within bounds and save each change', () async {
@@ -37,6 +50,7 @@ void main() {
     await controller.goToPrevious();
     expect(controller.sectionIndex.value, 2);
     expect(lessons.saved, [
+      (viewerLessonId, 0),
       (viewerLessonId, 1),
       (viewerLessonId, 2),
       (viewerLessonId, 3),
@@ -52,7 +66,7 @@ void main() {
     expect(controller.canGoNext, isFalse);
     await controller.goToNext();
     expect(controller.sectionIndex.value, 0);
-    expect(lessons.saved, isEmpty);
+    expect(lessons.saved, [(viewerLessonId, 0)]);
   });
 
   test('an empty lesson has no current section and ignores navigation', () async {
@@ -63,7 +77,7 @@ void main() {
     expect(controller.sectionIndex.value, 0);
     await controller.goToNext();
     await controller.goToPrevious();
-    expect(lessons.saved, isEmpty);
+    expect(lessons.saved, [(viewerLessonId, 0)]);
   });
 
   test('a failed load exposes the failure and retry clears it', () async {

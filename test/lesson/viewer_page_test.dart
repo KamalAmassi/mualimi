@@ -40,7 +40,7 @@ void main() {
     await tester.tap(find.text(ViewerStrings.previous));
     await tester.pumpAndSettle();
     expect(find.text('Section 3'), findsOneWidget);
-    expect(lessons.saved, [(viewerLessonId, 3), (viewerLessonId, 2)]);
+    expect(lessons.saved, [(viewerLessonId, 2), (viewerLessonId, 3), (viewerLessonId, 2)]);
   });
 
   testWidgets('a single-section lesson disables previous and next', (tester) async {

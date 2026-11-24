@@ -31,12 +31,18 @@ Lesson viewerLesson({int sections = 4, bool tutorEnabled = true, String body = '
     );
 
 class FakeViewerLessonRepository implements LessonRepository {
-  FakeViewerLessonRepository({Lesson? lesson, this.lastSection = 0, this.fails = false})
+  FakeViewerLessonRepository({
+    Lesson? lesson,
+    this.lastSection = 0,
+    this.fails = false,
+    this.saveFails = false,
+  })
       : lesson = lesson ?? viewerLesson();
 
   Lesson lesson;
   int lastSection;
   bool fails;
+  bool saveFails;
   final saved = <(String, int)>[];
   final requested = <String>[];
 
@@ -57,7 +63,10 @@ class FakeViewerLessonRepository implements LessonRepository {
   Future<int> getLastSection(String lessonId) async => lastSection;
 
   @override
-  Future<void> saveProgress(String lessonId, int section) async => saved.add((lessonId, section));
+  Future<void> saveProgress(String lessonId, int section) async {
+    if (saveFails) throw StateError('user.db is read-only');
+    saved.add((lessonId, section));
+  }
 }
 
 class FakeReadingPreferences implements ReadingPreferencesRepository {

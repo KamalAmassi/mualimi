@@ -76,6 +76,7 @@ class ViewerController extends GetxController {
     await lessonResult.fold((f) async => failure.value = f, (l) async {
       final saved = await _getLastSection(l.id);
       sectionIndex.value = l.sections.isEmpty ? 0 : saved.clamp(0, l.sections.length - 1);
+      _saveProgress(l.id, sectionIndex.value).ignore();
       lesson.value = l;
       tutorEnabled.value = await _isTutorEnabled(l);
     });

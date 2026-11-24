@@ -27,6 +27,37 @@ void main() {
     expect(controller.loading.value, isFalse);
   });
 
+  test('opening the lesson records it once with its saved section', () async {
+    final lessons = FakeHubLessonRepository(lastSection: 2);
+    await lessonController(lessons).load();
+    await pumpEventQueue();
+    expect(lessons.saved, [(hubLessonId, 2)]);
+  });
+
+  test('opening a lesson with no progress records section 0', () async {
+    final lessons = FakeHubLessonRepository();
+    await lessonController(lessons).load();
+    await pumpEventQueue();
+    expect(lessons.saved, [(hubLessonId, 0)]);
+  });
+
+  test('a failed lesson load records nothing', () async {
+    final lessons = FakeHubLessonRepository(fails: true);
+    await lessonController(lessons).load();
+    await pumpEventQueue();
+    expect(lessons.saved, isEmpty);
+  });
+
+  test('a failed progress save leaves the lesson loaded', () async {
+    final controller = lessonController(FakeHubLessonRepository(saveFails: true));
+    await controller.load();
+    await pumpEventQueue();
+    expect(controller.lesson.value, hubLesson());
+    expect(controller.keyTerms, hubTerms(5));
+    expect(controller.failure.value, isNull);
+    expect(controller.loading.value, isFalse);
+  });
+
   test('a key terms failure leaves the lesson usable with no terms', () async {
     final controller = lessonController(FakeHubLessonRepository()..termsFail = true);
     await controller.load();
