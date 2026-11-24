@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import '../../../../core/constants/app_colors.dart';
 import '../../domain/entities/lesson_section.dart';
+import '../controllers/section_body_controller.dart';
+import 'section_body_view.dart';
 import 'viewer_dimens.dart';
 
-/// One lesson section: its title and body, rendered as plain text.
+/// One lesson section: its title and its Markdown body.
 ///
 /// [fontScale] enlarges the base sizes only; the device text scale is still
 /// applied on top by the ambient [TextScaler].
@@ -17,6 +20,7 @@ class ViewerSectionArticle extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final c = context.colors;
+    final body = Get.find<SectionBodyController>();
     return ColoredBox(
       color: c.surface,
       child: SingleChildScrollView(
@@ -31,13 +35,10 @@ class ViewerSectionArticle extends StatelessWidget {
             ),
           ),
           const SizedBox(height: ViewerDimens.articleGap),
-          Text(
-            section.body,
-            style: TextStyle(
-              fontSize: ViewerDimens.bodySize * fontScale,
-              height: ViewerDimens.bodyLineHeight,
-              color: c.textPrimary,
-            ),
+          SectionBodyView(
+            blocks: body.blocksOf(section.body),
+            fontScale: fontScale,
+            imagePathOf: body.imagePathOf,
           ),
         ]),
       ),

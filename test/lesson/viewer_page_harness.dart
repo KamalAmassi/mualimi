@@ -10,6 +10,7 @@ import 'package:mualimi/features/lesson/domain/repositories/reading_preferences_
 import 'package:mualimi/features/lesson/presentation/controllers/viewer_controller.dart';
 import 'package:mualimi/features/lesson/presentation/pages/viewer_page.dart';
 
+import 'section_body_fakes.dart';
 import 'viewer_fakes.dart';
 
 const _designSize = Size(390, 844);
@@ -27,6 +28,7 @@ Future<ViewerController> pumpViewer(
   ThemeData? theme,
   double deviceTextScale = 1,
 }) async {
+  Get.put(sectionBodyController());
   final controller = Get.put(viewerController(
     lessons,
     preferences: preferences,
