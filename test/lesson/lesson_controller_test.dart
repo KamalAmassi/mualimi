@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:get/get.dart';
 import 'package:mualimi/features/lesson/presentation/widgets/lesson_hub_strings.dart';
 
 import 'lesson_hub_fakes.dart';
@@ -23,6 +24,37 @@ void main() {
     await controller.load();
     expect(controller.lesson.value, isNull);
     expect(controller.failure.value, isNotNull);
+    expect(controller.loading.value, isFalse);
+  });
+
+  test('opening the lesson records it once with its saved section', () async {
+    final lessons = FakeHubLessonRepository(lastSection: 2);
+    await lessonController(lessons).load();
+    await pumpEventQueue();
+    expect(lessons.saved, [(hubLessonId, 2)]);
+  });
+
+  test('opening a lesson with no progress records section 0', () async {
+    final lessons = FakeHubLessonRepository();
+    await lessonController(lessons).load();
+    await pumpEventQueue();
+    expect(lessons.saved, [(hubLessonId, 0)]);
+  });
+
+  test('a failed lesson load records nothing', () async {
+    final lessons = FakeHubLessonRepository(fails: true);
+    await lessonController(lessons).load();
+    await pumpEventQueue();
+    expect(lessons.saved, isEmpty);
+  });
+
+  test('a failed progress save leaves the lesson loaded', () async {
+    final controller = lessonController(FakeHubLessonRepository(saveFails: true));
+    await controller.load();
+    await pumpEventQueue();
+    expect(controller.lesson.value, hubLesson());
+    expect(controller.keyTerms, hubTerms(5));
+    expect(controller.failure.value, isNull);
     expect(controller.loading.value, isFalse);
   });
 
@@ -77,4 +109,27 @@ void main() {
       expect(controller.tutorEnabled.value, expected);
     });
   }
+
+  test('the lesson id survives another page replacing the route parameters', () async {
+    addTearDown(() => Get.parameters = {});
+    Get.parameters = {'id': hubLessonId};
+    final controller = lessonController(FakeHubLessonRepository());
+    await controller.load();
+    Get.parameters = {'lessonId': hubLessonId, 'tab': 'explanation'};
+    expect(controller.lessonId, hubLessonId);
+  });
+
+  test('has content with a PDF, sections or key terms, and none without all three', () async {
+    for (final (lessons, expected) in [
+      (FakeHubLessonRepository(lesson: hubLesson(sections: 0), terms: const []), true),
+      (FakeHubLessonRepository(lesson: hubLesson(pdfFile: null), terms: const []), true),
+      (FakeHubLessonRepository(lesson: hubLesson(pdfFile: null, sections: 0)), true),
+      (FakeHubLessonRepository(lesson: hubLesson(pdfFile: '', sections: 0), terms: const []),
+          false),
+    ]) {
+      final controller = lessonController(lessons);
+      await controller.load();
+      expect(controller.hasContent, expected);
+    }
+  });
 }

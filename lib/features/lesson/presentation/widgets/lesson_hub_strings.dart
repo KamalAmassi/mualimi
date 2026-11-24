@@ -4,6 +4,7 @@ import 'key_terms_strings.dart';
 /// Lesson hub copy, taken from design/screens/light/Lesson.html and the
 /// tutor-unavailable card of LessonMath.html. [askTutorSubtitle] drops the
 /// design's offline claim, and [tutorUnavailableTitle] drops its subject.
+/// [emptyTitle] is agreed copy: the design has no empty state.
 abstract final class LessonHubStrings {
   static const back = 'رجوع';
   static const separator = ' · ';
@@ -19,6 +20,7 @@ abstract final class LessonHubStrings {
   static const tutorUnavailableTitle = AppStrings.smartTutor;
   static const tutorUnavailableBody = 'غير متاح بعد · استخدم الشرح والحلول';
   static const comingSoon = AppStrings.comingSoon;
+  static const emptyTitle = 'محتوى هذا الدرس غير متوفر بعد';
 
   static const _pageRangeDash = '–';
 

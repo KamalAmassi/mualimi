@@ -68,4 +68,16 @@ void main() {
   test('join skips missing and empty parts', () {
     expect(LessonHubStrings.join(['a', null, '', 'b']), 'a${LessonHubStrings.separator}b');
   });
+
+  test('the empty-lesson title is the agreed copy, code point for code point', () {
+    // محتوى هذا الدرس غير متوفر بعد
+    expect(LessonHubStrings.emptyTitle.runes.toList(), const [
+      0x0645, 0x062D, 0x062A, 0x0648, 0x0649, 0x0020,
+      0x0647, 0x0630, 0x0627, 0x0020,
+      0x0627, 0x0644, 0x062F, 0x0631, 0x0633, 0x0020,
+      0x063A, 0x064A, 0x0631, 0x0020,
+      0x0645, 0x062A, 0x0648, 0x0641, 0x0631, 0x0020,
+      0x0628, 0x0639, 0x062F,
+    ]);
+  });
 }

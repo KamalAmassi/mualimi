@@ -45,7 +45,9 @@ class ViewerController extends GetxController {
   final tutorEnabled = false.obs;
   final fontScale = 1.0.obs;
 
-  String get lessonId => Get.parameters['lessonId'] ?? '';
+  /// Read once, on first use while this page is on top: `Get.parameters`
+  /// follows the newest route and is not restored on back.
+  late final String lessonId = Get.parameters['lessonId'] ?? '';
 
   List<LessonSection> get sections => lesson.value?.sections ?? const [];
   LessonSection? get currentSection => sections.isEmpty ? null : sections[sectionIndex.value];
@@ -74,6 +76,7 @@ class ViewerController extends GetxController {
     await lessonResult.fold((f) async => failure.value = f, (l) async {
       final saved = await _getLastSection(l.id);
       sectionIndex.value = l.sections.isEmpty ? 0 : saved.clamp(0, l.sections.length - 1);
+      _saveProgress(l.id, sectionIndex.value).ignore();
       lesson.value = l;
       tutorEnabled.value = await _isTutorEnabled(l);
     });

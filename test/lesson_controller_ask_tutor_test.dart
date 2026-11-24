@@ -6,8 +6,10 @@ import 'package:mualimi/features/curriculum_tutor/presentation/routes/tutor_args
 import 'package:mualimi/features/lesson/domain/entities/lesson.dart';
 import 'package:mualimi/features/lesson/domain/repositories/lesson_repository.dart';
 import 'package:mualimi/features/lesson/domain/usecases/get_key_terms_usecase.dart';
+import 'package:mualimi/features/lesson/domain/usecases/get_last_section_usecase.dart';
 import 'package:mualimi/features/lesson/domain/usecases/get_lesson_usecase.dart';
 import 'package:mualimi/features/lesson/domain/usecases/is_lesson_tutor_enabled_usecase.dart';
+import 'package:mualimi/features/lesson/domain/usecases/save_lesson_progress_usecase.dart';
 import 'package:mualimi/features/lesson/presentation/controllers/lesson_controller.dart';
 
 import 'lesson/viewer_fakes.dart';
@@ -31,6 +33,8 @@ LessonController _controller() {
     GetLessonUseCase(repository),
     GetKeyTermsUseCase(repository),
     IsLessonTutorEnabledUseCase(FakeSubjectTutorRepository()),
+    GetLastSectionUseCase(repository),
+    SaveLessonProgressUseCase(repository),
   );
 }
 

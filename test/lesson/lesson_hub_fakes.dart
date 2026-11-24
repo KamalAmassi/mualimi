@@ -6,8 +6,10 @@ import 'package:mualimi/features/lesson/domain/entities/lesson.dart';
 import 'package:mualimi/features/lesson/domain/entities/lesson_section.dart';
 import 'package:mualimi/features/lesson/domain/repositories/lesson_repository.dart';
 import 'package:mualimi/features/lesson/domain/usecases/get_key_terms_usecase.dart';
+import 'package:mualimi/features/lesson/domain/usecases/get_last_section_usecase.dart';
 import 'package:mualimi/features/lesson/domain/usecases/get_lesson_usecase.dart';
 import 'package:mualimi/features/lesson/domain/usecases/is_lesson_tutor_enabled_usecase.dart';
+import 'package:mualimi/features/lesson/domain/usecases/save_lesson_progress_usecase.dart';
 import 'package:mualimi/features/lesson/presentation/controllers/lesson_controller.dart';
 
 import 'viewer_fakes.dart';
@@ -44,7 +46,13 @@ List<KeyTerm> hubTerms(int count) => [
     ];
 
 class FakeHubLessonRepository implements LessonRepository {
-  FakeHubLessonRepository({Lesson? lesson, List<KeyTerm>? terms, this.fails = false})
+  FakeHubLessonRepository({
+    Lesson? lesson,
+    List<KeyTerm>? terms,
+    this.fails = false,
+    this.lastSection = 0,
+    this.saveFails = false,
+  })
       : lesson = lesson ?? hubLesson(),
         terms = terms ?? hubTerms(5);
 
@@ -52,7 +60,10 @@ class FakeHubLessonRepository implements LessonRepository {
   List<KeyTerm> terms;
   bool fails;
   bool termsFail = false;
+  int lastSection;
+  bool saveFails;
   final requestedTerms = <String>[];
+  final saved = <(String, int)>[];
 
   @override
   Future<Either<Failure, Lesson>> getLesson(String id) async =>
@@ -69,10 +80,13 @@ class FakeHubLessonRepository implements LessonRepository {
       const Right([]);
 
   @override
-  Future<int> getLastSection(String lessonId) async => 0;
+  Future<int> getLastSection(String lessonId) async => lastSection;
 
   @override
-  Future<void> saveProgress(String lessonId, int section) async {}
+  Future<void> saveProgress(String lessonId, int section) async {
+    if (saveFails) throw StateError('user.db is read-only');
+    saved.add((lessonId, section));
+  }
 }
 
 LessonController lessonController(
@@ -83,4 +97,6 @@ LessonController lessonController(
       GetLessonUseCase(lessons),
       GetKeyTermsUseCase(lessons),
       IsLessonTutorEnabledUseCase(FakeSubjectTutorRepository(enabled: subjectTutorEnabled)),
+      GetLastSectionUseCase(lessons),
+      SaveLessonProgressUseCase(lessons),
     );

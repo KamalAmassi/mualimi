@@ -20,7 +20,9 @@ class KeyTermsController extends GetxController {
   final showingDefinition = false.obs;
   final scrollController = ScrollController();
 
-  String get lessonId => Get.parameters['lessonId'] ?? '';
+  /// Read once, on first use while this page is on top: `Get.parameters`
+  /// follows the newest route and is not restored on back.
+  late final String lessonId = Get.parameters['lessonId'] ?? '';
 
   KeyTerm get current => terms[index.value];
   bool get hasPrevious => index.value > 0;
