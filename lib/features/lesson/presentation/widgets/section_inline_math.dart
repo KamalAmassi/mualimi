@@ -17,6 +17,11 @@ class SectionInlineMath extends StatelessWidget {
   final TextStyle style;
   final bool display;
 
+  // flutter_math_fork expands U+00B7 to \cdotp, which is undefined inside
+  // \text{}; U+22C5 is the glyph \cdotp draws and parses in both modes.
+  static const _middleDot = '\u00B7';
+  static const _dotOperator = '\u22C5';
+
   @override
   Widget build(BuildContext context) {
     return Directionality(
@@ -24,7 +29,7 @@ class SectionInlineMath extends StatelessWidget {
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Math.tex(
-          tex,
+          tex.replaceAll(_middleDot, _dotOperator),
           mathStyle: display ? MathStyle.display : MathStyle.text,
           textStyle: style,
           onErrorFallback: (_) => Text(

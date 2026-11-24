@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_math_fork/flutter_math.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mualimi/core/constants/app_colors.dart';
+import 'package:mualimi/core/db/content/seed/dev_seed_lesson_bodies.dart';
 import 'package:mualimi/core/theme/app_theme.dart';
 import 'package:mualimi/features/lesson/domain/entities/callout_kind.dart';
 import 'package:mualimi/features/lesson/domain/section_body/section_body_parser.dart';
@@ -96,6 +97,15 @@ void main() {
       expect((box.decoration as BoxDecoration).color, container);
     });
   }
+
+  testWidgets(r'a middle dot inside \text{} renders as math, not as its source', (tester) async {
+    const formula = r'k \approx 9 \times 10^{9}\ \text{N' '\u00B7' r'm}^2/\text{C}^2';
+    expect(forceSections[0].$2, contains('\$$formula\$'));
+    await _pump(tester, 'where \$$formula\$ is the constant');
+    final math = tester.widget<Math>(find.byType(Math));
+    expect(math.parseError, isNull);
+    expect(find.text(formula), findsNothing);
+  });
 
   testWidgets('a formula that does not parse shows its source', (tester) async {
     await _pump(tester, r'$$\frac{1$$');
