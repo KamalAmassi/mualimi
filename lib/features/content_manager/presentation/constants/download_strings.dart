@@ -93,4 +93,25 @@ abstract final class DownloadStrings {
 
   /// Note under the banner. From the splash tagline; replaces the design's later-download note.
   static const String worksOffline = 'تعمل بدون إنترنت';
+
+  /// Hero subtitle of a paused download, before the saved percent.
+  static const String pausedLabel = 'متوقف مؤقتاً';
+
+  /// Words before the saved percent in the paused hero subtitle.
+  static const String savedUpTo = 'محفوظ حتى';
+
+  /// Banner title when the connection was lost.
+  static const String connectionLostTitle = 'انقطع الاتصال بالإنترنت';
+
+  /// Banner body when the connection was lost: it resumes on its own.
+  static const String connectionLostBody = 'لا تقلق، ما نزل محفوظ. سيُستأنف التنزيل تلقائياً عند عودة الاتصال من نفس النقطة.';
+
+  /// First sentence of [connectionLostBody]: what arrived is kept.
+  static const String pausedSavedNote = 'لا تقلق، ما نزل محفوظ.';
+
+  /// Content step subtitle while waiting for the network.
+  static const String waitingForConnection = 'بانتظار الاتصال…';
+
+  /// Paused-screen button that resumes the download.
+  static const String resumeNow = 'استئناف الآن';
 }

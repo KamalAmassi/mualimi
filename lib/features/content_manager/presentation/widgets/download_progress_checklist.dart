@@ -9,10 +9,13 @@ import 'download_step_state.dart';
 /// integrity check, install. A done step shows its result where the design
 /// has one; otherwise each step explains what it does.
 class DownloadProgressChecklist extends StatelessWidget {
-  const DownloadProgressChecklist({super.key, required this.states})
+  const DownloadProgressChecklist({super.key, required this.states, this.contentHint})
       : assert(states.length == 4, 'one state per step');
 
   final List<DownloadStepState> states;
+
+  /// Replaces the content step subtitle while that step is not done.
+  final String? contentHint;
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +30,7 @@ class DownloadProgressChecklist extends StatelessWidget {
         DownloadStepRow(
           state: content,
           title: DownloadStrings.contentStep,
-          subtitle: content == DownloadStepState.done ? DownloadStrings.contentDone : DownloadStrings.contentStepHint,
+          subtitle: content == DownloadStepState.done ? DownloadStrings.contentDone : contentHint ?? DownloadStrings.contentStepHint,
         ),
         DownloadStepRow(
           state: integrity,

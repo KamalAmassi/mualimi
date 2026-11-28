@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mualimi/core/utils/byte_formatter.dart';
 import 'package:mualimi/features/content_manager/domain/entities/pack_info.dart';
@@ -50,6 +52,18 @@ void main() {
       final text = DownloadPackLine.details(_pack(version: 12, subjects: 10));
       expect(RegExp('[\u0660-\u0669]').hasMatch(text), isFalse);
       expect(text, startsWith('10 '));
+    });
+  });
+
+  group('pausedDetails', () {
+    test('matches the paused design line', () {
+      final html = File('design/screens/light/DownloadPaused.html').readAsStringSync();
+      final line = RegExp(r'font-size: 13px; color: #ECE8FF">([^<]+)</div>').firstMatch(html)!.group(1)!;
+      expect(DownloadPackLine.pausedDetails(62), line);
+    });
+
+    test('uses Western digits', () {
+      expect(DownloadPackLine.pausedDetails(7), endsWith(' 7${DownloadStrings.percentSign}'));
     });
   });
 

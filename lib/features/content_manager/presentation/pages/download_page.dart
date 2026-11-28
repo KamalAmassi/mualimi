@@ -21,6 +21,7 @@ class DownloadPage extends GetView<PackDownloadController> {
       final c = controller;
       switch (c.ui.value) {
         case DownloadUiState.paused:
+        case DownloadUiState.waitingForWifi:
           return DownloadPausedPage(controller: c);
         case DownloadUiState.noSpace:
           return DownloadNoSpacePage(controller: c);
@@ -31,11 +32,6 @@ class DownloadPage extends GetView<PackDownloadController> {
             PlaceholderAction(AppStrings.waitForWifi, c.waitForWifi),
             PlaceholderAction(AppStrings.continueOnMobile, c.continueOnMobile),
           ]);
-        case DownloadUiState.waitingForWifi:
-          return PlaceholderPage(
-            title: AppStrings.waitingForWifi,
-            actions: [PlaceholderAction(AppStrings.cancel, c.cancel)],
-          );
         case DownloadUiState.downloading:
         case DownloadUiState.verifying:
         case DownloadUiState.assembling:

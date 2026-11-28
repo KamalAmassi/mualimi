@@ -100,6 +100,40 @@ void main() {
     test('check again button', () => expect(DownloadStrings.checkAgain, only(r'</svg>([^<]+)</button>')));
   });
 
+  group('Paused strings match the design HTML', () {
+    final paused = _html('DownloadPaused');
+    String only(String pattern) {
+      final matches = RegExp(pattern).allMatches(paused).toList();
+      expect(matches, hasLength(1), reason: pattern);
+      return matches.single.group(1)!;
+    }
+
+    test('hero subtitle words', () {
+      final line = only(r'font-size: 13px; color: #ECE8FF">([^<]+)</div>');
+      final [label, saved] = line.split(DownloadStrings.packLineSeparator);
+      expect(label, DownloadStrings.pausedLabel);
+      expect(saved, '${DownloadStrings.savedUpTo} 62${DownloadStrings.percentSign}');
+    });
+
+    test('banner title and body', () {
+      expect(DownloadStrings.connectionLostTitle, only(r'font-weight: 700; color: #5E3B00">([^<]+)</div>'));
+      expect(DownloadStrings.connectionLostBody, only(r'margin-top: 2px">([^<]+)</div>'));
+    });
+
+    test('saved note is the first sentence of the banner body', () {
+      expect(DownloadStrings.connectionLostBody, startsWith('${DownloadStrings.pausedSavedNote} '));
+      expect(DownloadStrings.pausedSavedNote.endsWith('.'), isTrue);
+      expect(DownloadStrings.pausedSavedNote.indexOf('.'), DownloadStrings.pausedSavedNote.length - 1);
+    });
+
+    test('content step subtitle', () {
+      expect(paused.contains('${DownloadStrings.contentStep}</div><div style="font-size: 12px; color: #605B7D">'
+          '${DownloadStrings.waitingForConnection}</div>'), isTrue);
+    });
+
+    test('resume button', () => expect(DownloadStrings.resumeNow, only(r'</svg>([^<]+)</button>')));
+  });
+
   group('Failed strings match the design HTML', () {
     final failed = _html('DownloadFailed');
     String only(String pattern) {

@@ -15,6 +15,11 @@ abstract final class DownloadPackLine {
         ByteFormatter.format(pack.size),
       ].join(DownloadStrings.packLineSeparator);
 
+  /// Hero subtitle of a paused download, e.g. «متوقف مؤقتاً · محفوظ حتى 62٪».
+  static String pausedDetails(int percent) =>
+      '${DownloadStrings.pausedLabel}${DownloadStrings.packLineSeparator}'
+      '${DownloadStrings.savedUpTo} $percent${DownloadStrings.percentSign}';
+
   /// Whole percent of [done] out of [total], rounded down so 100 only shows
   /// once every byte has arrived. Integer math avoids 0.29 * 100 = 28.99….
   static int percentOf(int done, int total) => total <= 0 ? 0 : done.clamp(0, total) * 100 ~/ total;
