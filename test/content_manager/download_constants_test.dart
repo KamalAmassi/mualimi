@@ -29,6 +29,48 @@ void main() {
     });
   });
 
+  group('Progress strings match the design HTML', () {
+    final rows = RegExp(
+      r'font-size: 15px; font-weight: 600[^"]*">([^<]+)</div><div style="font-size: 12px; color: #[0-9A-F]+">([^<]+)</div>',
+    ).allMatches(download).toList();
+
+    test('pack title prefix is the hero title without the ordinal', () {
+      final title = RegExp(r'font-size: 17px; font-weight: 700">([^<]+)<').firstMatch(download)!.group(1)!;
+      expect(title, '${DownloadStrings.packTitlePrefix} ${GradeOrdinals.of(9)}');
+    });
+
+    test('pack line words and separator', () {
+      final line = RegExp(r'color: #ECE8FF">([^<]*·[^<]*)</div>').firstMatch(download)!.group(1)!;
+      final parts = line.split(DownloadStrings.packLineSeparator);
+      expect(parts, hasLength(3));
+      expect(parts[0].split(' ').last, DownloadStrings.subjectsWord);
+      expect(parts[1].split(' ').first, DownloadStrings.versionWord);
+    });
+
+    test('hero side text', () {
+      expect(download.contains('color: #ECE8FF">${DownloadStrings.onceOnly}</div>'), isTrue);
+    });
+
+    test('checklist rows', () {
+      expect([for (final r in rows) (r.group(1), r.group(2))], [
+        (DownloadStrings.spaceCheckStep, DownloadStrings.spaceCheckDone),
+        (DownloadStrings.contentStep, DownloadStrings.contentStepHint),
+        (DownloadStrings.integrityStep, DownloadStrings.integrityStepHint),
+        (DownloadStrings.installStep, DownloadStrings.installStepHint),
+      ]);
+    });
+
+    test('resume banner', () {
+      expect(download.contains('<b>${DownloadStrings.resumeTipLead}</b> ${DownloadStrings.resumeTipBody}</div>'), isTrue);
+    });
+
+    test('offline note is the second half of the splash tagline', () {
+      final splash = File('lib/features/onboarding/presentation/widgets/splash_strings.dart').readAsStringSync();
+      final tagline = RegExp("tagline = '([^']+)'").firstMatch(splash)!.group(1)!;
+      expect(tagline.split(DownloadStrings.packLineSeparator).last, DownloadStrings.worksOffline);
+    });
+  });
+
   group('NoSpace strings match the design HTML', () {
     final noSpace = _html('DownloadNoSpace');
     String only(String pattern) {
