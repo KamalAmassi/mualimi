@@ -29,6 +29,48 @@ void main() {
     });
   });
 
+  group('Progress strings match the design HTML', () {
+    final rows = RegExp(
+      r'font-size: 15px; font-weight: 600[^"]*">([^<]+)</div><div style="font-size: 12px; color: #[0-9A-F]+">([^<]+)</div>',
+    ).allMatches(download).toList();
+
+    test('pack title prefix is the hero title without the ordinal', () {
+      final title = RegExp(r'font-size: 17px; font-weight: 700">([^<]+)<').firstMatch(download)!.group(1)!;
+      expect(title, '${DownloadStrings.packTitlePrefix} ${GradeOrdinals.of(9)}');
+    });
+
+    test('pack line words and separator', () {
+      final line = RegExp(r'color: #ECE8FF">([^<]*·[^<]*)</div>').firstMatch(download)!.group(1)!;
+      final parts = line.split(DownloadStrings.packLineSeparator);
+      expect(parts, hasLength(3));
+      expect(parts[0].split(' ').last, DownloadStrings.subjectsWord);
+      expect(parts[1].split(' ').first, DownloadStrings.versionWord);
+    });
+
+    test('hero side text', () {
+      expect(download.contains('color: #ECE8FF">${DownloadStrings.onceOnly}</div>'), isTrue);
+    });
+
+    test('checklist rows', () {
+      expect([for (final r in rows) (r.group(1), r.group(2))], [
+        (DownloadStrings.spaceCheckStep, DownloadStrings.spaceCheckDone),
+        (DownloadStrings.contentStep, DownloadStrings.contentStepHint),
+        (DownloadStrings.integrityStep, DownloadStrings.integrityStepHint),
+        (DownloadStrings.installStep, DownloadStrings.installStepHint),
+      ]);
+    });
+
+    test('resume banner', () {
+      expect(download.contains('<b>${DownloadStrings.resumeTipLead}</b> ${DownloadStrings.resumeTipBody}</div>'), isTrue);
+    });
+
+    test('offline note is the second half of the splash tagline', () {
+      final splash = File('lib/features/onboarding/presentation/widgets/splash_strings.dart').readAsStringSync();
+      final tagline = RegExp("tagline = '([^']+)'").firstMatch(splash)!.group(1)!;
+      expect(tagline.split(DownloadStrings.packLineSeparator).last, DownloadStrings.worksOffline);
+    });
+  });
+
   group('NoSpace strings match the design HTML', () {
     final noSpace = _html('DownloadNoSpace');
     String only(String pattern) {
@@ -56,6 +98,40 @@ void main() {
     });
 
     test('check again button', () => expect(DownloadStrings.checkAgain, only(r'</svg>([^<]+)</button>')));
+  });
+
+  group('Paused strings match the design HTML', () {
+    final paused = _html('DownloadPaused');
+    String only(String pattern) {
+      final matches = RegExp(pattern).allMatches(paused).toList();
+      expect(matches, hasLength(1), reason: pattern);
+      return matches.single.group(1)!;
+    }
+
+    test('hero subtitle words', () {
+      final line = only(r'font-size: 13px; color: #ECE8FF">([^<]+)</div>');
+      final [label, saved] = line.split(DownloadStrings.packLineSeparator);
+      expect(label, DownloadStrings.pausedLabel);
+      expect(saved, '${DownloadStrings.savedUpTo} 62${DownloadStrings.percentSign}');
+    });
+
+    test('banner title and body', () {
+      expect(DownloadStrings.connectionLostTitle, only(r'font-weight: 700; color: #5E3B00">([^<]+)</div>'));
+      expect(DownloadStrings.connectionLostBody, only(r'margin-top: 2px">([^<]+)</div>'));
+    });
+
+    test('saved note is the first sentence of the banner body', () {
+      expect(DownloadStrings.connectionLostBody, startsWith('${DownloadStrings.pausedSavedNote} '));
+      expect(DownloadStrings.pausedSavedNote.endsWith('.'), isTrue);
+      expect(DownloadStrings.pausedSavedNote.indexOf('.'), DownloadStrings.pausedSavedNote.length - 1);
+    });
+
+    test('content step subtitle', () {
+      expect(paused.contains('${DownloadStrings.contentStep}</div><div style="font-size: 12px; color: #605B7D">'
+          '${DownloadStrings.waitingForConnection}</div>'), isTrue);
+    });
+
+    test('resume button', () => expect(DownloadStrings.resumeNow, only(r'</svg>([^<]+)</button>')));
   });
 
   group('Failed strings match the design HTML', () {

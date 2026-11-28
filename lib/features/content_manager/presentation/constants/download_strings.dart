@@ -57,4 +57,61 @@ abstract final class DownloadStrings {
 
   /// Generic-failure status body. Not in the designs; wording approved by the team.
   static const String failedBody = 'تحقق من اتصالك بالإنترنت ثم حاول مرة أخرى. سيكمل التنزيل من حيث توقف.';
+
+  /// Hero title before the grade ordinal (e.g. "... التاسع").
+  static const String packTitlePrefix = 'رزمة الصف';
+
+  /// Separator between the parts of the hero pack line.
+  static const String packLineSeparator = ' · ';
+
+  /// Word after the subject count in the hero pack line.
+  static const String subjectsWord = 'مواد';
+
+  /// Word before the version number in the hero pack line.
+  static const String versionWord = 'الإصدار';
+
+  /// Hero side text: the pack downloads once.
+  static const String onceOnly = 'مرة واحدة فقط';
+
+  /// Content step subtitle while it is not done.
+  static const String contentStepHint = 'الدروس والشرح والأسئلة والحلول';
+
+  /// Integrity step subtitle while it is not done.
+  static const String integrityStepHint = 'للتأكد أن الرزمة سليمة';
+
+  /// Checklist step: unpacking the pack on the device.
+  static const String installStep = 'تجهيز الدروس';
+
+  /// Install step subtitle.
+  static const String installStepHint = 'فك الرزمة على جهازك';
+
+  /// Bold lead of the resume reassurance banner.
+  static const String resumeTipLead = 'انقطع الإنترنت؟ لا مشكلة.';
+
+  /// Body of the resume reassurance banner.
+  static const String resumeTipBody = 'التنزيل يكمل من نفس النقطة عند عودة الاتصال.';
+
+  /// Note under the banner. From the splash tagline; replaces the design's later-download note.
+  static const String worksOffline = 'تعمل بدون إنترنت';
+
+  /// Hero subtitle of a paused download, before the saved percent.
+  static const String pausedLabel = 'متوقف مؤقتاً';
+
+  /// Words before the saved percent in the paused hero subtitle.
+  static const String savedUpTo = 'محفوظ حتى';
+
+  /// Banner title when the connection was lost.
+  static const String connectionLostTitle = 'انقطع الاتصال بالإنترنت';
+
+  /// Banner body when the connection was lost: it resumes on its own.
+  static const String connectionLostBody = 'لا تقلق، ما نزل محفوظ. سيُستأنف التنزيل تلقائياً عند عودة الاتصال من نفس النقطة.';
+
+  /// First sentence of [connectionLostBody]: what arrived is kept.
+  static const String pausedSavedNote = 'لا تقلق، ما نزل محفوظ.';
+
+  /// Content step subtitle while waiting for the network.
+  static const String waitingForConnection = 'بانتظار الاتصال…';
+
+  /// Paused-screen button that resumes the download.
+  static const String resumeNow = 'استئناف الآن';
 }
