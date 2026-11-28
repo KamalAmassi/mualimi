@@ -41,9 +41,11 @@ class PackRecovery {
     if (journal == null) {
       await _restoreOrDropBackup(_host.contentDbFile, _files.dbBackup);
       await _restoreOrDropBackup(_host.pdfDir, _files.pdfBackup);
+      await _restoreOrDropBackup(_files.images, _files.imagesBackup);
     } else if (await _isCommitted(journal)) {
       await _deleteIfExists(_files.dbBackup);
       await _deleteIfExists(_files.pdfBackup);
+      await _deleteIfExists(_files.imagesBackup);
     } else {
       await _rollBack(journal);
     }
@@ -57,11 +59,21 @@ class PackRecovery {
     if (!await _host.contentDbFile.exists() || await _files.stagedDb.exists()) {
       return false;
     }
-    if (!journal.swapsPdf) return true;
-    return await _host.pdfDir.exists() && !await _files.stagedPdf.exists();
+    if (journal.swapsPdf &&
+        !await _isPlaced(_host.pdfDir, _files.stagedPdf)) {
+      return false;
+    }
+    return !journal.swapsImages ||
+        await _isPlaced(_files.images, _files.stagedImages);
   }
 
+  Future<bool> _isPlaced(Directory target, Directory staged) async =>
+      await target.exists() && !await staged.exists();
+
   Future<void> _rollBack(PackInstallJournal journal) async {
+    if (journal.swapsImages) {
+      await _restore(_files.images, _files.imagesBackup);
+    }
     if (journal.swapsPdf) await _restore(_host.pdfDir, _files.pdfBackup);
     await _restore(_host.contentDbFile, _files.dbBackup);
     if (_host.installedVersion != journal.from) {

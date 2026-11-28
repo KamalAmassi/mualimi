@@ -24,7 +24,8 @@ void main() {
         schemaVersion: '${ContentDatabase.packSchemaVersion}', marker: 'new-db');
     final archive = Archive()
       ..addFile(ArchiveFile.bytes('content.db', db.readAsBytesSync()))
-      ..addFile(ArchiveFile.string('pdf/new.pdf', 'new'));
+      ..addFile(ArchiveFile.string('pdf/new.pdf', 'new'))
+      ..addFile(ArchiveFile.string('images/new.webp', 'new'));
     db.deleteSync();
     return File(p.join(root.path, 'pack.zip'))
       ..writeAsBytesSync(ZipEncoder().encode(archive));
@@ -60,6 +61,8 @@ void main() {
     expect(host.dbMarker(), isNew ? 'new-db' : 'old-db');
     expect(host.exists('pdf/new.pdf'), isNew);
     expect(host.exists('pdf/old.pdf'), !isNew);
+    expect(host.exists('images/new.webp'), isNew);
+    expect(host.exists('images/old.webp'), !isNew);
     expect(host.version, isNew ? 2 : 1);
     expect(host.leftovers(), isEmpty);
   }
@@ -69,6 +72,7 @@ void main() {
     host = TempPackInstallHost(root, version: 1);
     host.writeDb('content.db', 'old-db');
     host.writePdf('pdf', 'old.pdf');
+    host.writeImage('images', 'old.webp');
     zip = writeZip();
   });
 
@@ -85,6 +89,8 @@ void main() {
     2: 'before the new content.db is placed',
     3: 'before pdf/ is backed up',
     4: 'before the new pdf/ is placed',
+    5: 'before images/ is backed up',
+    6: 'before the new images/ is placed',
   };
   renameSteps.forEach((step, label) {
     test('killed $label: old pack and version come back', () async {
@@ -113,16 +119,18 @@ void main() {
     expectPack(isNew: true);
   });
 
-  test('a rolled back install leaves no journal', () async {
-    var failed = false;
-    final installer = PackInstaller.withHost(host, rename: (e, newPath) async {
-      if (!failed && e.path.endsWith(p.join('staging', 'pdf'))) {
-        failed = true;
-        throw const FileSystemException('simulated rename failure');
-      }
-      return e.rename(newPath);
+  for (final staged in ['pdf', 'images']) {
+    test('a rolled back install at staging/$staged leaves no journal', () async {
+      var failed = false;
+      final installer = PackInstaller.withHost(host, rename: (e, newPath) async {
+        if (!failed && e.path.endsWith(p.join('staging', staged))) {
+          failed = true;
+          throw const FileSystemException('simulated rename failure');
+        }
+        return e.rename(newPath);
+      });
+      await expectLater(installer.install(zip, 2), throwsA(isA<FileSystemException>()));
+      expectPack(isNew: false);
     });
-    await expectLater(installer.install(zip, 2), throwsA(isA<FileSystemException>()));
-    expectPack(isNew: false);
-  });
+  }
 }

@@ -62,15 +62,27 @@ class TempPackInstallHost implements PackInstallHost {
   void writePdf(String dirRel, String name) =>
       File(p.join(path(dirRel), name)).createSync(recursive: true);
 
-  Future<void> writeJournal({int? from, required int to, bool swapsPdf = true}) =>
-      PackInstallJournal(from: from, to: to, swapsPdf: swapsPdf)
-          .writeTo(files.journal, files.journalTemp);
+  void writeImage(String dirRel, String name) => writePdf(dirRel, name);
+
+  Future<void> writeJournal({
+    int? from,
+    required int to,
+    bool swapsPdf = true,
+    bool swapsImages = false,
+  }) =>
+      PackInstallJournal(
+        from: from,
+        to: to,
+        swapsPdf: swapsPdf,
+        swapsImages: swapsImages,
+      ).writeTo(files.journal, files.journalTemp);
 
   /// Leftovers no finished install or recovery may leave behind.
   List<String> leftovers() => [
         'staging',
         'content.db.bak',
         'pdf.bak',
+        'images.bak',
         'install_journal.json',
         'install_journal.json.tmp',
       ].where(exists).toList();
