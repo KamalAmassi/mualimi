@@ -110,4 +110,10 @@ abstract final class DownloadDimens {
   static const double compareRowFontSize = 14;
   static const double compareBarHeight = 10;
   static const double compareBarRadius = 5;
+
+  // Info note (download progress).
+  static const double noteGap = 8;
+  static const double noteIconSize = 16;
+  static const double noteFontSize = 12.5;
+  static const double noteLineHeight = 1.6;
 }
