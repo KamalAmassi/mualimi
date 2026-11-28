@@ -1,5 +1,8 @@
 import 'package:get/get.dart';
 
+import '../../../content_manager/domain/repositories/installed_content_repository.dart';
+import '../../../content_manager/presentation/bindings/content_manager_binding.dart';
+import '../../domain/repositories/onboarding_repository.dart';
 import '../../domain/usecases/get_start_route_usecase.dart';
 import '../controllers/splash_controller.dart';
 import 'onboarding_binding.dart';
@@ -10,7 +13,10 @@ import 'onboarding_binding.dart';
 class SplashBinding extends Bindings {
   @override
   void dependencies() {
+    ContentManagerBinding().dependencies();
     OnboardingBinding().dependencies();
-    Get.put(SplashController(Get.find<GetStartRouteUseCase>()));
+    final startRoute = GetStartRouteUseCase(
+        Get.find<OnboardingRepository>(), Get.find<InstalledContentRepository>());
+    Get.put(SplashController(startRoute));
   }
 }
