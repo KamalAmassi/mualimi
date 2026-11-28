@@ -22,7 +22,7 @@ class _FakeOnboardingRepository implements OnboardingRepository {
   bool get isOnboardingDone => false;
 
   @override
-  Future<bool> isPackInstalled() async => false;
+  bool get hasGrade => false;
 
   @override
   Future<void> saveStudentName(String name) async => savedName = name;

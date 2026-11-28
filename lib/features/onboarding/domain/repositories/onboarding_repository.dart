@@ -1,6 +1,6 @@
 abstract class OnboardingRepository {
   bool get isOnboardingDone;
-  Future<bool> isPackInstalled();
+  bool get hasGrade;
   Future<void> saveStudentName(String name);
   Future<void> saveGrade(int grade);
 }
